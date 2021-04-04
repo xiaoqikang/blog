@@ -4,11 +4,17 @@
 
 大多数内容翻译自foxlet所写的项目[README.md](https://github.com/lioneie/macOS-Simple-KVM/blob/master/README.md)，当然也有些内容是原创的。
 
-项目[github链接](https://github.com/lioneie/macOS-Simple-KVM)（forked from [foxlet](https://github.com/foxlet/macOS-Simple-KVM/tree/master/docs)）
+项目[github链接](https://github.com/lioneie/macOS-Simple-KVM)（forked from [foxlet](https://github.com/foxlet/macOS-Simple-KVM/tree/master/docs)）。
 
 此项目由[@FoxletFox](https://twitter.com/foxletfox)发起，获得其他许多人的帮助。
 
 macOS和KVM的新手？ 请看[the FAQs.](https://github.com/lioneie/macOS-Simple-KVM/tree/master/docs/FAQs.md)。
+
+## 说明
+
+需要说明的是苹果公司不允许macOS系统在非MAC电脑上安装，所以本文的方法请不要用于商业用途，仅供想折腾的极客参考。
+
+还需要说明的是，我有一台macbook pro，但还是更喜欢用Linux（Fedora），但有极少数的商业软件没有提供Linux版本，又不想用windows系统，所以偶尔使用QEMU/KVM下安装的macOS系统。
 
 ## 准备
 

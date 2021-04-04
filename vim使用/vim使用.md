@@ -1,12 +1,16 @@
-编写本文档的目的是为了查找命令方便，也希望可以给同样喜爱vim的同学一些参考。
+编写本文档的目的是为了查找命令方便，也希望可以给同样喜爱vim的朋友一些参考。
 
 本人使用的系统是Fedora32。
 
 至于vim最基础的知识，可以在shell下输入`vimtutor`命令查看，网上也有很多翻译的文档，请自行搜索。
 
+# 联系方式
+
+大家如果发现写错的地方或有一些想法想交流的，欢迎评论或发送邮件到<u>lioneie＠163.com</u>。
+
 # vim配置
 
-编辑配置文件`vim～/.vimrc`，以下是我所使用的配置 ：
+编辑配置文件 `vim ~/.vimrc` ，以下是我所使用的配置 ：
 
 ```
 set number              "显示行号
@@ -23,7 +27,7 @@ set mouse-=a			"鼠标选择文字不会进入visual模式
 set colorscheme=desert	"支持的color查看/usr/share/vim/vim82/colors/（vim82是vim版本）
 ```
 
-加载其他的.vimrc，在～/.vimrc中加入以下内容：
+加载其他的.vimrc，在~/.vimrc中加入以下内容：
 
 `auto bufread      vim打开时所在的路径      so         .vimrc的路径/.vimrc` 
 
@@ -60,8 +64,6 @@ set colorscheme=desert	"支持的color查看/usr/share/vim/vim82/colors/（vim82
 ```
 *  	向后查找单词
 #	向前查找单词
-/word	向后查找word
-?word	向前查找word
 /\c		不区分大小写向后查找（向前查找用?）
 /\<word\>	匹配头尾向后查找（向前查找用?）
 ```
@@ -144,7 +146,7 @@ ctrl+v	块选择可视范围
 
 将脚本文件[cscope_maps.vim](https://github.com/lioneie/csdn/blob/master/vim%E4%BD%BF%E7%94%A8/cscope_maps.vim)放到`~/.vim/plugin/`路径下，即可使用快捷键（快捷键种类查看 `:cs help`），如`:cs find s word`查找word引用可使用快捷键`ctrl加\加s`（按顺序依次按3个键）。
 
-使用`cscope -Rqbk`（当需要包含`/usr/include`头文件时，不使用`-k`选择）编译代码生成`cscope.out`文件，在`cscope.out`文件所在目录打开`vim`即可加载`cscope.out`文件
+使用`cscope -Rqbk`（当需要包含`/usr/include`头文件时，不使用`-k`选项）编译代码生成`cscope.out`文件，在`cscope.out`文件所在目录打开`vim`即可加载`cscope.out`文件
 
 # leaderf
 

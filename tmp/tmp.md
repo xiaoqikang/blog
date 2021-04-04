@@ -25,5 +25,15 @@ done
 git push origin --mirror
 ```
 
+# fedora33无法ssh到低版本系统（如centos4.8）
 
+在Fedora33系统下`vim ~/.ssh/config` 添加以下内容
 
+```
+Host *
+KexAlgorithms +diffie-hellman-group1-sha1
+```
+
+然后再更改权限：`sudo chmod 600 config`
+
+或者使用命令: `ssh -oHostKeyAlgorithms=+ssh-dss -oKexAlgorithms=+diffie-hellman-group1-sha1  root@192.168.122.40`
