@@ -55,8 +55,6 @@ qemu-img create -f qcow2 MyDisk.qcow2 64G
 4. 在Virt-Manager中`detail->overview->xml`中将`OVMF_*`路径修改成`/usr/share/OVMF/macOS/`下的文件（**要先允许xml编辑**）
 
 ## 第2b步 (Headless Systems)
-If you're using a cloud-based/headless system, you can use `headless.sh` to set up a quick VNC instance. Settings are defined through variables as seen in the following example. VNC will start on port `5900` by default.
-
 如果你使用的是cloud-based/headless system，则可以使用`headless.sh`来设置一个快速的VNC实例。 设置是通过变量定义的，如以下示例所示。 默认情况下，VNC将在端口 `5900` 上启动。
 
 ```
