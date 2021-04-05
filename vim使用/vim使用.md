@@ -104,8 +104,8 @@ ctrl加i	前进跳转
 折叠：
 
 ```
-zc zC zr zR	折叠
-zo zO zm zM	展开
+zc zC zm zM	折叠
+zo zO zr zR	展开
 ```
 
 可视：
