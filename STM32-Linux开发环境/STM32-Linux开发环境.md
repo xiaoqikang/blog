@@ -4,13 +4,13 @@
 
 就以我曾经做过的一个项目为例，同样的代码在同样配置的电脑上，在Windows系统的**Keil下全部编译要8分钟左右**，而在Linux的**gcc下全部编译只需要几秒**，编译时间是几十倍的关系。
 
-以Semtech公司开源的LoRa节点代码为例，说明STM32 的Linux开发环境的搭建和使用，github项目链接为[LoRaMac-node](https://github.com/lioneie/LoRaMac-node)（forked from [Lora-net](https://github.com/Lora-net/LoRaMac-node)）。
+以Semtech公司开源的LoRa节点代码为例，说明STM32 的Linux开发环境的搭建和使用，github项目链接为[LoRaMac-node](https://github.com/Lora-net/LoRaMac-node)。
 
 开发环境以**`Ubuntu18.04`**为例，以默认的NucleoL073板子（STM32L073）进行演示。
 
 # 软件安装
 
-参考文件[development-environment.md](https://github.com/lioneie/LoRaMac-node/blob/master/doc/development-environment.md)。
+参考文件[development-environment.md](https://github.com/Lora-net/LoRaMac-node/blob/master/doc/development-environment.md)。
 
 先安装开发必备软件：
 
@@ -32,7 +32,7 @@ sudo apt-get install openocd -y
 
 # 编译代码
 
-参考文件[development-environment.md](https://github.com/lioneie/LoRaMac-node/blob/master/doc/development-environment.md)。
+参考文件[development-environment.md](https://github.com/Lora-net/LoRaMac-node/blob/master/doc/development-environment.md)。
 
 在项目的顶层目录下，创建build文件夹并进入：
 
@@ -49,11 +49,11 @@ cmake -DCMAKE_TOOLCHAIN_FILE="cmake/toolchain-arm-none-eabi.cmake" ..
 
 编译的结果为`src/apps/LoRaMac/LoRaMac-classA*`
 
-STM32L073的cmake文件为[cmake/stm32l0.cmake](https://github.com/lioneie/LoRaMac-node/blob/master/cmake/stm32l0.cmake)，编译工具链的cmake文件为[cmake/toolchain-arm-none-eabi.cmake](https://github.com/lioneie/LoRaMac-node/blob/master/cmake/toolchain-arm-none-eabi.cmake)。如果是其他芯片平台，可以参考这些文件修改。
+STM32L073的cmake文件为[cmake/stm32l0.cmake](https://github.com/Lora-net/LoRaMac-node/blob/master/cmake/stm32l0.cmake)，编译工具链的cmake文件为[cmake/toolchain-arm-none-eabi.cmake](https://github.com/Lora-net/LoRaMac-node/blob/master/cmake/toolchain-arm-none-eabi.cmake)。如果是其他芯片平台，可以参考这些文件修改。
 
 # 烧录固件和调试代码
 
-参考文件[development-environment.md](https://github.com/lioneie/LoRaMac-node/blob/master/doc/development-environment.md)。
+参考文件[development-environment.md](https://github.com/Lora-net/LoRaMac-node/blob/master/doc/development-environment.md)。
 
 运行openocd软件（注意这个窗口不能关闭）：
 

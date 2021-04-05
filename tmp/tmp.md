@@ -1,7 +1,3 @@
-# 修改git的默认编辑器为vim
-
-git config --global core.editor vim
-
 # git仓库迁移
 
 git远程仓库迁移时，当有多个分支时，需要一个一个分支上传，不仅耗时又容易出错。
@@ -25,6 +21,10 @@ done
 git push origin --mirror
 ```
 
+# 修改git的默认编辑器为vim
+
+`git config --global core.editor vim`
+
 # fedora33无法ssh到低版本系统（如centos4.8）
 
 在Fedora33系统下`vim ~/.ssh/config` 添加以下内容
@@ -37,3 +37,7 @@ KexAlgorithms +diffie-hellman-group1-sha1
 然后再更改权限：`sudo chmod 600 config`
 
 或者使用命令: `ssh -oHostKeyAlgorithms=+ssh-dss -oKexAlgorithms=+diffie-hellman-group1-sha1  root@192.168.122.40`
+
+# shell ctrl+s锁死解决办法
+
+shell搜索历史命令，ctrl+r搜索更早的历史命令，但ctrl + s搜索更新的历史命令会锁死，可输入**`stty -ixon`**解决。

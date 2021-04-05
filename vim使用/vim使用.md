@@ -156,3 +156,12 @@ TODO
 
 TODO
 
+# 浏览器插件vimium
+
+我是自由软件狂热者，平时工作环境基本都是字符界面，在图形界面下也是用键盘代替鼠标，键盘使用的是自定义的HHKB（可用键盘移动鼠标光标）。在浏览器中搜索资料时，移动鼠标光标效率太低，可以使用浏览器插件vimium。
+
+以自由软件浏览器firefox为例，说明vimium的安装和使用。
+
+firefox浏览器 **Add-ons -> Extensions -> Find more add-ons -> Vimium-FF** 。
+
+至于使用帮助，按 ? （问号）会弹出**Vimium Help**弹窗，可以查看快捷键的提示，基本和vim的使用一致。
