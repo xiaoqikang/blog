@@ -65,7 +65,7 @@ sudo systemctl restart v2ray
 
 # macOS系统客户端安装与配置
 
-macOS系统的v2ray客户端的github项目为[Cenmrev/V2RayX](https://github.com/Cenmrev/V2RayX)，包装包为[V2RayX.app.zip](https://github.com/Cenmrev/V2RayX/releases/download/v1.5.1/V2RayX.app.zip)。
+macOS系统的v2ray客户端的github项目为[Cenmrev/V2RayX](https://github.com/Cenmrev/V2RayX)，安装包为[V2RayX.app.zip](https://github.com/Cenmrev/V2RayX/releases/download/v1.5.1/V2RayX.app.zip)。
 
 安装完成后的配置如下图：
 
