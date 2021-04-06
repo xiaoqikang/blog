@@ -1,4 +1,5 @@
-本文章是从以前给同事分享的ppt内容整理而来，只是对linux内存管理的知识做一个概述，内容也有待补充。
+@[TOC](linux内存管理概述)
+本文章是从以前给同事分享的ppt内容整理而来，只是对linux内存管理的知识做一个概述，内容也有待补充和修改。
 
 后续会再针对里面的某些知识点专门写一些文章。
 
@@ -24,9 +25,9 @@
 首先需要说明的是Linux系统是未利用段机制的。
 但X86的段机制还是值得学习的。
 
-<img src="https://img-blog.csdnimg.cn/20210407000735576.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpb241NDQzMDE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" style="zoom:50%;" />
+<img src="https://img-blog.csdnimg.cn/20210407000735576.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpb241NDQzMDE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" width="60%"/>
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210407001117878.png#pic_center)
+<img src="https://img-blog.csdnimg.cn/20210407001117878.png#pic_center" alt="在这里插入图片描述" width="67%" />
 
 > 这两张图是从pdf书上截图的，需要重画 TODO
 
@@ -49,7 +50,7 @@ Linux的权限管理等都交由**分页机制**来完成
 
 # Linux分页
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210407001743642.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpb241NDQzMDE=,size_16,color_FFFFFF,t_70#pic_center)
+<img src="https://img-blog.csdnimg.cn/20210407001743642.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpb241NDQzMDE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" width="67%" />
 
 不同体系结构对位数的划分不一样
 页目录和页表包含以下内容
@@ -65,20 +66,20 @@ Linux的权限管理等都交由**分页机制**来完成
 
 通过物理地址扩展机制，分页使32位线性地址可以访问64G物理内存（处理器管脚36个）
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210407001942869.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpb241NDQzMDE=,size_16,color_FFFFFF,t_70#pic_center)
+<img src="https://img-blog.csdnimg.cn/20210407001942869.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpb241NDQzMDE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" width="60%" />
 
 内存中的页表，访问速度慢
 页面高速缓存，90%命中高速缓存，10%需要访问内存
 
 # 进程地址空间
 
-<img src="https://img-blog.csdnimg.cn/20210407002234868.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpb241NDQzMDE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" style="zoom:50%;" />
+<img src="https://img-blog.csdnimg.cn/20210407002234868.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpb241NDQzMDE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" width="50%;" />
 
 每个运行的进程虚拟地址空间4G
 每个进程私有空间前3G，称为**用户空间**
 后1G空间所有进程共享，称为**内核空间**
 
-<img src="https://img-blog.csdnimg.cn/20210407002404969.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpb241NDQzMDE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" style="zoom:50%;" />
+<img src="https://img-blog.csdnimg.cn/20210407002404969.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpb241NDQzMDE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" width="33%;" />
 
 **TEXT段**：程序代码段
 **DATA段**：静态初始化的数据，所以有初值的全局变量和static变量在data区
