@@ -1,12 +1,16 @@
-
-#define _POSIX_C_SOURCE 200809L
-
-#if defined(SOLARIS)        /* Solaris 10 */
-#define _XOPEN_SOURCE 600
-#else
-#define _XOPEN_SOURCE 700
-#endif
-
+/**  @file : nice.c
+  *  @note : 此程序来源于：Unix环境高级编程（第3版）-- [美] W.Richard Stevens & Stephen A.Rago 著 戚正伟 张亚英 尤晋元 译
+  *  @brief : nice验证
+  *
+  *  @author : 陈孝松
+  *  @date : 2021.04.07 10:23
+  *
+  *  @note :
+  *  @record :
+  *       2021.04.07 10:23 created
+  *
+  *  @warning :
+*/
 #include <sys/types.h>      /* some systems still require this */
 #include <sys/stat.h>
 #include <sys/termios.h>    /* for winsize */
