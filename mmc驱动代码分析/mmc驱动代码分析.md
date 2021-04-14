@@ -12,7 +12,7 @@
 
 《**Linux设备驱动开发详解-基于最新的Linux 4.0内核**》--宋宝华  编著
 
-# mmc驱动代码分析（未完待续）
+# mmc驱动代码分析
 
 > 本文章的分析基于linux-4.9.259版本内核，可通过163镜像站下载[linux-4.9.259.tar.xz](http://mirrors.163.com/kernel/v4.x/linux-4.9.259.tar.xz)。
 
