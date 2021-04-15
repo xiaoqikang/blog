@@ -39,7 +39,17 @@ struct sched_domain {
     struct sched_domain *parent;    /* top domain must be null terminated */
     // 调度域中的每个组，指向链表中的第一个  
     struct sched_group *groups; /* the balancing groups of the domain */
-	...
+    ...
+    // 当NOT_IDLE时乘以这个因子
+    unsigned int busy_factor;   /* less balancing by factor if busy */
+    ...
+    // 查看SD_LOAD_BALANCE等7个宏定义
+    int flags;          /* See SD_* */
+    // 上次平衡操作的时间                                                      
+    unsigned long last_balance; /* init to jiffies. units in jiffies */        
+    // 平衡操作的周期
+    unsigned int balance_interval;  /* initialise to 1. units in ms. */
+    ...
 };
 ```
 
