@@ -2,19 +2,19 @@
 
 此文档是介绍在QEMU/KVM中安装macOS VM的操作。
 
-大多数内容翻译自foxlet所写的项目[README.md](https://github.com/lioneie/macOS-Simple-KVM/blob/master/README.md)，当然也有些内容是原创的。
+大多数内容翻译自foxlet所写的项目[README.md](https://github.com/lioneie/macOS-Simple-KVM/blob/master/README.md)，当然也修改和增加了一些内容。
 
 项目[github链接](https://github.com/lioneie/macOS-Simple-KVM)（forked from [foxlet](https://github.com/foxlet/macOS-Simple-KVM/tree/master/docs)）。
 
 此项目由[@FoxletFox](https://twitter.com/foxletfox)发起，获得其他许多人的帮助。
 
-macOS和KVM的新手？ 请看[the FAQs.](https://github.com/lioneie/macOS-Simple-KVM/tree/master/docs/FAQs.md)。
+macOS和KVM的新手？ 请看[the FAQs](https://github.com/lioneie/macOS-Simple-KVM/tree/master/docs/FAQs.md)。
 
 ## 说明
 
 需要说明的是苹果公司不允许macOS系统在非MAC电脑上安装，所以本文的方法请不要用于商业用途，仅供想折腾的极客参考。
 
-还需要说明的是，我有一台macbook pro，但还是更喜欢用Linux（Fedora），但有极少数的商业软件没有提供Linux版本，又不想用windows系统，所以偶尔使用QEMU/KVM下安装的macOS系统。
+我（陈孝松）有一台macbook pro，但还是更喜欢用Linux（Fedora），有极少数的商业软件没有提供Linux版本，又不想用windows系统，所以偶尔使用QEMU/KVM下安装的macOS系统。
 
 ## 准备
 
@@ -33,7 +33,7 @@ sudo emerge -a qemu python:3.4 pip # for Gentoo
 运行`jumpstart.sh`脚本下载macOS的安装介质（需要连接互联网）。 默认安装使用Catalina，但是你可以通过添加`--high-sierra`，`--mojave`或`--catalina`来选择要获取的版本。 例如：
 
 ```
-./jumpstart.sh --mojave
+./jumpstart.sh --catalina
 ```
 > 注意：如果已经下载了`BaseSystem.img`，则可以跳过此步骤。 如果你具有`BaseSystem.dmg`，则需要使用dmg2img工具进行转换。
 
