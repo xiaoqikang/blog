@@ -1,13 +1,10 @@
 #include "stdio.h"
 #include "string.h"
-int main(int argc, char *argv[])
+#include <time.h>
+
+void create_func_comment(int argc, char *argv[])
 {
-    int ret = 0;
     char front_str[1024];
-    if(2 != argc)
-    {
-        goto fail;
-    }
     //char tmp[] = "static void funcname(int arga, char *argb, struct stru *ptr)adfa";
     //char tmp[] = "static void funcname(void)adfa";
     //char *str = tmp;
@@ -52,7 +49,7 @@ int main(int argc, char *argv[])
         printf("\n\r  * @param : None");
     }
     else
-{
+    {
         //参数前的空格
         char *arg_front_space_pos;
         //逗号
@@ -91,12 +88,108 @@ int main(int argc, char *argv[])
         printf("None");
     }
     printf("\n\r*/\n\r");
-
-    ret = 0;
-    goto ret;
+    return;
 fail:
-    ret = 1;
     printf("\n\r################wrong arg, try again\n\r");
-ret:
-    return ret;
+}
+
+void create_file_comment(int argc, char *argv[])
+{
+    char file_h_macro[64] = "";// 头文件宏定义
+    time_t now = time(0);
+    struct tm *ltm = localtime(&now);
+
+    int is_header_file = 0;// 是否是头文件
+    char *filename = argv[2];
+    // 第一个参数必须是 "file"
+    if(strcmp(argv[1], "file"))
+    {
+        goto fail;
+    }
+/**  @file : block_test.c
+  *  @note : 
+  *  @brief : 块设备测试
+  *
+  *  @author : 陈孝松
+  *  @date : 2021.03.05 21:44
+  *
+  *  @note :
+  *  @record :
+  *       2021.03.05 21:44 created
+  *       2021.03.17 18:45 增加多线程读写速度测试
+  *
+  *  @warning :
+*/
+    printf("/**  @file : %s", argv[2]);
+    printf("\n\r");
+    printf("  *  @note : ");
+    printf("\n\r");
+    printf("  *  @brief : ");
+    printf("\n\r");
+    printf("  *");
+    printf("\n\r");
+    printf("  *  @author : 陈孝松");
+    printf("\n\r");
+    printf("  *  @date : %d.%02d.%02d %02d:%02d", 1900 + ltm->tm_year, 1+ltm->tm_mon, ltm->tm_mday, ltm->tm_hour, ltm->tm_min);
+    printf("\n\r");
+    printf("  *");
+    printf("\n\r");
+    printf("  *  @note : ");
+    printf("\n\r");
+    printf("  *  @record : ");
+    printf("\n\r");
+    printf("  *       %d.%02d.%02d %02d:%02d created", 1900 + ltm->tm_year, 1+ltm->tm_mon, ltm->tm_mday, ltm->tm_hour, ltm->tm_min);
+    printf("\n\r");
+    printf("  *");
+    printf("\n\r");
+    printf("  *  @warning : ");
+    printf("\n\r");
+    printf("*/");
+    // 头文件
+    if('h' == filename[strlen(filename)-1] && '.' == filename[strlen(filename)-2])
+    {
+        char tmp = 0;
+        sprintf(file_h_macro, "__");
+        for(int i = 0; i < strlen(filename); i++)
+        {
+            tmp = filename[i];
+            if('.' == filename[i])
+            {
+                tmp = '_';
+            }
+            // 转大写字母
+            else if(filename[i] >= 'a' && filename[i] <= 'z')
+            {
+                tmp = filename[i] - ('a' - 'A');
+            }
+            sprintf(file_h_macro, "%s%c", file_h_macro, tmp);
+        }
+        sprintf(file_h_macro, "%s__", file_h_macro);
+
+        printf("\n\r");
+        printf("\n\r");
+        printf("#ifndef %s", file_h_macro);
+        printf("\n\r");
+        printf("#define %s", file_h_macro);
+        printf("\n\r");
+        printf("\n\r");
+        printf("#endif");
+        printf("\n\r");
+    }
+    return;
+fail:
+    printf("\n\r################wrong arg, try again\n\r");
+}
+
+int main(int argc, char *argv[])
+{
+    if(2 == argc)
+    {
+        create_func_comment(argc, argv);
+    }
+    else if(3 == argc)
+    {
+        create_file_comment(argc, argv);
+    }
+    return 0;
 }
