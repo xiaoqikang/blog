@@ -1,0 +1,1 @@
+信号量、共享内存和消息队列，最初由AT&T System V.2版本的Unix引入，所以被称为System V IPC（Inter-Process Communication）。
