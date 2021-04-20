@@ -127,10 +127,10 @@ Linux通过引入virtual runtime(vruntime)来实现CFS
 谁的vruntime值较小就说明它以前占用cpu的时间较短，受到了“不公平”对待，因此下一个运行进程就是它。这样高nice值的进程能得到迅速响应，低nice值的进程能获取更多的cpu时间。
 Linux采用了一颗红黑树（对于多核调度，实际上每一个核有一个自己的红黑树），记录下每一个进程的vruntime
 
-红黑树操作的算法度最大为O(lgn)
+红黑树操作的算法复杂度最大为O(lgn)
 
 请阅读2.6.34内核`kernel/sched_fair.c`中的下列结构体或函数：
 调度器实体结构：`struct sched_entity`
-虚拟时间记账：`update_curr、update_curr`
+虚拟时间记账：`update_curr、__update_curr`
 进程选择：`pick_next_entity、enqueuer_entity、dequeuer_entity`
 调度器入口：`pick_next_task`

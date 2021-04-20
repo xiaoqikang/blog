@@ -81,8 +81,8 @@ Linux的权限管理等都交由**分页机制**来完成
 <img src="https://gitee.com/lioneie/blog/raw/master/linux%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E6%A6%82%E8%BF%B0/%E5%86%85%E5%AD%98%E5%88%86%E5%B8%83.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpb241NDQzMDE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" width="33%;" />
 
 **TEXT段**：程序代码段
-**DATA段**：静态初始化的数据，所以有初值的全局变量和static变量在data区
-**BSS段**：Block Started by Symbol，通常是指用来存放程序中未初始化的全局变量的一块内存区域，在程序载入时由内核清0
+**DATA段**：静态初始化的数据，所以有初值的全局变量（不为0）和static变量在data区
+**BSS段**：Block Started by Symbol，通常是指用来存放程序中**未初始化或初始化为0**的全局变量的一块内存区域，在程序载入时由内核清0
 
 用户态的进程运行时，可能只有少量页装入物理内存
 当访问的虚拟内存页面未装入物理内存时，处理器会产生一个缺页异常
