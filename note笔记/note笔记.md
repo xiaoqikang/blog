@@ -44,6 +44,3 @@ KexAlgorithms +diffie-hellman-group1-sha1
 
 shell搜索历史命令，ctrl+r搜索更早的历史命令，但ctrl + s搜索更新的历史命令会锁死，可输入**`stty -ixon`**解决。
 
-# Linux极点五笔输入法   四码唯一不自动上屏配置
-
-Details -> Auto commit mode: **Normal**
