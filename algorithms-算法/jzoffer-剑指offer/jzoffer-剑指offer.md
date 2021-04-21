@@ -1,5 +1,7 @@
 本文章是牛客网上的[剑指offer](https://www.nowcoder.com/ta/coding-interviews)编程题的答案，因为牛客网提交的答案数据会丢失（发生过很多次），所以还是自己保存一份。
 
+67道题已经全部做完。
+
 # JZ1    二维数组中的查找 	
 
 ```c

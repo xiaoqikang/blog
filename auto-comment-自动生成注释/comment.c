@@ -174,8 +174,8 @@ void create_file_comment(int argc, char *argv[])
         printf("\n\r");
         printf("\n\r");
         printf("#endif");
-        printf("\n\r");
     }
+    printf("\n\r");
     return;
 fail:
     printf("\n\r################wrong arg, try again\n\r");
