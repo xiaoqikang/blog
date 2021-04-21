@@ -61,8 +61,8 @@ int sub(int a, int b);
 all:
 	gcc -c add/add.c
 	# -r 将文件插入备存文件中（向库中添加模块，若模块已存在则替换）
-	#-c 建立备存文件（创建库文件）
-	#-s 若备存文件中包含了对象模式，可利用此参数建立备存文件的符号表（生成一个目标文件索引）
+	# -c 建立备存文件（创建库文件）
+	# -s 若备存文件中包含了对象模式，可利用此参数建立备存文件的符号表（生成一个目标文件索引）
 	ar -rcs add.a add.o
 	gcc -c sub/sub.c
 	ar -rcs sub.a sub.o
@@ -71,15 +71,15 @@ all:
 ```
 查看静态库中的模块清单的命令为：
 ```shell
-#-t 显示备存文件中所包含的文件（查看静态库中的模块清单）
+# -t 显示备存文件中所包含的文件（查看静态库中的模块清单）
 $ ar -t add.a
 ```
 # 动态库
 文件`makefile`：
 ```makefile
 all:
-	# -fPIC是编译选项，PIC是 Position Independent Code 的缩写，表示要生成位置无关的代码，这是动态库需要的特性
-	# -shared是链接选项，告诉gcc生成动态库而不是可执行文件
+	# -fPIC 是编译选项，PIC是 Position Independent Code 的缩写，表示要生成位置无关的代码，这是动态库需要的特性
+	# -shared 是链接选项，告诉gcc生成动态库而不是可执行文件
 	# 等价于以下两条命令：
 	# gcc -c -fPIC add/add.c
 	# gcc -shared -o libadd.so add.o
@@ -116,6 +116,8 @@ $ LD_LIBRARY_PATH=. ./a.out
 ```c
 #include <stdio.h>
 
+int var = 7;
+
 int add(int a, int b)
 {
     return a + b + 1;
@@ -142,12 +144,15 @@ all:
 
 执行`LD_LIBRARY_PATH=. ./a.out`后可以发现，`add`函数是`libadd2.so`库的函数，也就是先加载的库。
 
-如果要同时使用两个版本的动态库，可以使用以下办法：
+如果要同时使用两个版本的动态库，可以使用以下办法，`main.c`文件修改成：
 
 ```c
 #include <stdio.h>
 #include <stdlib.h>
 #include <dlfcn.h>
+
+typedef int (*func)(int, int);
+
 /*
 mode是打开方式，其值有多个，不同操作系统上实现的功能有所不同，在linux下，按功能可分为三类：
 1、解析方式
@@ -164,7 +169,7 @@ mode是打开方式，其值有多个，不同操作系统上实现的功能有�
 // void *dlopen(const char *pathname, int mode);
 // void *dlsym(void *handler, const char *symbol);
 // int dlclose(void *handler);
-typedef int (*func)(int, int);
+
 int main()
 {
     int res = 0;
@@ -173,8 +178,11 @@ int main()
     void *dlhandler_add2;
     func add = NULL;
     func add2 = NULL;
+    int *var_ptr = NULL;
+
     // 打开libadd.so库
     // RTLD_LAZY: 在dlopen返回前，对于动态库中的未定义的符号不执行解析（只对函数引用有效，对于变量引用总是立即解析）
+    // RTLD_NOW： 需要在dlopen返回前，解析出所有未定义符号，如果解析不出来，在dlopen会返回NULL，错误为：: undefined symbol: xxxx.......
     dlhandler_add = dlopen("./libadd.so", RTLD_LAZY);
     if(dlhandler_add == NULL)
     {
@@ -182,6 +190,7 @@ int main()
         exit(-1);
     }
     //dlerror();
+
     // 打开libadd2.so库
     dlhandler_add2 = dlopen("./libadd2.so", RTLD_LAZY);
     if(dlhandler_add2 == NULL)
@@ -190,17 +199,25 @@ int main()
         exit(-1);
     }
     //dlerror();
+
     // libadd.so库的add函数
     add = dlsym(dlhandler_add, "add");
     res = add(a, b);
     printf("\n\rlibadd, %d + %d = %d\n\r", a, b, res);
+
     // libadd2.so库的add函数
     add2 = dlsym(dlhandler_add2, "add");
     res = add2(a, b);
     printf("\n\rlibadd2, %d + %d = %d\n\r", a, b, res);
+
+    // libadd2.so库的var变量地址
+    var_ptr = (int *)dlsym(dlhandler_add2, "var");
+    printf("\n\rlibadd2, var = %d\n\r", *var_ptr);
+
     // 关闭库
     dlclose(dlhandler_add);
     dlclose(dlhandler_add2);
+
     return 0;
 }
 ```
@@ -209,6 +226,13 @@ int main()
 
 ```makefile
 all:
+	# -fPIC是编译选项，PIC是 Position Independent Code 的缩写，表示要生成位置无关的代码，这是动态库需要的特性
+	# -shared是链接选项，告诉gcc生成动态库而不是可执行文件
+	# 等价于以下两条命令：
+	# gcc -c -fPIC add/add.c
+	# gcc -shared -o libadd.so add.o
+	gcc -fPIC -shared -o libadd.so add/add.c
+	gcc -fPIC -shared -o libadd2.so add/add2.c
 	gcc main.c -ldl
 ```
 
