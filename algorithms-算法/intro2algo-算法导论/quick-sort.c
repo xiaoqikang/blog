@@ -1,4 +1,4 @@
-/**  @file : quicksort.c
+/**  @file : quick-sort.c
   *  @note : 
   *  @brief : 快速排序
   *
