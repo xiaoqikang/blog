@@ -91,3 +91,42 @@ static void merge(int *array, int start, int mid, int end)
 
 # 堆排序
 
+第84页。
+
+时间复杂度O(nlgn)，空间复杂度O(1)。
+
+完整代码：[heap-sort.c](https://gitee.com/lioneie/blog/blob/master/algorithms-%E7%AE%97%E6%B3%95/intro2algo-%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/heap-sort.c)
+
+核心函数：
+
+```c
+/** @fn : max_heapify
+  * @brief : 维护最大堆
+  * @param *array : 数组
+  * @param heap_size : 堆的大小
+  * @param i : 根节点的下标
+  * @return : None
+*/
+static void max_heapify(int *array, int heap_size, int i)
+{
+    int l = left(i);
+    int r = right(i);
+    int largest = i;
+    if(l < heap_size && array[l] > array[i])
+    {
+        largest = l;
+    }
+    if(r < heap_size && array[r] > array[largest])
+    {
+        largest = r;
+    }
+    if(i != largest)
+    {
+        swap(&array[i], &array[largest]);
+        max_heapify(array, heap_size, largest);
+    }
+}
+```
+
+# 动态规划-钢条切割
+

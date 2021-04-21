@@ -25,6 +25,7 @@ set sw=4                "按<键和>键缩进时，移动4个空格
 set expandtab           "tab转化为空格
 set mouse-=a			"鼠标选择文字不会进入visual模式
 set colorscheme=desert	"支持的color查看/usr/share/vim/vim82/colors/（vim82是vim版本）
+set ic                  "set ic忽略大小写(ignore case), set noic 不忽略大小写
 ```
 
 加载其他的.vimrc，在~/.vimrc中加入以下内容：
