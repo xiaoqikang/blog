@@ -6,7 +6,7 @@
 
 第95页
 
-完整代码：[quiksort.c](https://gitee.com/lioneie/blog/blob/master/algorithms-%E7%AE%97%E6%B3%95/intro2algo-%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/quicksort.c)
+完整代码：[quik-sort.c](https://gitee.com/lioneie/blog/blob/master/algorithms-%E7%AE%97%E6%B3%95/intro2algo-%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/quick-sort.c)
 
 核心函数：
 

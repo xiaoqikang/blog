@@ -11,7 +11,6 @@
   *
   *  @warning : 
 */
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -72,12 +71,12 @@ static int partition(int *array, int start, int end)
 */
 static void quiksort(int *array, int start, int end)
 {
-    int idx = 0;
+    int mid = 0;
     if(start < end)
     {
-        idx = partition(array, start, end);
-        quiksort(array, start, idx);
-        quiksort(array, idx+1, end);
+        mid = partition(array, start, end);
+        quiksort(array, start, mid);
+        quiksort(array, mid+1, end);
     }
 }
 
@@ -98,4 +97,5 @@ int main(int argc, char **argv)
         printf(" %d", array[i]);
     }
     printf("\n\r");
+    return 0;
 }
