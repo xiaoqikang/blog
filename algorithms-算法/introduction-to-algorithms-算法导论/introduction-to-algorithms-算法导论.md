@@ -8,7 +8,7 @@
 
 时间复杂度O(nlgn)，空间复杂度O(lgn)。
 
-完整代码：[quik-sort.c](https://gitee.com/lioneie/blog/blob/master/algorithms-%E7%AE%97%E6%B3%95/intro2algo-%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/quick-sort.c)
+完整代码：[quik-sort.c](https://gitee.com/lioneie/blog/blob/master/algorithms-%E7%AE%97%E6%B3%95/introduction-to-algorithms-%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/quick-sort.c)
 
 核心函数：
 
@@ -42,7 +42,7 @@ static int partition(int *array, int start, int end)
 
 时间复杂度O(nlgn)，空间复杂度O(n)。
 
-完整代码：[merge-sort.c](https://gitee.com/lioneie/blog/blob/master/algorithms-%E7%AE%97%E6%B3%95/intro2algo-%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/merge-sort.c)。
+完整代码：[merge-sort.c](https://gitee.com/lioneie/blog/blob/master/algorithms-%E7%AE%97%E6%B3%95/introduction-to-algorithms-%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/merge-sort.c)。
 
 核心函数：
 
@@ -95,7 +95,7 @@ static void merge(int *array, int start, int mid, int end)
 
 时间复杂度O(nlgn)，空间复杂度O(1)。
 
-完整代码：[heap-sort.c](https://gitee.com/lioneie/blog/blob/master/algorithms-%E7%AE%97%E6%B3%95/intro2algo-%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/heap-sort.c)
+完整代码：[heap-sort.c](https://gitee.com/lioneie/blog/blob/master/algorithms-%E7%AE%97%E6%B3%95/introduction-to-algorithms-%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/heap-sort.c)。
 
 核心函数：
 
@@ -134,7 +134,7 @@ static void max_heapify(int *array, int heap_size, int i)
 
 两种思路：
 
-带备忘的自顶向下法（top-down with memoization）完整代码：[cut_rod_memoized.c](https://gitee.com/lioneie/blog/blob/master/algorithms-%E7%AE%97%E6%B3%95/intro2algo-%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/cut_rod_memoized.c)。
+带备忘的自顶向下法（top-down with memoization）完整代码：[cut_rod_memoized.c](https://gitee.com/lioneie/blog/blob/master/algorithms-%E7%AE%97%E6%B3%95/introduction-to-algorithms-%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/cut_rod_memoized.c)。
 
 核心函数：
 
@@ -174,7 +174,7 @@ static int memoized_cut_rod_aux(int *p, int n, int *r)
 }
 ```
 
-自底向上法（bottom-up method）完整代码：[cut_rod_bottom_up.c](https://gitee.com/lioneie/blog/blob/master/algorithms-%E7%AE%97%E6%B3%95/intro2algo-%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/cut_rod_bottom_up.c)。
+自底向上法（bottom-up method）完整代码：[cut_rod_bottom_up.c](https://gitee.com/lioneie/blog/blob/master/algorithms-%E7%AE%97%E6%B3%95/introduction-to-algorithms-%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/cut_rod_bottom_up.c)。
 
 核心代码：
 
