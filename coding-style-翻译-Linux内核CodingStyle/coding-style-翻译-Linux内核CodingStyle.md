@@ -4,8 +4,9 @@
 >
 > 网上虽然已经有很多人做了很好的翻译，但我还是想自己翻译一次最新的编码风格（当然，我借助了谷歌翻译），让自己更熟悉。
 
-Linux内核编码风格
-=========================
+注意，翻译进行中，还未全部完成。
+
+# Linux内核编码风格
 
 这是一个简短的文档，描述了Linux内核的首选编码样式。 编码风格非常个人化，我不会对任何人**强加**我的见解，但这是我必须要维护的代码（指Linux内核代码）的编码风格，对于其他项目代码，我也希望使用它。 写内核代码时请至少考虑本文提出的风格。
 
@@ -13,105 +14,91 @@ Linux内核编码风格
 
 无论如何，我们开始：
 
-
-1) 缩进
---------------
+## 1) 缩进
 
 制表符（Tab键）是8个字符，因此缩进也是8个字符。 有一些异端做法试图使制表符变成4个（甚至2个！）字符，这类似于尝试将PI的值定义为3。
 
 理由：缩进的目的是明确定义控制块的开始和结束位置。 特别是当您连续看了20个小时的屏幕后，如果缩进较大则作用更大（指更容易分辨缩进）。
 
-Now, some people will claim that having 8-character indentations makes
-the code move too far to the right, and makes it hard to read on a
-80-character terminal screen.  The answer to that is that if you need
-more than 3 levels of indentation, you're screwed anyway, and should fix
-your program.
+现在，有些人会声称具有8个字符的缩进会使代码向右移得太远，并使得在80个字符的终端屏幕上难以阅读。 答案是，如果您需要三个以上的缩进级别，那么无论如何你的代码有问题了，应该修复程序。
 
-In short, 8-char indents make things easier to read, and have the added
-benefit of warning you when you're nesting your functions too deep.
-Heed that warning.
+简而言之，8字符缩进使内容更易于阅读，并具有在嵌套函数太深时发出警告的作用。 注意该警告。
 
-The preferred way to ease multiple indentation levels in a switch statement is
-to align the ``switch`` and its subordinate ``case`` labels in the same column
-instead of ``double-indenting`` the ``case`` labels.  E.g.:
+缓解`switch`语句中多个缩进级别的首选方法是在同一列中对齐`switch`及其从属`case`标签，而不是对`case`标签进行两次缩进。 例如（注意，网页上把Tab键显示成了四个字符）：
 
-.. code-block:: c
+```c
+switch (suffix) {
+case 'G':
+case 'g':
+	mem <<= 30;
+	break;
+case 'M':
+case 'm':
+	mem <<= 20;
+	break;
+case 'K':
+case 'k':
+	mem <<= 10;
+	fallthrough;
+default:
+	break;
+}
+```
 
-	switch (suffix) {
-	case 'G':
-	case 'g':
-		mem <<= 30;
-		break;
-	case 'M':
-	case 'm':
-		mem <<= 20;
-		break;
-	case 'K':
-	case 'k':
-		mem <<= 10;
-		fallthrough;
-	default:
-		break;
-	}
+除非要隐藏某些内容，否则不要在一行上放置多个语句：
 
-Don't put multiple statements on a single line unless you have
-something to hide:
+```c
+if (condition) do_this;
+  do_something_everytime;
+```
 
-.. code-block:: c
+不要使用逗号来避免使用花括号：
 
-	if (condition) do_this;
-	  do_something_everytime;
+```c
+if (condition)
+	do_this(), do_that();
+```
 
-Don't use commas to avoid using braces:
+始终对多个语句使用花括号：
 
-.. code-block:: c
+```c
+if (condition) {
+	do_this();
+	do_that();
+}
+```
 
-	if (condition)
-		do_this(), do_that();
+也不要将多个赋值语句放在一行上。 内核编码风格非常简单。 避免使用棘手的表达式。
 
-Always uses braces for multiple statements:
+除了注释，文档和Kconfig外，空格都不用于缩进，前面的例子是故意的。
 
-.. code-block:: c
+得到一个好的编辑器，不要在行尾留空格。
 
-	if (condition) {
-		do_this();
-		do_that();
-	}
-
-Don't put multiple assignments on a single line either.  Kernel coding style
-is super simple.  Avoid tricky expressions.
+## 2) 把长的行和字符串打散
 
 
-Outside of comments, documentation and except in Kconfig, spaces are never
-used for indentation, and the above example is deliberately broken.
+编码风格是关于使用通用工具来维持可读性和可维护性。
 
-Get a decent editor and don't leave whitespace at the end of lines.
+单行长度的首选限制是80列。
 
+长度超过80列的语句应分为合理的片段，除非超过80列会显着提高可读性且不会隐藏信息。
 
-2) Breaking long lines and strings
-----------------------------------
+后面的片段应该短于原来的语句，并且基本上位于靠右放置。 一个典型的例子是将后面的片段与函数左括号对齐。
 
-Coding style is all about readability and maintainability using commonly
-available tools.
+这些相同的规则适用于带有长参数列表的函数头，如下所示（注意，网页上把Tab键显示成了四个字符）：
 
-The preferred limit on the length of a single line is 80 columns.
+```c
+// 注意：这个例子是我（陈孝松）写的
+void fun(int a, int b, int c, int d, int e, int f, int g, int h, int i
+		int j, int k)
+{
+	...
+｝
+```
 
-Statements longer than 80 columns should be broken into sensible chunks,
-unless exceeding 80 columns significantly increases readability and does
-not hide information.
+但是，切勿破坏诸如printk消息之类的用户可见的字符串，因为这会破坏grep为它们显示的功能。
 
-Descendants are always substantially shorter than the parent and
-are placed substantially to the right.  A very commonly used style
-is to align descendants to a function open parenthesis.
-
-These same rules are applied to function headers with a long argument list.
-
-However, never break user-visible strings such as printk messages because
-that breaks the ability to grep for them.
-
-
-3) Placing Braces and Spaces
-----------------------------
+## 3) 大括号和空格的放置
 
 The other issue that always comes up in C styling is the placement of
 braces.  Unlike the indent size, there are few technical reasons to
@@ -224,8 +211,7 @@ Also, use braces when a loop contains more than a single simple statement:
 			do_something();
 	}
 
-3.1) Spaces
-***********
+### 3.1) Spaces
 
 Linux kernel style for use of spaces depends (mostly) on
 function-versus-keyword usage.  Use a space after (most) keywords.  The
@@ -295,9 +281,7 @@ optionally strip the trailing whitespace for you; however, if applying a series
 of patches, this may make later patches in the series fail by changing their
 context lines.
 
-
-4) Naming
----------
+## 4) Naming
 
 C is a Spartan language, and your naming conventions should follow suit.
 Unlike Modula-2 and Pascal programmers, C programmers do not use cute
@@ -349,8 +333,7 @@ specification that mandates those terms. For new specifications
 translate specification usage of the terminology to the kernel coding
 standard where possible.
 
-5) Typedefs
------------
+## 5) Typedefs
 
 Please don't use things like ``vps_t``.
 It's a **mistake** to use typedef for structures and pointers. When you see a
@@ -432,9 +415,7 @@ EVER use a typedef unless you can clearly match one of those rules.
 In general, a pointer, or a struct that has elements that can reasonably
 be directly accessed should **never** be a typedef.
 
-
-6) Functions
-------------
+## 6) Functions
 
 Functions should be short and sweet, and do just one thing.  They should
 fit on one or two screenfuls of text (the ISO/ANSI screen size is 80x24,
@@ -480,9 +461,7 @@ because it is a simple way to add valuable information for the reader.
 Do not use the ``extern`` keyword with function prototypes as this makes
 lines longer and isn't strictly necessary.
 
-
-7) Centralized exiting of functions
------------------------------------
+## 7) Centralized exiting of functions
 
 Albeit deprecated by some people, the equivalent of the goto statement is
 used frequently by compilers in form of the unconditional jump instruction.
@@ -552,9 +531,7 @@ fix for this is to split it up into two error labels ``err_free_bar:`` and
 
 Ideally you should simulate errors to test all exit paths.
 
-
-8) Commenting
--------------
+## 8) Commenting
 
 Comments are good, but there is also a danger of over-commenting.  NEVER
 try to explain HOW your code works in a comment: it's much better to
@@ -604,9 +581,7 @@ types.  To this end, use just one data declaration per line (no commas for
 multiple data declarations).  This leaves you room for a small comment on each
 item, explaining its use.
 
-
-9) You've made a mess of it
----------------------------
+## 9) You've made a mess of it
 
 That's OK, we all do.  You've probably been told by your long-time Unix
 user helper that ``GNU emacs`` automatically formats the C sources for
@@ -693,9 +668,7 @@ for aligning variables/macros, for reflowing text and other similar tasks.
 See the file :ref:`Documentation/process/clang-format.rst <clangformat>`
 for more details.
 
-
-10) Kconfig configuration files
--------------------------------
+## 10) Kconfig configuration files
 
 For all of the Kconfig* configuration files throughout the source tree,
 the indentation is somewhat different.  Lines under a ``config`` definition
@@ -722,9 +695,7 @@ filesystems) should advertise this prominently in their prompt string::
 For full documentation on the configuration files, see the file
 Documentation/kbuild/kconfig-language.rst.
 
-
-11) Data structures
--------------------
+## 11) Data structures
 
 Data structures that have visibility outside the single-threaded
 environment they are created and destroyed in should always have
@@ -754,9 +725,7 @@ filesystem code (``struct super_block``: s_count and s_active).
 Remember: if another thread can find your data structure, and you don't
 have a reference count on it, you almost certainly have a bug.
 
-
-12) Macros, Enums and RTL
--------------------------
+## 12) Macros, Enums and RTL
 
 Names of macros defining constants and labels in enums are capitalized.
 
@@ -835,9 +804,7 @@ to collide with an existing variable.
 The cpp manual deals with macros exhaustively. The gcc internals manual also
 covers RTL which is used frequently with assembly language in the kernel.
 
-
-13) Printing kernel messages
-----------------------------
+## 13) Printing kernel messages
 
 Kernel developers like to be seen as literate. Do mind the spelling
 of kernel messages to make a good impression. Do not use incorrect
@@ -870,9 +837,7 @@ when a debug message should be unconditionally printed, such as if it is
 already inside a debug-related #ifdef section, printk(KERN_DEBUG ...) can be
 used.
 
-
-14) Allocating memory
----------------------
+## 14) Allocating memory
 
 The kernel provides the following general purpose memory allocators:
 kmalloc(), kzalloc(), kmalloc_array(), kcalloc(), vmalloc(), and
@@ -913,8 +878,7 @@ These generic allocation functions all emit a stack dump on failure when used
 without __GFP_NOWARN so there is no use in emitting an additional failure
 message when NULL is returned.
 
-15) The inline disease
-----------------------
+## 15) The inline disease
 
 There appears to be a common misperception that gcc has a magic "make me
 faster" speedup option called ``inline``. While the use of inlines can be
@@ -940,9 +904,7 @@ help, and the maintenance issue of removing the inline when a second user
 appears outweighs the potential value of the hint that tells gcc to do
 something it would have done anyway.
 
-
-16) Function return values and names
-------------------------------------
+## 16) Function return values and names
 
 Functions can return values of many different kinds, and one of the
 most common is a value indicating whether the function succeeded or
@@ -975,9 +937,7 @@ this rule.  Generally they indicate failure by returning some out-of-range
 result.  Typical examples would be functions that return pointers; they use
 NULL or the ERR_PTR mechanism to report failure.
 
-
-17) Using bool
---------------
+## 17) Using bool
 
 The Linux kernel bool type is an alias for the C99 _Bool type. bool values can
 only evaluate to 0 or 1, and implicit or explicit conversion to bool
@@ -1006,8 +966,7 @@ readable alternative if the call-sites have naked true/false constants.
 Otherwise limited use of bool in structures and arguments can improve
 readability.
 
-18) Don't re-invent the kernel macros
--------------------------------------
+## 18) Don't re-invent the kernel macros
 
 The header file include/linux/kernel.h contains a number of macros that
 you should use, rather than explicitly coding some variant of them yourself.
@@ -1028,9 +987,7 @@ There are also min() and max() macros that do strict type checking if you
 need them.  Feel free to peruse that header file to see what else is already
 defined that you shouldn't reproduce in your code.
 
-
-19) Editor modelines and other cruft
-------------------------------------
+## 19) Editor modelines and other cruft
 
 Some editors can interpret configuration information embedded in source files,
 indicated with special markers.  For example, emacs interprets lines marked
@@ -1062,9 +1019,7 @@ includes markers for indentation and mode configuration.  People may use their
 own custom mode, or may have some other magic method for making indentation
 work correctly.
 
-
-20) Inline assembly
--------------------
+## 20) Inline assembly
 
 In architecture-specific code, you may need to use inline assembly to interface
 with CPU or platform functionality.  Don't hesitate to do so when necessary.
@@ -1094,9 +1049,7 @@ the next instruction in the assembly output:
 	     "more_magic %reg2, %reg3"
 	     : /* outputs */ : /* inputs */ : /* clobbers */);
 
-
-21) Conditional Compilation
----------------------------
+## 21) Conditional Compilation
 
 Wherever possible, don't use preprocessor conditionals (#if, #ifdef) in .c
 files; doing so makes code harder to read and logic harder to follow.  Instead,
@@ -1143,9 +1096,7 @@ expression used.  For instance:
 	...
 	#endif /* CONFIG_SOMETHING */
 
-
-Appendix I) References
-----------------------
+## Appendix I) References
 
 The C Programming Language, Second Edition
 by Brian W. Kernighan and Dennis M. Ritchie.
