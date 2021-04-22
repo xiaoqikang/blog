@@ -130,3 +130,82 @@ static void max_heapify(int *array, int heap_size, int i)
 
 # 动态规划-钢条切割
 
+第204页。
+
+两种思路：
+
+带备忘的自顶向下法（top-down with memoization）完整代码：[cut_rod_memoized.c](https://gitee.com/lioneie/blog/blob/master/algorithms-%E7%AE%97%E6%B3%95/intro2algo-%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/cut_rod_memoized.c)。
+
+核心函数：
+
+```c
+/** @fn : memoized_cut_rod_aux
+  * @brief : 递归切割钢条
+  * @param *p : 价格数组
+  * @param n : 长度
+  * @param *r : 备忘数组
+  * @return : 最高能卖的钱
+*/
+static int memoized_cut_rod_aux(int *p, int n, int *r)
+{
+    int ret = r[n];
+    if(r[n] >= 0)
+    {
+        return r[n];
+    }
+    if(0 == n)
+    {
+        ret = 0;
+    }
+    else
+    {
+        ret = INT_MIN;
+        for(int i = 1; i <= n; i++)
+        {
+            int tmp = p[i] + memoized_cut_rod_aux(p, n-i, r);
+            if(tmp > ret)
+            {
+                ret = tmp;
+            }
+        }
+    }
+    r[n] = ret;
+    return ret;
+}
+```
+
+自底向上法（bottom-up method）完整代码：[cut_rod_bottom_up.c](https://gitee.com/lioneie/blog/blob/master/algorithms-%E7%AE%97%E6%B3%95/intro2algo-%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/cut_rod_bottom_up.c)。
+
+核心代码：
+
+```c
+/** @fn : bottom_up_cut_rod
+  * @brief : 自底向上切割钢条
+  * @param *p : 价格数组
+  * @param n : 长度
+  * @return : 最高能卖的钱
+*/
+static int bottom_up_cut_rod(int *p, int n)
+{
+    int ret = 0;
+    int *r = (int *)malloc(sizeof(int) * (n+1));
+    r[0] = 0;
+    for(int i = 1; i <= n; i++)
+    {
+        int res = INT_MIN;
+        for(int j = 1; j <= i; j++)
+        {
+            int tmp = p[j] + r[i-j];
+            if(tmp > res)
+            {
+                res = tmp;
+            }
+        }
+        r[i] = res;
+    }
+    ret = r[n];
+    free(r);
+    return ret;
+}
+```
+
