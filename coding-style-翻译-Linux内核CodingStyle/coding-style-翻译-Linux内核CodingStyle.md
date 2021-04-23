@@ -1,8 +1,10 @@
 [toc]
 
-> 本文是翻译自[内核源码](https://github.com/lioneie/linux)（forked from [torvalds/linux](https://github.com/torvalds/linux)）的[Documentation/process/coding-style.rst](https://github.com/lioneie/linux/blob/master/Documentation/process/coding-style.rst)（Latest commit [b7592e5](https://github.com/lioneie/linux/commit/b7592e5b82db19b72a34b471f3296ad3f651c8b9)  on Feb 8）。
+> 本文是翻译自[内核源码](https://github.com/lioneie/linux)（forked from [torvalds/linux](https://github.com/torvalds/linux)）的[Documentation/process/coding-style.rst](https://github.com/lioneie/linux/blob/master/Documentation/process/coding-style.rst)（Latest commit [b7592e5](https://github.com/lioneie/linux/commit/b7592e5b82db19b72a34b471f3296ad3f651c8b9)  on 2021 Feb 8）。
 >
 > 网上虽然已经有很多人做了很好的翻译，但我还是想自己翻译一次最新的编码风格（当然，我借助了谷歌翻译），让自己更熟悉。
+>
+> 注意：如果你在**CSDN**等网站上看到这篇文章，可能会看到一个Tabs键显示成4个字符宽度而不是8个字符的宽度。在[github](https://github.com/lioneie/blog/blob/master/coding-style-%E7%BF%BB%E8%AF%91-Linux%E5%86%85%E6%A0%B8CodingStyle/coding-style-%E7%BF%BB%E8%AF%91-Linux%E5%86%85%E6%A0%B8CodingStyle.md)上查看这篇文章时一个Tabs键就会是8个字符的宽度。
 
 注意，翻译进行中，还未全部完成。
 
@@ -24,7 +26,7 @@
 
 简而言之，8字符缩进使内容更易于阅读，并具有在嵌套函数太深时发出警告的作用。 注意该警告。
 
-缓解`switch`语句中多个缩进级别的首选方法是在同一列中对齐`switch`及其从属`case`标签，而不是对`case`标签进行两次缩进。 例如（注意，网页上把Tab键显示成了四个字符）：
+缓解`switch`语句中多个缩进级别的首选方法是在同一列中对齐`switch`及其从属`case`标签，而不是对`case`标签进行两次缩进。 例如：
 
 ```c
 switch (suffix) {
@@ -72,7 +74,7 @@ if (condition) {
 
 除了注释，文档和Kconfig外，空格都不用于缩进，前面的例子是故意的。
 
-得到一个好的编辑器，不要在行尾留空格。
+选用一个好的编辑器，不要在行尾留空格。
 
 ## 2) 把长的行和字符串打散
 
@@ -85,12 +87,12 @@ if (condition) {
 
 后面的片段应该短于原来的语句，并且基本上位于靠右放置。 一个典型的例子是将后面的片段与函数左括号对齐。
 
-这些相同的规则适用于带有长参数列表的函数头，如下所示（注意，网页上把Tab键显示成了四个字符）：
+这些相同的规则适用于带有长参数列表的函数头，如下所示：
 
 ```c
 // 注意：这个例子是我（陈孝松）写的
 void fun(int a, int b, int c, int d, int e, int f, int g, int h, int i
-		int j, int k)
+         int j, int k)
 {
 	...
 ｝
@@ -100,118 +102,105 @@ void fun(int a, int b, int c, int d, int e, int f, int g, int h, int i
 
 ## 3) 大括号和空格的放置
 
-The other issue that always comes up in C styling is the placement of
-braces.  Unlike the indent size, there are few technical reasons to
-choose one placement strategy over the other, but the preferred way, as
-shown to us by the prophets Kernighan and Ritchie, is to put the opening
-brace last on the line, and put the closing brace first, thusly:
+### 3.1) 大括号
 
-.. code-block:: c
+C样式中经常出现的另一个问题是大括号的位置。 与缩进尺寸不同，没有什么技术上的原因可以选择一种放置策略而不是另一种，但是正如Kernighan和Ritchie向我们展示的，首选方式是将起始大括号放在行尾，然后将结束大括号放在行首，所以：
 
-	if (x is true) {
-		we do y
-	}
+```c
+if (x is true) {
+	we do y
+}
+```
 
-This applies to all non-function statement blocks (if, switch, for,
-while, do).  E.g.:
+这适用于所有非函数语句块（if, switch, for, while, do）。 例如：
 
-.. code-block:: c
+```c
+switch (action) {
+case KOBJ_ADD:
+	return "add";
+case KOBJ_REMOVE:
+	return "remove";
+case KOBJ_CHANGE:
+	return "change";
+default:
+	return NULL;
+}
+```
 
-	switch (action) {
-	case KOBJ_ADD:
-		return "add";
-	case KOBJ_REMOVE:
-		return "remove";
-	case KOBJ_CHANGE:
-		return "change";
-	default:
-		return NULL;
-	}
+但是，有一个特殊情况，即函数：在下一行的开头放置起始大括号，因此：
 
-However, there is one special case, namely functions: they have the
-opening brace at the beginning of the next line, thus:
+```c
+int function(int x)
+{
+	body of function
+}
+```
 
-.. code-block:: c
+全世界的异端人士都声称这种不一致性是……嗯……是不一致的，但是所有思维健全的人都知道（a）K＆R是**正确**的，（b）K＆R是正确的。 此外，函数是很特殊的（在C语言中函数是不能嵌套的）。
 
-	int function(int x)
-	{
-		body of function
-	}
+> K & R：《The C Programming Language》一书的作者Kernighan和Ritchie
 
-Heretic people all over the world have claimed that this inconsistency
-is ...  well ...  inconsistent, but all right-thinking people know that
-(a) K&R are **right** and (b) K&R are right.  Besides, functions are
-special anyway (you can't nest them in C).
+请注意，结束大括号单独一行，**除非**在其后跟着同一条语句的剩余部分，也就是`do`语句中的`while`，或者`if`语句中的`else`，例如：
 
-Note that the closing brace is empty on a line of its own, **except** in
-the cases where it is followed by a continuation of the same statement,
-ie a ``while`` in a do-statement or an ``else`` in an if-statement, like
-this:
+```c
+do {
+	body of do-loop
+} while (condition);
+```
 
-.. code-block:: c
+还有
 
-	do {
-		body of do-loop
-	} while (condition);
+```c
+if (x == y) {
+	..
+} else if (x > y) {
+	...
+} else {
+	....
+}
+```
 
-and
+理由：K＆R。
 
-.. code-block:: c
+另外，请注意，这种大括号的放置方式还可以最大程度地减少空（或几乎空）行的数量，而不会损失任何可读性。 因此，由于屏幕上的新行是不可再生资源（请考虑25行的终端屏幕），因此您有更多的空行可以放置评论。
 
-	if (x == y) {
-		..
-	} else if (x > y) {
-		...
-	} else {
-		....
-	}
+在单个语句使用的地方，不用加不必要的大括号。
 
-Rationale: K&R.
+```c
+if (condition)
+	action();
+```
 
-Also, note that this brace-placement also minimizes the number of empty
-(or almost empty) lines, without any loss of readability.  Thus, as the
-supply of new-lines on your screen is not a renewable resource (think
-25-line terminal screens here), you have more empty lines to put
-comments on.
+和
 
-Do not unnecessarily use braces where a single statement will do.
+```c
+if (condition)
+	do_this();
+else
+	do_that();
+```
 
-.. code-block:: c
+如果条件语句的只有一个分支是单个语句，则不适用； 这时请在两个分支中都使用大括号：
 
-	if (condition)
-		action();
+```c
+if (condition) {
+	do_this();
+	do_that();
+} else {
+	otherwise();
+}
+```
 
-and
+另外，当循环中包含了多个单行的简单语句时，请使用大括号：
 
-.. code-block:: none
+```c
+while (condition) {
+	if (test)
+		do_something();
+}
+```
 
-	if (condition)
-		do_this();
-	else
-		do_that();
-
-This does not apply if only one branch of a conditional statement is a single
-statement; in the latter case use braces in both branches:
-
-.. code-block:: c
-
-	if (condition) {
-		do_this();
-		do_that();
-	} else {
-		otherwise();
-	}
-
-Also, use braces when a loop contains more than a single simple statement:
-
-.. code-block:: c
-
-	while (condition) {
-		if (test)
-			do_something();
-	}
-
-### 3.1) Spaces
+### 3.2) 空格
 
 Linux kernel style for use of spaces depends (mostly) on
 function-versus-keyword usage.  Use a space after (most) keywords.  The
@@ -301,6 +290,8 @@ that counts the number of active users, you should call that
 Encoding the type of a function into the name (so-called Hungarian
 notation) is asinine - the compiler knows the types anyway and can check
 those, and it only confuses the programmer.
+
+> 这里曾经还有一句话：**难怪微软总是制造出有问题的程序**。在2021年2月12日这句话被删除了。
 
 LOCAL variable names should be short, and to the point.  If you have
 some random integer loop counter, it should probably be called ``i``.
