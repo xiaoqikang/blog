@@ -91,8 +91,8 @@ if (condition) {
 
 ```c
 // 注意：这个例子是我（陈孝松）写的
-void fun(int a, int b, int c, int d, int e, int f, int g, int h, int i
-         int j, int k)
+void func(int a, int b, int c, int d, int e, int f, int g, int h, int i
+          int j, int k)
 {
 	...
 ｝
@@ -939,58 +939,47 @@ readable alternative if the call-sites have naked true/false constants.
 Otherwise limited use of bool in structures and arguments can improve
 readability.
 
-## 18) Don't re-invent the kernel macros
+## 18) 不要重新发明内核宏
 
-The header file include/linux/kernel.h contains a number of macros that
-you should use, rather than explicitly coding some variant of them yourself.
-For example, if you need to calculate the length of an array, take advantage
-of the macro
+头文件`include/linux/kernel.h`包含许多您应该使用的宏，而不要自己写一些它们的变种。 例如，如果您需要计算数组的长度，请利用宏：
 
-.. code-block:: c
+```c
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+```
 
-	#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+同样，如果需要计算某些结构成员的大小，请使用：
 
-Similarly, if you need to calculate the size of some structure member, use
+```c
+#define sizeof_field(t, f) (sizeof(((t*)0)->f))
+```
 
-.. code-block:: c
+如果需要，还有`min()` 和 `max()`宏会进行严格的类型检查。 你可以自己看看那个头文件里还定义了什么你可以拿来用的宏，如果有定义的话，你就不应在你的代码里自己重新定义。
 
-	#define sizeof_field(t, f) (sizeof(((t*)0)->f))
+## 19) 编辑器模式行（配置信息）和其他内容
 
-There are also min() and max() macros that do strict type checking if you
-need them.  Feel free to peruse that header file to see what else is already
-defined that you shouldn't reproduce in your code.
+一些编辑器可以解释用特殊标记表示的嵌入在源文件中的配置信息。 例如，emacs解释标记如下的行：
 
-## 19) Editor modelines and other cruft
+```c
+-*- mode: c -*-
+```
 
-Some editors can interpret configuration information embedded in source files,
-indicated with special markers.  For example, emacs interprets lines marked
-like this:
+或者这样的：
 
-.. code-block:: c
+```c
+/*
+Local Variables:
+compile-command: "gcc -DMAGIC_DEBUG_FLAG foo.c"
+End:
+*/
+```
 
-	-*- mode: c -*-
+Vim解释如下标记：
 
-Or like this:
+```c
+/* vim:set sw=8 noet */
+```
 
-.. code-block:: c
-
-	/*
-	Local Variables:
-	compile-command: "gcc -DMAGIC_DEBUG_FLAG foo.c"
-	End:
-	*/
-
-Vim interprets markers that look like this:
-
-.. code-block:: c
-
-	/* vim:set sw=8 noet */
-
-Do not include any of these in source files.  People have their own personal
-editor configurations, and your source files should not override them.  This
-includes markers for indentation and mode configuration.  People may use their
-own custom mode, or may have some other magic method for making indentation
-work correctly.
+不要在源文件中包含任何这些。 人们具有自己的个人编辑器配置，并且您的源文件不应覆盖它们。 这包括用于缩进和模式配置的标记。 人们可以使用他们自己定制的模式，或者使用其他可以产生正确的缩进的巧妙方法。
 
 ## 20) 内联汇编
 
