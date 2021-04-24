@@ -1,6 +1,6 @@
 [toc]
 
-> 本文是翻译自[内核源码](https://github.com/lioneie/linux)（forked from [torvalds/linux](https://github.com/torvalds/linux)）的[Documentation/process/coding-style.rst](https://github.com/lioneie/linux/blob/master/Documentation/process/coding-style.rst)（Latest commit [b7592e5](https://github.com/lioneie/linux/commit/b7592e5b82db19b72a34b471f3296ad3f651c8b9)  on 2021 Feb 8）。
+> 本文是翻译自[内核源码](https://github.com/lioneie/linux)（forked from [torvalds/linux](https://github.com/torvalds/linux)）的[Documentation/process/coding-style.rst](https://github.com/lioneie/linux/blob/master/Documentation/process/coding-style.rst)（Latest commit [b7592e5](https://github.com/lioneie/linux/commit/b7592e5b82db19b72a34b471f3296ad3f651c8b9)  on 2021 Feb 12）。
 >
 > 网上虽然已经有很多人做了很好的翻译，但我还是想自己翻译一次最新的编码风格（当然，我借助了谷歌翻译），让自己更熟悉。
 >
@@ -202,94 +202,76 @@ while (condition) {
 
 ### 3.2) 空格
 
-Linux kernel style for use of spaces depends (mostly) on
-function-versus-keyword usage.  Use a space after (most) keywords.  The
-notable exceptions are sizeof, typeof, alignof, and __attribute__, which look
-somewhat like functions (and are usually used with parentheses in Linux,
-although they are not required in the language, as in: ``sizeof info`` after
-``struct fileinfo info;`` is declared).
+Linux内核使用空格的方式（主要）取决于是用于函数还是关键字。 （大多数）在关键字之后加一个空格。 值得注意的例外是`sizeof`，`typeof`，`alignof`和**`attribute`**，它们看起来有点像函数（并且在Linux中通常与小括号一起使用，尽管它们在语言中不是必需的，例如：`struct fileinfo info;`声明后的`sizeof info`） 。
 
-So use a space after these keywords::
+因此，在这些关键字之后加一个空格：
 
-	if, switch, case, for, do, while
+```c
+if, switch, case, for, do, while
+```
 
-but not with sizeof, typeof, alignof, or __attribute__.  E.g.,
-
-.. code-block:: c
+但不能在`sizeof`，`typeof`，`alignof`或**`attribute`**之后加空格。 例如：
 
 
-	s = sizeof(struct file);
+```c
+s = sizeof(struct file);
+```
 
-Do not add spaces around (inside) parenthesized expressions.  This example is
-**bad**:
-
-.. code-block:: c
-
-
-	s = sizeof( struct file );
-
-When declaring pointer data or a function that returns a pointer type, the
-preferred use of ``*`` is adjacent to the data name or function name and not
-adjacent to the type name.  Examples:
-
-.. code-block:: c
+不要在小括号的表达式两侧（内部）添加空格。 这是**反例**：
 
 
-	char *linux_banner;
-	unsigned long long memparse(char *ptr, char **retptr);
-	char *match_strdup(substring_t *s);
+```c
+s = sizeof( struct file );
+```
 
-Use one space around (on each side of) most binary and ternary operators,
-such as any of these::
+在声明指针数据类型或返回指针类型的函数时，*****的首选用法是与数据名称或函数名称相邻，而不与类型名称相邻。 例子：
 
-	=  +  -  <  >  *  /  %  |  &  ^  <=  >=  ==  !=  ?  :
 
-but no space after unary operators::
+```c
+char *linux_banner;
+unsigned long long memparse(char *ptr, char **retptr);
+char *match_strdup(substring_t *s);
+```
 
-	&  *  +  -  ~  !  sizeof  typeof  alignof  __attribute__  defined
+在大多数二元和三元运算符的两侧（每边）使用一个空格，例如以下任意一个：
 
-no space before the postfix increment & decrement unary operators::
+```c
+=  +  -  <  >  *  /  %  |  &  ^  <=  >=  ==  !=  ?  :
+```
 
-	++  --
+但一元运算符后不要加空格：
 
-no space after the prefix increment & decrement unary operators::
+```c
+&  *  +  -  ~  !  sizeof  typeof  alignof  __attribute__  defined
+```
 
-	++  --
+后缀递增和递减一元运算符前没有空格：
 
-and no space around the ``.`` and ``->`` structure member operators.
+```c
+++  --
+```
 
-Do not leave trailing whitespace at the ends of lines.  Some editors with
-``smart`` indentation will insert whitespace at the beginning of new lines as
-appropriate, so you can start typing the next line of code right away.
-However, some such editors do not remove the whitespace if you end up not
-putting a line of code there, such as if you leave a blank line.  As a result,
-you end up with lines containing trailing whitespace.
+前缀递增和递减一元运算符后没有空格：
 
-Git will warn you about patches that introduce trailing whitespace, and can
-optionally strip the trailing whitespace for you; however, if applying a series
-of patches, this may make later patches in the series fail by changing their
-context lines.
+```c
+++  --
+```
 
-## 4) Naming
+`.`和`->`结构成员操作符前后没有空格。
 
-C is a Spartan language, and your naming conventions should follow suit.
-Unlike Modula-2 and Pascal programmers, C programmers do not use cute
-names like ThisVariableIsATemporaryCounter. A C programmer would call that
-variable ``tmp``, which is much easier to write, and not the least more
-difficult to understand.
+不要在行尾留空格。 某些具有`智能`缩进的编辑器将在适当的情况下在新行的开头插入空格，因此您可以立即开始键入下一行代码。 但是，如果没有在这一行输入代码，则某些编辑器不会删除空格，就像你留下一个只有空白的行。 结果，行尾带有空格的行就产生了。
 
-HOWEVER, while mixed-case names are frowned upon, descriptive names for
-global variables are a must.  To call a global function ``foo`` is a
-shooting offense.
+当git发现补丁包含了行尾空格的时候会警告你，并且可以有选择地为你去掉尾随空格； 但是，如果打一系列补丁，这样做会导致后面的补丁失败，因为你改变了补丁的上下文。
 
-GLOBAL variables (to be used only if you **really** need them) need to
-have descriptive names, as do global functions.  If you have a function
-that counts the number of active users, you should call that
-``count_active_users()`` or similar, you should **not** call it ``cntusr()``.
+## 4) 命名
 
-Encoding the type of a function into the name (so-called Hungarian
-notation) is asinine - the compiler knows the types anyway and can check
-those, and it only confuses the programmer.
+C是一种简朴的语言，你的命名也应是这样。 与Modula-2和Pascal程序员不同，C程序员不会使用诸如`ThisVariableIsATemporaryCounter`之类的可爱名称。 C程序员将该变量命名为`tmp`，该变量更容易编写，而且更容易理解。
+
+但是，虽然不赞成使用大小写混合的名称，但全局变量还是需要使用具备描述性的名称。 把全局函数命名为`foo`是一种难以饶恕的错误。
+
+**全局**变量（仅在**确实**需要它们时才使用）与全局函数一样，都需要具有描述性名称。 如果您有一个统计活动用户数量的函数，则应命名为`count_active_users()`或类似名称，而**不应该**命名为`cntusr()`。
+
+在函数名中包含函数类型（所谓的匈牙利命名法）是愚蠢的 - 编译器知道类型而且能够检查类型，这样做只能把程序员弄糊涂。
 
 > 这里曾经还有一句话：**难怪微软总是制造出有问题的程序**。在2021年2月12日这句话被删除了。
 

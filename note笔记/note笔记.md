@@ -83,3 +83,24 @@ Socket(s):                       1
 ...
 ```
 
+# TODO：用栈实现加减乘除
+
+TODO
+
+# TODO：跳跃链表
+
+TODO
+
+# TODO：TCP三次握手和四次挥手
+
+TODO
+
+# TODO：systemd配置文件
+
+type
+
+TODO
+
+# TODO：＃pragma
+
+TODO
