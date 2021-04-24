@@ -83,6 +83,63 @@ Socket(s):                       1
 ...
 ```
 
+# 编译内核
+
+```shell
+# menuconfig错误时需要安装
+sudo yum install ncurses-devel -y
+make oldconfig
+make bzImage
+make modules
+make modules_install
+make install
+
+# 以下内容可能不需要
+# 2.6.34在这里要建立/boot/config的软链接
+# 后面的2.6.10表示/lib/modules下面的一个目录-也就是版本号，2.6.34编译 去掉-o，用-v
+mkinitrd -o /boot/initrd.img-2.6.10 2.6.10
+vim /boot/grub/menu.lst
+```
+
+# ubuntu老版本-ubuntu5.04
+
+镜像源：[http://old-releases.ubuntu.com](http://old-releases.ubuntu.com)。
+
+ubuntu5.04安装ncurses_devel（源码下载：[http://ftp.gnu.org/gnu/ncurses/ncurses-5.4.tar.gz](http://ftp.gnu.org/gnu/ncurses/ncurses-5.4.tar.gz)）：
+
+```shell
+./configure --with-shared --without-debug --without-ada --enable-overwrite
+make
+make install
+```
+
+ubuntu5.04挂载nfs：
+
+```shell
+sudo apt-get install nfs-kernel-server -y
+# 服务端（ubuntu5.04）配置：
+# 添加内容：开始/ *(insecure,rw,no_root_squash,no_all_squash,sync)结束
+# 也可以尝试： 开始 / client ip(insecure,rw,no_root_squash,no_all_squash,sync)  结束
+sudo vim /etc/exports 
+# 客户端：
+sudo mount -o v3 -t nfs server ip:/ ./ldd3/ -o nolock
+# 遇到过nfs很久连不上（但最后可以连上），如果重启真实机可能可以(不确定，可以尝试)
+```
+
+# ubuntu18.04在kvm qemu中无法分配ip
+
+ifconfig -a 查看网卡名称
+
+在/etc/netplan/50-cloud-init.yaml把网卡名称修改成正确名称
+
+sudo netplan apply
+
+# fedora33无法访问小米手机
+
+报错unable to open mtp device
+
+sudo yum install simple-mtpfs -y
+
 # TODO：用栈实现加减乘除
 
 TODO
