@@ -1,3 +1,5 @@
+[toc]
+
 本文章没有什么高大上的内容，只是一些笔记，方便日后查询。
 
 # git仓库迁移
@@ -43,4 +45,41 @@ KexAlgorithms +diffie-hellman-group1-sha1
 # shell ctrl+s锁死解决办法
 
 shell搜索历史命令，ctrl+r搜索更早的历史命令，但ctrl + s搜索更新的历史命令会锁死，可输入**`stty -ixon`**解决。
+
+# 内核告警修复
+
+安装[coccinelle](https://coccinelle.gitlabpages.inria.fr/website/)：
+
+```shell
+$ sudo yum install coccinelle -y
+```
+
+执行检查：
+
+```shell
+# M=目录名
+$ make coccicheck -j16 M=kernel/sched/ > tmp
+```
+
+[syzkaller.appspot.com/upstream](https://syzkaller.appspot.com/upstream)
+
+# 查看cpu核数
+
+```shell
+[sonvhi@localhost ~]$ lscpu
+Architecture:                    x86_64
+CPU op-mode(s):                  32-bit, 64-bit
+Byte Order:                      Little Endian
+Address sizes:                   48 bits physical, 48 bits virtual
+# 逻辑cpu个数 = 物理cpu个数 * 每颗物理cpu的核数 * 超线程数
+CPU(s):                          16
+On-line CPU(s) list:             0-15
+# 超线程数（每个核心线程）
+Thread(s) per core:              2
+# 每颗物理cpu的核数（每个cpu插槽核数）
+Core(s) per socket:              8
+# 物理cpu个数（cpu插槽数）
+Socket(s):                       1
+...
+```
 
