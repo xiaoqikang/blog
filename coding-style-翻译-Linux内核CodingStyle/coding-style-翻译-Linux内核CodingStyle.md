@@ -992,100 +992,58 @@ includes markers for indentation and mode configuration.  People may use their
 own custom mode, or may have some other magic method for making indentation
 work correctly.
 
-## 20) Inline assembly
+## 20) 内联汇编
 
-In architecture-specific code, you may need to use inline assembly to interface
-with CPU or platform functionality.  Don't hesitate to do so when necessary.
-However, don't use inline assembly gratuitously when C can do the job.  You can
-and should poke hardware from C when possible.
+在特定于体系结构的代码中，您可能需要使用内联汇编与CPU或平台功能交互。 必要时不要犹豫。 但是，当C可以完成这项工作时，请不要随意使用内联汇编。 您可以并且应该在可能的情况下用C操作硬件。
 
-Consider writing simple helper functions that wrap common bits of inline
-assembly, rather than repeatedly writing them with slight variations.  Remember
-that inline assembly can use C parameters.
+考虑编写简单的辅助函数，这些函数包装内联汇编的常用位，而不是重复编写稍有变化的函数。 请记住，内联汇编可以使用C参数。
 
-Large, non-trivial assembly functions should go in .S files, with corresponding
-C prototypes defined in C header files.  The C prototypes for assembly
-functions should use ``asmlinkage``.
+大型的，非平凡（大量的）的汇编函数应放在.S文件中，并在C头文件中定义相应的C原型。 汇编函数的C原型应使用`asmlinkage`。
 
-You may need to mark your asm statement as volatile, to prevent GCC from
-removing it if GCC doesn't notice any side effects.  You don't always need to
-do so, though, and doing so unnecessarily can limit optimization.
+您可能需要将asm语句标记为`volatile`，以防止GCC在未发现任何副作用的情况下将其删除。 但是，您不一定总是需要这样做，因为这样做可能会限制优化。
 
-When writing a single inline assembly statement containing multiple
-instructions, put each instruction on a separate line in a separate quoted
-string, and end each string except the last with ``\n\t`` to properly indent
-the next instruction in the assembly output:
+当编写包含多个指令的单个内联汇编语句时，将每条指令放在单独的行中，放在单独的带引号的字符串中，用``\n\t`` 结束除最后一个字符串以外的每个字符串，以正确缩进汇编输出中的下一条指令：
 
-.. code-block:: c
+```c
+asm ("magic %reg1, #42\n\t"
+     "more_magic %reg2, %reg3"
+     : /* outputs */ : /* inputs */ : /* clobbers */);
+```
 
-	asm ("magic %reg1, #42\n\t"
-	     "more_magic %reg2, %reg3"
-	     : /* outputs */ : /* inputs */ : /* clobbers */);
+## 21) 条件编译
 
-## 21) Conditional Compilation
+尽可能不要在`.c`文件中使用预处理条件（`#if, #ifdef`）； 这样做会使代码更难阅读，逻辑也更难遵循。 而是在头文件中使用此类条件，以定义在那些`.c`文件中使用的函数，在`#else`情况下提供no-op（无操作） stub版本，然后从`.c`文件中无条件调用这些函数。 编译器将避免为stub calls生成任何代码，从而产生相同的结果，但是逻辑将易于遵循。
 
-Wherever possible, don't use preprocessor conditionals (#if, #ifdef) in .c
-files; doing so makes code harder to read and logic harder to follow.  Instead,
-use such conditionals in a header file defining functions for use in those .c
-files, providing no-op stub versions in the #else case, and then call those
-functions unconditionally from .c files.  The compiler will avoid generating
-any code for the stub calls, producing identical results, but the logic will
-remain easy to follow.
+最好编译出整个函数，而不是编译部分函数或表达式的一部分。 不要将`ifdef`放入表达式中，而是将部分或全部表达式封装成函数，然后调用该函数。
 
-Prefer to compile out entire functions, rather than portions of functions or
-portions of expressions.  Rather than putting an ifdef in an expression, factor
-out part or all of the expression into a separate helper function and apply the
-conditional to that function.
+如果您具有在特定配置中可能未使用的函数或变量，并且编译器会警告其定义未使用，请将该定义标记为`__maybe_unused`，而不是将其包装在预处理条件中。 （但是，如果函数或变量**始终**不使用，请将其删除。）
 
-If you have a function or variable which may potentially go unused in a
-particular configuration, and the compiler would warn about its definition
-going unused, mark the definition as __maybe_unused rather than wrapping it in
-a preprocessor conditional.  (However, if a function or variable *always* goes
-unused, delete it.)
+在代码内，在可能的情况下，使用`IS_ENABLED`宏将Kconfig符号转换为C布尔表达式，并在普通的C条件中使用它：
 
-Within code, where possible, use the IS_ENABLED macro to convert a Kconfig
-symbol into a C boolean expression, and use it in a normal C conditional:
-
-.. code-block:: c
-
-	if (IS_ENABLED(CONFIG_SOMETHING)) {
-		...
-	}
-
-The compiler will constant-fold the conditional away, and include or exclude
-the block of code just as with an #ifdef, so this will not add any runtime
-overhead.  However, this approach still allows the C compiler to see the code
-inside the block, and check it for correctness (syntax, types, symbol
-references, etc).  Thus, you still have to use an #ifdef if the code inside the
-block references symbols that will not exist if the condition is not met.
-
-At the end of any non-trivial #if or #ifdef block (more than a few lines),
-place a comment after the #endif on the same line, noting the conditional
-expression used.  For instance:
-
-.. code-block:: c
-
-	#ifdef CONFIG_SOMETHING
+```c
+if (IS_ENABLED(CONFIG_SOMETHING)) {
 	...
-	#endif /* CONFIG_SOMETHING */
+}
+```
 
-## Appendix I) References
+编译器将不断折叠条件，并像`#ifdef`一样包含或排除代码块，因此这不会增加任何运行时开销。 但是，这种方法仍然允许C编译器查看块中的代码，并检查其是否正确（语法，类型，符号引用等）。 因此，如果块内的代码引用了如果不满足条件将不存在的符号，则仍然必须使用`#ifdef`。
 
-The C Programming Language, Second Edition
-by Brian W. Kernighan and Dennis M. Ritchie.
-Prentice Hall, Inc., 1988.
-ISBN 0-13-110362-8 (paperback), 0-13-110370-9 (hardback).
+在任何重要的`#if`或`#ifdef`代码块的末尾（多行），在同一行的`#endif`后面放置注释，并注明所使用的条件表达式。 例如：
 
-The Practice of Programming
-by Brian W. Kernighan and Rob Pike.
-Addison-Wesley, Inc., 1999.
-ISBN 0-201-61586-X.
+```c
+#ifdef CONFIG_SOMETHING
+...
+#endif /* CONFIG_SOMETHING */
+```
 
-GNU manuals - where in compliance with K&R and this text - for cpp, gcc,
-gcc internals and indent, all available from https://www.gnu.org/manual/
+## 附录 I) 参考
 
-WG14 is the international standardization working group for the programming
-language C, URL: http://www.open-std.org/JTC1/SC22/WG14/
+The C Programming Language, Second Edition by Brian W. Kernighan and Dennis M. Ritchie. Prentice Hall, Inc., 1988. ISBN 0-13-110362-8 (paperback), 0-13-110370-9 (hardback).
 
-Kernel :ref:`process/coding-style.rst <codingstyle>`, by greg@kroah.com at OLS 2002:
-http://www.kroah.com/linux/talks/ols_2002_kernel_codingstyle_talk/html/
+The Practice of Programming by Brian W. Kernighan and Rob Pike. Addison-Wesley, Inc., 1999. ISBN 0-201-61586-X.
+
+GNU manuals - where in compliance with K&R and this text - for cpp, gcc, gcc internals and indent, all  available from [https://www.gnu.org/manual/](https://www.gnu.org/manual/)
+
+WG14 is the international standardization working group for the programming language C, URL: [http://www.open-std.org/JTC1/SC22/WG14/](http://www.open-std.org/JTC1/SC22/WG14/)
+
+Kernel :ref:`process/coding-style.rst <codingstyle>`, by greg@kroah.com at OLS 2002: [http://www.kroah.com/linux/talks/ols_2002_kernel_codingstyle_talk/html/](http://www.kroah.com/linux/talks/ols_2002_kernel_codingstyle_talk/html/)
