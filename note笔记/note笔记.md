@@ -126,6 +126,43 @@ sudo mount -o v3 -t nfs server ip:/ ./ldd3/ -o nolock
 # 遇到过nfs很久连不上（但最后可以连上），如果重启真实机可能可以(不确定，可以尝试)
 ```
 
+# centos老版本
+
+centos6.10发行版下载网站：[https://vault.centos.org/6.10/](https://vault.centos.org/6.10/)。
+
+centos6.10安装包下载网址：[http://vault.centos.org/6.10/os/Source/SPackages/](http://vault.centos.org/6.10/os/Source/SPackages/)。
+
+centos4.8发行版下载网站：[https://vault.centos.org/4.8/](https://vault.centos.org/4.8/)
+
+centos4.8安装包下载网址：[https://vault.centos.org/4.8/os/SRPMS/](https://vault.centos.org/4.8/os/SRPMS/)
+
+## centos4.8安装软件: 
+
+centos4.8本地yum源，`sudo vim /etc/yum.repos.d/CentOS-Media.repo`：
+
+```
+[c4-media]
+name=CentOS-$releasever - Media 
+baseurl=file:///media/cdrom/
+        file:///media/cdrecorder/
+#gpgcheck=1
+#enabled=0
+gpgcheck=0
+enabled=0
+gpgkey=file:///usr/share/doc/centos-release-4/RPM-GPG-KEY-centos4
+```
+
+```shell
+$ mount iso文件 /media/cdrom/
+```
+
+安装Development Tools：
+
+```shell
+# 如果报错解决方法：rpm -e redhat-lsb-3.0-8.EL
+sudo yum --enablerepo=c4-media --noplugins groupinstall "Development Tools" -y
+```
+
 # ubuntu18.04在kvm qemu中无法分配ip
 
 ifconfig -a 查看网卡名称
