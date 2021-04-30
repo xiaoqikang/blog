@@ -1,6 +1,6 @@
 编写本文档的目的是为了查找命令方便，也希望可以给同样喜爱vim的朋友一些参考。
 
-本人使用的系统是Fedora32。
+本人使用的系统是Fedora。
 
 至于vim最基础的知识，可以在shell下输入`vimtutor`命令查看，网上也有很多翻译的文档，请自行搜索。
 
@@ -20,11 +20,11 @@ set ruler               "右下角显示位置
 set hlsearch            "搜索高亮
 set fdm=indent          "indent缩进折叠，syntax语法折叠
 set pastetoggle=<F9>    "F9粘贴设置切换
-set ts=4                "一个tab键等于4个空格宽度
-set sw=4                "按<键和>键缩进时，移动4个空格
-set expandtab           "tab转化为空格
+"set ts=4                "一个tab键等于4个空格宽度
+"set sw=4                "按<键和>键缩进时，移动4个空格
+"set expandtab           "tab转化为空格
 set mouse-=a			"鼠标选择文字不会进入visual模式
-set colorscheme=desert	"支持的color查看/usr/share/vim/vim82/colors/（vim82是vim版本）
+colorscheme desert      "支持的color查看/usr/share/vim/vim82/colors/（vim82是vim版本）
 set ic                  "set ic忽略大小写(ignore case), set noic 不忽略大小写
 ```
 

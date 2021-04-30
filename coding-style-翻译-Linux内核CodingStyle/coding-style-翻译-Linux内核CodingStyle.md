@@ -162,7 +162,7 @@ if (x == y) {
 
 理由：K＆R。
 
-另外，请注意，这种大括号的放置方式还可以最大程度地减少空（或几乎空）行的数量，而不会损失任何可读性。 因此，由于屏幕上的新行是不可再生资源（请考虑25行的终端屏幕），因此您有更多的空行可以放置评论。
+另外，请注意，这种大括号的放置方式还可以最大程度地减少空（或几乎空）行的数量，而不会损失任何可读性。 因此，由于屏幕上的新行是不可再生资源（请考虑25行的终端屏幕），因此您有更多的空行可以放置注释。
 
 在单个语句使用的地方，不用加不必要的大括号。
 
@@ -224,7 +224,7 @@ s = sizeof(struct file);
 s = sizeof( struct file );
 ```
 
-在声明指针数据类型或返回指针类型的函数时，*****的首选用法是与数据名称或函数名称相邻，而不与类型名称相邻。 例子：
+在声明指针数据类型或返回指针类型的函数时，`*`的首选用法是与数据名称或函数名称相邻，而不与类型名称相邻。 例子：
 
 
 ```c
@@ -275,36 +275,25 @@ C是一种简朴的语言，你的命名也应是这样。 与Modula-2和Pascal�
 
 > 这里曾经还有一句话：**难怪微软总是制造出有问题的程序**。在2021年2月12日这句话被删除了。
 
-LOCAL variable names should be short, and to the point.  If you have
-some random integer loop counter, it should probably be called ``i``.
-Calling it ``loop_counter`` is non-productive, if there is no chance of it
-being mis-understood.  Similarly, ``tmp`` can be just about any type of
-variable that is used to hold a temporary value.
+**局部**变量名称应简短明了。 如果您有一些随机整数循环计数器，则应命名为`i`。 如果没有可能被误解，则命名为`loop_counter`是无用的。 同样，`tmp`可以用来命名任意类型的临时变量。
 
-If you are afraid to mix up your local variable names, you have another
-problem, which is called the function-growth-hormone-imbalance syndrome.
-See chapter 6 (Functions).
+如果您害怕混淆您的局部变量名称，那么您会遇到另一个问题，称为叫做函数增长荷尔蒙失衡综合症（function-growth-hormone-imbalance syndrome）。 请参见第6章（函数）。
 
-For symbol names and documentation, avoid introducing new usage of
-'master / slave' (or 'slave' independent of 'master') and 'blacklist /
-whitelist'.
+对于符号名称和文档，请避免引入“主/从”（或独立于“主”的“从”）和“黑名单/白名单”的新用法。
 
-Recommended replacements for 'master / slave' are:
-    '{primary,main} / {secondary,replica,subordinate}'
-    '{initiator,requester} / {target,responder}'
-    '{controller,host} / {device,worker,proxy}'
-    'leader / follower'
-    'director / performer'
+推荐的“主/从”（'master / slave'）替代方案是：
 
-Recommended replacements for 'blacklist/whitelist' are:
-    'denylist / allowlist'
-    'blocklist / passlist'
+```
+'{primary,main} / {secondary,replica,subordinate}' '{initiator,requester} / {target,responder}' '{controller,host} / {device,worker,proxy}' 'leader / follower' 'director / performer'
+```
 
-Exceptions for introducing new usage is to maintain a userspace ABI/API,
-or when updating code for an existing (as of 2020) hardware or protocol
-specification that mandates those terms. For new specifications
-translate specification usage of the terminology to the kernel coding
-standard where possible.
+推荐的“黑名单/白名单”（'blacklist/whitelist'）替代方案是：
+
+```
+'denylist / allowlist' 'blocklist / passlist'
+```
+
+引入新用法的例外情况是维护用户空间ABI/API，或者更新用于强制使用这些术语的现有（截至2020年）硬件或协议规范的代码。 对于新规范，尽可能将术语的规范用法转换为内核编码标准。
 
 ## 5) Typedefs
 
