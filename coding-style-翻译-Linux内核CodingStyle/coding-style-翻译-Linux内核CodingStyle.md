@@ -138,7 +138,7 @@ int function(int x)
 
 全世界的异端人士都声称这种不一致性是……嗯……是不一致的，但是所有思维健全的人都知道（a）K＆R是**正确**的，（b）K＆R是正确的。 此外，函数是很特殊的（在C语言中函数是不能嵌套的）。
 
-> K & R：《The C Programming Language》一书的作者Kernighan和Ritchie
+> 陈孝松注：K & R：《The C Programming Language》一书的作者Kernighan和Ritchie
 
 请注意，结束大括号单独一行，**除非**在其后跟着同一条语句的剩余部分，也就是`do`语句中的`while`，或者`if`语句中的`else`，例如：
 
@@ -273,7 +273,7 @@ C是一种简朴的语言，你的命名也应是这样。 与Modula-2和Pascal�
 
 在函数名中包含函数类型（所谓的匈牙利命名法）是愚蠢的 - 编译器知道类型而且能够检查类型，这样做只能把程序员弄糊涂。
 
-> 这里曾经还有一句话：**难怪微软总是制造出有问题的程序**。在2021年2月12日这句话被删除了。
+> 陈孝松注：这里曾经还有一句话：**难怪微软总是制造出有问题的程序**。在2021年2月12日这句话被删除了。
 
 **局部**变量名称应简短明了。 如果您有一些随机整数循环计数器，则应命名为`i`。 如果没有可能被误解，则命名为`loop_counter`是无用的。 同样，`tmp`可以用来命名任意类型的临时变量。
 
@@ -295,99 +295,68 @@ C是一种简朴的语言，你的命名也应是这样。 与Modula-2和Pascal�
 
 引入新用法的例外情况是维护用户空间ABI/API，或者更新用于强制使用这些术语的现有（截至2020年）硬件或协议规范的代码。 对于新规范，尽可能将术语的规范用法转换为内核编码标准。
 
-## 5) Typedefs
+## 5) typedef
 
-Please don't use things like ``vps_t``.
-It's a **mistake** to use typedef for structures and pointers. When you see a
-
-.. code-block:: c
+请不要使用`vps_t`之类的东西。 对结构体和指针使用`typedef`是**错误**的。 当你看到
 
 
-	vps_t a;
+```c
+vps_t a;
+```
 
-in the source, what does it mean?
-In contrast, if it says
+出现在代码中，是什么意思？ 相反，如果这样
 
-.. code-block:: c
+```c
+struct virtual_container *a;
+```
 
-	struct virtual_container *a;
+你就知道`a`是什么了。
 
-you can actually tell what ``a`` is.
+许多人认为`typedef`**有助于提高可读性**。 不是这样的。它们仅在下列情况下有用：
 
-Lots of people think that typedefs ``help readability``. Not so. They are
-useful only for:
+> 1. 完全不透明的对象（这时typedef主动用于**隐藏**对象是什么）。
+>
+>    例如：`pte_t`等不透明对象，您只能使用适当的访函数来访问他们。
+>
+>    注意：不透明和`访问函数`本身并不好。 之所以使用诸如`pte_t`等类型的原因在于真的是**完全没有任何**共用的可访问信息。
+>
+> 2. 清楚的整数类型，这层抽象**有助于**避免混淆到底是`int`还是`long`。
+>
+>    `u8/u16/u32`是没问题的`typedef`，不过它们更符合(4)而不是这里。
+>
+>    再次注意：需要有一个**原因**。 如果某个变量类型是`unsigned long`，则没有必要这样
+>
+>    ```c
+>    typedef unsigned long myflags_t;
+>    ```
+>
+>    但是，如果有明确的原因，比如有些情况可能是``unsigned int``，而在其他情况下可能是``unsigned long``，那么一定要继续使用`typedef`。
+>
+> 3. 当您使用`sparse`从字面上创建用于类型检查的**新类型**时。
+>
+>    > 陈孝松注：sparse 诞生于 2004 年, 是由linus开发的, 目的就是提供一个静态检查代码的工具, 从而减少linux内核的隐患。
+>
+> 4. 在某些特殊情况下，与标准C99类型相同的新类型。
+>
+>    尽管眼睛和大脑只需要很短的时间就习惯了``uint32_t``这样的标准类型，但是仍然有人反对使用它们。
+>
+>    因此，Linux特有的等同于标准类型的``u8/u16/u32/u64``类型和它们的有符号类型是被允许的 -- 尽管它们在您自己的新代码中不是必需的。
+>
+>    编辑已使用了某类型集的现有代码时，应遵循该代码中的现有选择。
+>
+> 5. 可以在用户空间中安全使用的类型。
+>
+>    在用户空间可见的某些结构体中，我们不能要求C99类型而且不能用上面提到的``u32``类型。 因此，我们在与用户空间共享的所有结构体中使用`__u32`和类似的类型。
 
- (a) totally opaque objects (where the typedef is actively used to **hide**
-     what the object is).
+也许还有其他情况，但是基本的规则应该**永远不要**使用`typedef`，除非您可以明确符合上述规则中的一个。
 
-     Example: ``pte_t`` etc. opaque objects that you can only access using
-     the proper accessor functions.
-    
-     .. note::
-    
-       Opaqueness and ``accessor functions`` are not good in themselves.
-       The reason we have them for things like pte_t etc. is that there
-       really is absolutely **zero** portably accessible information there.
+通常，指针或结构体中的元素可以合理被访问到，那么就不应该是`typedef`。
 
- (b) Clear integer types, where the abstraction **helps** avoid confusion
-     whether it is ``int`` or ``long``.
+## 6) 函数
 
-     u8/u16/u32 are perfectly fine typedefs, although they fit into
-     category (d) better than here.
-    
-     .. note::
-    
-       Again - there needs to be a **reason** for this. If something is
-       ``unsigned long``, then there's no reason to do
-    
-    typedef unsigned long myflags_t;
-    
-     but if there is a clear reason for why it under certain circumstances
-     might be an ``unsigned int`` and under other configurations might be
-     ``unsigned long``, then by all means go ahead and use a typedef.
+函数应该简短而漂亮，并且只完成一件事。 它们应该一屏或两屏显示完（众所周知，`ISO/ANSI`屏幕大小为`80x24`），并且可以做一件事并且做好。
 
- (c) when you use sparse to literally create a **new** type for
-     type-checking.
-
- (d) New types which are identical to standard C99 types, in certain
-     exceptional circumstances.
-
-     Although it would only take a short amount of time for the eyes and
-     brain to become accustomed to the standard types like ``uint32_t``,
-     some people object to their use anyway.
-    
-     Therefore, the Linux-specific ``u8/u16/u32/u64`` types and their
-     signed equivalents which are identical to standard types are
-     permitted -- although they are not mandatory in new code of your
-     own.
-    
-     When editing existing code which already uses one or the other set
-     of types, you should conform to the existing choices in that code.
-
- (e) Types safe for use in userspace.
-
-     In certain structures which are visible to userspace, we cannot
-     require C99 types and cannot use the ``u32`` form above. Thus, we
-     use __u32 and similar types in all structures which are shared
-     with userspace.
-
-Maybe there are other cases too, but the rule should basically be to NEVER
-EVER use a typedef unless you can clearly match one of those rules.
-
-In general, a pointer, or a struct that has elements that can reasonably
-be directly accessed should **never** be a typedef.
-
-## 6) Functions
-
-Functions should be short and sweet, and do just one thing.  They should
-fit on one or two screenfuls of text (the ISO/ANSI screen size is 80x24,
-as we all know), and do one thing and do that well.
-
-The maximum length of a function is inversely proportional to the
-complexity and indentation level of that function.  So, if you have a
-conceptually simple function that is just one long (but simple)
-case-statement, where you have to do lots of small things for a lot of
-different cases, it's OK to have a longer function.
+函数的最大长度与该函数的复杂度和缩进级数成反比。 因此，如果您有一个理论上很简单的函数，只是一个很长（但很简单）的`case`语句，那么需要在每个`case`语句做很多小事情，这样的函数可以很长。
 
 However, if you have a complex function, and you suspect that a
 less-than-gifted first-year high-school student might not even
