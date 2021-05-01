@@ -177,6 +177,26 @@ sudo netplan apply
 
 sudo yum install simple-mtpfs -y
 
+# markdown语法
+
+文字环绕图片：
+
+```
+<div style="float: left; clear: both;" align="left">
+<img src="./半身照.jpg" width="150" alt="半身照" align=right hspace="5" vspace="5"/>
+<font color=#000000 size=6>
+<strong style="background:#00B2BF">个人信息&nbsp;&nbsp;</strong>
+</font>
+<font color=#000000 size=4>
+<br />
+<strong>姓&nbsp;&nbsp;名：</strong>陈孝松
+<br />
+</font>
+</div>
+```
+
+
+
 # TODO：用栈实现加减乘除
 
 TODO
