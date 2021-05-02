@@ -2,9 +2,11 @@
 
 > 本文是翻译自[内核源码](https://github.com/lioneie/linux)（forked from [torvalds/linux](https://github.com/torvalds/linux)）的[Documentation/process/coding-style.rst](https://github.com/lioneie/linux/blob/master/Documentation/process/coding-style.rst)（Latest commit [b7592e5](https://github.com/lioneie/linux/commit/b7592e5b82db19b72a34b471f3296ad3f651c8b9)  on 2021 Feb 12）。
 >
-> 网上虽然已经有很多人做了很好的翻译，但我还是想自己翻译一次最新的编码风格（当然，我借助了谷歌翻译），让自己更熟悉。
+> 网上虽然已经有很多人做了很好的翻译，但我还是想自己翻译一次最新的编码风格（当然，我借助了谷歌翻译），让自己加深印象。
 >
 > 注意：如果你在**CSDN**等网站上看到这篇文章，可能会看到一个Tabs键显示成4个字符宽度而不是8个字符的宽度。在[github](https://github.com/lioneie/blog/blob/master/coding-style-%E7%BF%BB%E8%AF%91-Linux%E5%86%85%E6%A0%B8CodingStyle/coding-style-%E7%BF%BB%E8%AF%91-Linux%E5%86%85%E6%A0%B8CodingStyle.md)上查看这篇文章时一个Tabs键就会是8个字符的宽度。
+
+如果发现有看不懂的地方，不用怀疑，是我翻译得不对，请告诉我：lioneie@163.com。
 
 注意，翻译进行中，还未全部完成。
 
@@ -358,111 +360,89 @@ struct virtual_container *a;
 
 函数的最大长度与该函数的复杂度和缩进级数成反比。 因此，如果您有一个理论上很简单的函数，只是一个很长（但很简单）的`case`语句，那么需要在每个`case`语句做很多小事情，这样的函数可以很长。
 
-However, if you have a complex function, and you suspect that a
-less-than-gifted first-year high-school student might not even
-understand what the function is all about, you should adhere to the
-maximum limits all the more closely.  Use helper functions with
-descriptive names (you can ask the compiler to in-line them if you think
-it's performance-critical, and it will probably do a better job of it
-than you would have done).
+但是，如果功能很复杂，并且怀疑天分不是很高的一年级高中生甚至可能根本不了解该函数的功能，则应该更加严格地遵守长度限制。 使用具有描述性名称的辅助函数（如果您认为它们的性能至关重要，则可以让编译器内联它们，效果比写一个复杂的函数要好）。
 
-Another measure of the function is the number of local variables.  They
-shouldn't exceed 5-10, or you're doing something wrong.  Re-think the
-function, and split it into smaller pieces.  A human brain can
-generally easily keep track of about 7 different things, anything more
-and it gets confused.  You know you're brilliant, but maybe you'd like
-to understand what you did 2 weeks from now.
+函数的另一种衡量标准是局部变量的个数。 它们不应超过5-10个，否则函数就有问题了。 重新考虑一下函数的实现，并将其拆分为更小的函数。 人脑通常可以轻松地跟踪约7种不同的事物，如果更多的话就会变得混乱。 即使你再聪明，你也可能会记不清两个星期前做过的事。
 
-In source files, separate functions with one blank line.  If the function is
-exported, the **EXPORT** macro for it should follow immediately after the
-closing function brace line.  E.g.:
+在源文件中，用一个空行分隔函数。 如果导出了该函数，则该函数的`EXPORT`宏应紧跟在结束大括号的下一行。 例如：
 
-.. code-block:: c
+```c
+int system_is_up(void)
+{
+	return system_state == SYSTEM_RUNNING;
+}
+EXPORT_SYMBOL(system_is_up);
+```
 
-	int system_is_up(void)
-	{
-		return system_state == SYSTEM_RUNNING;
-	}
-	EXPORT_SYMBOL(system_is_up);
+在函数原型中，最好包含参数名称和其数据类型。 尽管C语言没要求必须这样做，但在Linux中提倡这样做，因为这样可以很简单的给读者提供更多的有价值的信息。
 
-In function prototypes, include parameter names with their data types.
-Although this is not required by the C language, it is preferred in Linux
-because it is a simple way to add valuable information for the reader.
+请勿将`extern`关键字与函数原型一起使用，因为这会使行更长，并且并非绝对必要。
 
-Do not use the ``extern`` keyword with function prototypes as this makes
-lines longer and isn't strictly necessary.
+## 7) 集中的函数退出途径
 
-## 7) Centralized exiting of functions
+尽管某些人认为已过时，但是`goto`语句的等价物经常以无条件跳转指令的形式被编译器使用。
 
-Albeit deprecated by some people, the equivalent of the goto statement is
-used frequently by compilers in form of the unconditional jump instruction.
+> 陈孝松注：**equivalent of the goto statement** 翻译为**`goto`语句的等价物**似乎不大通顺，如果你有更好的翻译请告诉我。
 
-The goto statement comes in handy when a function exits from multiple
-locations and some common work such as cleanup has to be done.  If there is no
-cleanup needed then just return directly.
+当函数从多个位置退出并且必须执行一些常规工作（例如清理）时，goto语句会派上用场。 如果不需要清理，则直接返回。
 
-Choose label names which say what the goto does or why the goto exists.  An
-example of a good name could be ``out_free_buffer:`` if the goto frees ``buffer``.
-Avoid using GW-BASIC names like ``err1:`` and ``err2:``, as you would have to
-renumber them if you ever add or remove exit paths, and they make correctness
-difficult to verify anyway.
+选择标签名称，要能说明goto的功能或goto存在的原因。 如果`goto`中转到释放`buffer`的地方，则标签名字为`out_free_buffer:`将是一个很好的例子。 避免使用诸如``err1:`` 和 ``err2:``之类的GW-BASIC名称，因为如果您添加或删除出口路径，则必须重新编号它们，并且它们无论如何都会使正确性难以验证。
 
-The rationale for using gotos is:
+> 陈孝松注：GW-BASIC是BASIC的一个方言版本，这个版本的BASIC最早是微软在1984年为康柏（2002年康柏公司被惠普公司收购）开发的。
 
-- unconditional statements are easier to understand and follow
-- nesting is reduced
-- errors by not updating individual exit points when making
-  modifications are prevented
-- saves the compiler work to optimize redundant code away ;)
+使用gotos的基本原理是：
 
-.. code-block:: c
+- 无条件语句更易于理解和跟踪
+- 嵌套程度减少
+- 防止在进行修改时忘记更新某个单独的退出点而导致错误
+- 节省了编译器的工作，以优化冗余代码;)
 
-	int fun(int a)
-	{
-		int result = 0;
-		char *buffer;
-	
-		buffer = kmalloc(SIZE, GFP_KERNEL);
-		if (!buffer)
-			return -ENOMEM;
-	
-		if (condition1) {
-			while (loop1) {
-				...
-			}
-			result = 1;
-			goto out_free_buffer;
+```c
+int fun(int a)
+{
+	int result = 0;
+	char *buffer;
+
+	buffer = kmalloc(SIZE, GFP_KERNEL);
+	if (!buffer)
+		return -ENOMEM;
+
+	if (condition1) {
+		while (loop1) {
+			...
 		}
-		...
-	out_free_buffer:
-		kfree(buffer);
-		return result;
+		result = 1;
+		goto out_free_buffer;
 	}
+	...
+out_free_buffer:
+	kfree(buffer);
+	return result;
+}
+```
 
-A common type of bug to be aware of is ``one err bugs`` which look like this:
+要注意的一种常见错误是 ``one err bugs`` ，如下所示：
 
-.. code-block:: c
+```c
+err:
+	kfree(foo->bar);
+	kfree(foo);
+	return ret;
+```
 
-	err:
-		kfree(foo->bar);
-		kfree(foo);
-		return ret;
+此代码中的错误是在某些出口路径上`foo`为`NULL`。 通常，此问题的解决方法是将其分为两个错误标签``err_free_bar:`` 和err_free_foo:``：
 
-The bug in this code is that on some exit paths ``foo`` is NULL.  Normally the
-fix for this is to split it up into two error labels ``err_free_bar:`` and
-``err_free_foo:``:
+```c
+ err_free_bar:
+	kfree(foo->bar);
+ err_free_foo:
+	kfree(foo);
+	return ret;
+```
 
-.. code-block:: c
+理想情况下，您应该模拟错误以测试所有出口路径。
 
-	 err_free_bar:
-		kfree(foo->bar);
-	 err_free_foo:
-		kfree(foo);
-		return ret;
-
-Ideally you should simulate errors to test all exit paths.
-
-## 8) Commenting
+## 8) 注释
 
 Comments are good, but there is also a danger of over-commenting.  NEVER
 try to explain HOW your code works in a comment: it's much better to
@@ -868,34 +848,21 @@ this rule.  Generally they indicate failure by returning some out-of-range
 result.  Typical examples would be functions that return pointers; they use
 NULL or the ERR_PTR mechanism to report failure.
 
-## 17) Using bool
+## 17) 使用bool
 
-The Linux kernel bool type is an alias for the C99 _Bool type. bool values can
-only evaluate to 0 or 1, and implicit or explicit conversion to bool
-automatically converts the value to true or false. When using bool types the
-!! construction is not needed, which eliminates a class of bugs.
+Linux内核的bool类型是C99 _Bool类型的别名。 bool值只能是0或1，并且隐式或显式转换为bool，会自动将值转换为true或false。 使用布尔型时，!!不需要结构体，从而消除了一类错误。
 
-When working with bool values the true and false definitions should be used
-instead of 1 and 0.
+使用布尔值时，应使用true和false定义，而不是1和0。
 
-bool function return types and stack variables are always fine to use whenever
-appropriate. Use of bool is encouraged to improve readability and is often a
-better option than 'int' for storing boolean values.
+在适当的时候使用可以使用bool返回类型的函数和堆栈变量。 鼓励使用布尔值来提高可读性，并且在存储boolean值时通常比使用"int"类型更好。
 
-Do not use bool if cache line layout or size of the value matters, as its size
-and alignment varies based on the compiled architecture. Structures that are
-optimized for alignment and size should not use bool.
+如果cache line layout或size of the value很重要，请不要使用bool，因为其大小和对齐方式会根据编译的体系结构而变化。 针对对齐和大小进行了优化的结构不应使用布尔值。
 
-If a structure has many true/false values, consider consolidating them into a
-bitfield with 1 bit members, or using an appropriate fixed width type, such as
-u8.
+如果结构体具有许多true/false，请考虑将它们合并到具有1个位成员的位域中，或使用适当的固定宽度类型（例如`u8`）。
 
-Similarly for function arguments, many true/false values can be consolidated
-into a single bitwise 'flags' argument and 'flags' can often be a more
-readable alternative if the call-sites have naked true/false constants.
+类似地，对于函数参数，可以将许多true/false值合并为单个按位的'flags'参数，并且如果调用位置具有裸露的true/false常量，则'flags'通常是更具可读性的替代方法。
 
-Otherwise limited use of bool in structures and arguments can improve
-readability.
+否则，在结构体和参数中限制使用bool可以提高可读性。
 
 ## 18) 不要重新发明内核宏
 
