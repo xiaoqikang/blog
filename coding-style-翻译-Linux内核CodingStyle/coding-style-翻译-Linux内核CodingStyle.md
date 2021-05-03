@@ -488,19 +488,12 @@ err:
 
 ## 9) 你已经把事情弄糟了
 
-That's OK, we all do.  You've probably been told by your long-time Unix
-user helper that ``GNU emacs`` automatically formats the C sources for
-you, and you've noticed that yes, it does do that, but the defaults it
-uses are less than desirable (in fact, they are worse than random
-typing - an infinite number of monkeys typing into GNU emacs would never
-make a good program).
+这没什么，我们都是这样。 长期的Unix用户帮手可能已经告诉您 ``GNU emacs``会自动为你格式化C源代码，并且你已经注意到，确实可以这样做，但是它使用的默认值并不理想（实际上 ，它们比随机输入更糟糕-无限数量的猴子在`GNU emacs`中输入永远不会成为一个好的程序）。
 
-So, you can either get rid of GNU emacs, or change it to use saner
-values.  To do the latter, you can stick the following in your .emacs file:
+因此，你要么放弃`GNU emacs`，要么改变它让它使用更合理的设定。 为此，你可以将以下内容粘贴到`.emacs`文件中：
 
-.. code-block:: none
-
-  (defun c-lineup-arglist-tabs-only (ignored)
+```
+(defun c-lineup-arglist-tabs-only (ignored)
     "Line up argument lists by tabs, not spaces"
     (let* ((anchor (c-langelem-pos c-syntactic-element))
            (column (c-langelem-2nd-pos c-syntactic-element))
@@ -546,41 +539,25 @@ values.  To do the latter, you can stick the following in your .emacs file:
   (dir-locals-set-directory-class
    (expand-file-name "~/src/linux-trees")
    'linux-kernel)
+```
 
-This will make emacs go better with the kernel coding style for C
-files below ``~/src/linux-trees``.
+这将使emacs更好地配合``~/src/linux-trees``下C文件的内核编码风格。
 
-But even if you fail in getting emacs to do sane formatting, not
-everything is lost: use ``indent``.
+但是，即使您无法使emacs进行合理的格式化，也并不意味着你失去了一切：还可以用``indent``。
 
-Now, again, GNU indent has the same brain-dead settings that GNU emacs
-has, which is why you need to give it a few command line options.
-However, that's not too bad, because even the makers of GNU indent
-recognize the authority of K&R (the GNU people aren't evil, they are
-just severely misguided in this matter), so you just give indent the
-options ``-kr -i8`` (stands for ``K&R, 8 character indents``), or use
-``scripts/Lindent``, which indents in the latest style.
+现在，再次，GNU indent具有与GNU emacs有问题的设定，所以你需要给它一些命令选项。 但是，这并不算太糟，因为即使GNU indent的作者也认同K＆R的权威（GNU的人并不是坏人，他们在此问题上受到严重误导），所以您只需给indent指定选项``-kr -i8``（ 代表``K&R, 8 character indents``），或使用`scripts/Lindent`（以最时髦的方式缩进）。
 
-``indent`` has a lot of options, and especially when it comes to comment
-re-formatting you may want to take a look at the man page.  But
-remember: ``indent`` is not a fix for bad programming.
+``indent``有很多选项，尤其是重新格式化注释时，您可能需要看一下手册页。 但是请记住：``indent``不能修正坏的编程习惯。
 
-Note that you can also use the ``clang-format`` tool to help you with
-these rules, to quickly re-format parts of your code automatically,
-and to review full files in order to spot coding style mistakes,
-typos and possible improvements. It is also handy for sorting ``#includes``,
-for aligning variables/macros, for reflowing text and other similar tasks.
-See the file :ref:`Documentation/process/clang-format.rst <clangformat>`
-for more details.
+请注意，您还可以使用``clang-format``工具来帮助您遵循这些规则，快速自动地重新格式化部分代码，并查看完整文件，以发现编码风格错误，错别字和可能的改进。 它对于排序``#includes``，对齐变量/宏，重排文本和其他类似任务也很方便。更多详细信息，请参见文件`Documentation/process/clang-format.rst <clangformat>`。
 
-## 10) Kconfig configuration files
+## 10) Kconfig配置文件
 
-For all of the Kconfig* configuration files throughout the source tree,
-the indentation is somewhat different.  Lines under a ``config`` definition
-are indented with one tab, while help text is indented an additional two
-spaces.  Example::
+对于整个源代码树中的所有Kconfig*配置文件，缩进有些不同。 紧挨
+ 在``config``定义下面的行缩进一个制表符，帮助信息则再多缩进2个**空格**。 例子：
 
-  config AUDIT
+```
+config AUDIT
 	bool "Auditing support"
 	depends on NET
 	help
@@ -588,74 +565,58 @@ spaces.  Example::
 	  kernel subsystem, such as SELinux (which requires this for
 	  logging of avc messages output).  Does not do system-call
 	  auditing without CONFIG_AUDITSYSCALL.
+```
 
-Seriously dangerous features (such as write support for certain
-filesystems) should advertise this prominently in their prompt string::
+严重危险的功能（例如对某些文件系统的写支持）应在其提示字符串中突出显示这一点：
 
-  config ADFS_FS_RW
+```
+config ADFS_FS_RW
 	bool "ADFS write support (DANGEROUS)"
 	depends on ADFS_FS
 	...
+```
 
-For full documentation on the configuration files, see the file
-Documentation/kbuild/kconfig-language.rst.
+有关配置文件的完整文档，请参阅文件`Documentation/kbuild/kconfig-language.rst`。
 
-## 11) Data structures
+## 11) 数据结构
 
-Data structures that have visibility outside the single-threaded
-environment they are created and destroyed in should always have
-reference counts.  In the kernel, garbage collection doesn't exist (and
-outside the kernel garbage collection is slow and inefficient), which
-means that you absolutely **have** to reference count all your uses.
+在创建和销毁它们的单线程环境之外具有可见性的数据结构应始终具有引用计数。 在内核中，不存在垃圾回收（并且在内核之外，垃圾回收是缓慢且效率低下的），这意味着您绝对**必须**引用计数所有使用情况。
 
-Reference counting means that you can avoid locking, and allows multiple
-users to have access to the data structure in parallel - and not having
-to worry about the structure suddenly going away from under them just
-because they slept or did something else for a while.
+引用计数意味着您可以避免上锁，并允许多个用户并行访问数据结构 - 不必担心这个数据结构仅仅因为暂时不被使用就消失了，因为休眠一段时间或做了其他事情。
 
-Note that locking is **not** a replacement for reference counting.
-Locking is used to keep data structures coherent, while reference
-counting is a memory management technique.  Usually both are needed, and
-they are not to be confused with each other.
+请注意，上锁**不能**代替引用计数。 上锁用于保持数据结构的一致性，而引用计数是一种内存管理技术。 通常两者都是必需的，并且不要相互混淆。
 
-Many data structures can indeed have two levels of reference counting,
-when there are users of different ``classes``.  The subclass count counts
-the number of subclass users, and decrements the global count just once
-when the subclass count goes to zero.
+当存在不同``classes``的用户时，许多数据结构的确可以具有两级的引用计数。 子类计数器对子类用户的数量进行计数，并且当子类计数器变为零时，全局计数器减一。
 
-Examples of this kind of ``multi-level-reference-counting`` can be found in
-memory management (``struct mm_struct``: mm_users and mm_count), and in
-filesystem code (``struct super_block``: s_count and s_active).
+这种多级引用计数（``multi-level-reference-counting``）的示例可以在内存管理（`struct mm_struct`：`mm_users` 和 `mm_count`）以及文件系统代码（``struct super_block``: `s_count` 和 `s_active`）中找到。
 
-Remember: if another thread can find your data structure, and you don't
-have a reference count on it, you almost certainly have a bug.
+请记住：如果另一个线程可以找到您的数据结构，并且您没有对其的引用计数，则几乎可以肯定有一个bug。
 
-## 12) Macros, Enums and RTL
+## 12) 宏，枚举和RTL
 
-Names of macros defining constants and labels in enums are capitalized.
+定义常量的宏名称和枚举中的标签均使用大写字母。
 
-.. code-block:: c
+```c
+#define CONSTANT 0x12345
+```
 
-	#define CONSTANT 0x12345
+定义多个相关常量时，最好使用枚举。
 
-Enums are preferred when defining several related constants.
+宏的名字请用**大写字母**，但是类似于函数的宏可以用小写字母命名。
 
-CAPITALIZED macro names are appreciated but macros resembling functions
-may be named in lower case.
+通常，内联函数比类似于函数的宏更可取。
 
-Generally, inline functions are preferable to macros resembling functions.
+具有多个语句的宏应包含在do - while语句块中：
 
-Macros with multiple statements should be enclosed in a do - while block:
+```c
+#define macrofun(a, b, c)			\
+	do {					\
+		if (a == 5)			\
+			do_this(b, c);		\
+	} while (0)
+```
 
-.. code-block:: c
-
-	#define macrofun(a, b, c)			\
-		do {					\
-			if (a == 5)			\
-				do_this(b, c);		\
-		} while (0)
-
-Things to avoid when using macros:
+使用宏时应避免的事情：
 
 1) macros that affect control flow:
 
