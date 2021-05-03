@@ -430,7 +430,7 @@ err:
 	return ret;
 ```
 
-此代码中的错误是在某些出口路径上`foo`为`NULL`。 通常，此问题的解决方法是将其分为两个错误标签``err_free_bar:`` 和err_free_foo:``：
+此代码中的错误是在某些出口路径上`foo`为`NULL`。 通常，此问题的解决方法是将其分为两个错误标签``err_free_bar:`` 和``err_free_foo:``：
 
 ```c
  err_free_bar:
@@ -444,10 +444,8 @@ err:
 
 ## 8) 注释
 
-Comments are good, but there is also a danger of over-commenting.  NEVER
-try to explain HOW your code works in a comment: it's much better to
-write the code so that the **working** is obvious, and it's a waste of
-time to explain badly written code.
+注释是好的，但也有过度注释的危险。 永远**不要**尝试在注释中解释代码是**如何**工作的：更好
+ 的做法是让别人一看代码就可以明白，解释写的很差的代码是浪费时间。
 
 Generally, you want your comments to tell WHAT your code does, not HOW.
 Also, try to avoid putting comments inside a function body: if the

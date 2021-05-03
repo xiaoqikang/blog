@@ -195,6 +195,20 @@ sudo yum install simple-mtpfs -y
 </div>
 ```
 
+# Linux计算器
+
+```shell
+$ bc
+# 刚启动程序，默认是10进制表示
+ibase=16
+# 因为已经设置了输入为16进制，所以这里的"obase=10"代表输出16进制
+obase=10
+# 因为已经设置了输入为16进制，所以这里的"obase=A"代表输出10进制
+obase=A
+# 小数点后的位数
+scale=3
+```
+
 
 
 # TODO：用栈实现加减乘除
