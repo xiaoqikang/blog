@@ -92,7 +92,7 @@ if (condition) {
 这些相同的规则适用于带有长参数列表的函数头，如下所示：
 
 ```c
-// 注意：这个例子是我（陈孝松）写的
+/* 注意：这个例子是我（陈孝松）写的 */
 void func(int a, int b, int c, int d, int e, int f, int g, int h, int i
           int j, int k)
 {
@@ -447,50 +447,46 @@ err:
 注释是好的，但也有过度注释的危险。 永远**不要**尝试在注释中解释代码是**如何**工作的：更好
  的做法是让别人一看代码就可以明白，解释写的很差的代码是浪费时间。
 
-Generally, you want your comments to tell WHAT your code does, not HOW.
-Also, try to avoid putting comments inside a function body: if the
-function is so complex that you need to separately comment parts of it,
-you should probably go back to chapter 6 for a while.  You can make
-small comments to note or warn about something particularly clever (or
-ugly), but try to avoid excess.  Instead, put the comments at the head
-of the function, telling people what it does, and possibly WHY it does
-it.
+通常，你希望你的注释告诉别人你的代码**做了什么**，而**不是怎么做的**。 另外，请尽量避免在函数体内添加注释：如果函数太复杂以至于需要单独注释其中的某些部分，则可能应该回到第6章看一看。 您可以加一些小注释，注明或警告某些特别聪明（或糟糕）的做法，但不要加太多。 你应该将注释放在函数的头部，告诉人们它做了什么，以及这么做的原因。
 
-When commenting the kernel API functions, please use the kernel-doc format.
-See the files at :ref:`Documentation/doc-guide/ <doc_guide>` and
-``scripts/kernel-doc`` for details.
+在注释内核API函数时，请使用kernel-doc格式。详细信息请参考：`Documentation/doc-guide/ <doc_guide>` 和``scripts/kernel-doc``。
 
-The preferred style for long (multi-line) comments is:
+长（多行）注释的首选风格是：
 
-.. code-block:: c
+```c
+/*
+ * This is the preferred style for multi-line
+ * comments in the Linux kernel source code.
+ * Please use it consistently.
+ *
+ * Description:  A column of asterisks on the left side,
+ * with beginning and ending almost-blank lines.
+ */
+/*
+ * 这是Linux内核源代码中多行注释的首选风格。
+ * 请始终使用这种风格。
+ *
+ * 说明：左侧的星号列，以开始和结束的行几乎是空白的。
+ */
+```
 
-	/*
-	 * This is the preferred style for multi-line
-	 * comments in the Linux kernel source code.
-	 * Please use it consistently.
-	 *
-	 * Description:  A column of asterisks on the left side,
-	 * with beginning and ending almost-blank lines.
-	 */
+对于`net/`和`drivers/net/`中的文件，长（多行）注释的首选风格略有不同。
 
-For files in net/ and drivers/net/ the preferred style for long (multi-line)
-comments is a little different.
+```c
+/* The preferred comment style for files in net/ and drivers/net
+ * looks like this.
+ *
+ * It is nearly the same as the generally preferred comment style,
+ * but there is no initial almost-blank line.
+ */
+/* net/和drivers/net/中的文件的首选注释风格如下所示。 *
+ * 它几乎与一般的首选注释风格相同，但是开始的行不是几乎空白的。
+ */
+```
 
-.. code-block:: c
+注释数据（无论是基本类型还是衍生类型）也很重要。 为此，每行仅使用一个数据声明（不要使用逗号来一次声明多个数据）。 这为您留出了对每个数据写一段小注释的空间，以解释其用途。
 
-	/* The preferred comment style for files in net/ and drivers/net
-	 * looks like this.
-	 *
-	 * It is nearly the same as the generally preferred comment style,
-	 * but there is no initial almost-blank line.
-	 */
-
-It's also important to comment data, whether they are basic types or derived
-types.  To this end, use just one data declaration per line (no commas for
-multiple data declarations).  This leaves you room for a small comment on each
-item, explaining its use.
-
-## 9) You've made a mess of it
+## 9) 你已经把事情弄糟了
 
 That's OK, we all do.  You've probably been told by your long-time Unix
 user helper that ``GNU emacs`` automatically formats the C sources for

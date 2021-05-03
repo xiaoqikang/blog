@@ -2,7 +2,13 @@
 
 # 第十八章 Ext2和Ext3文件系统
 
-## p733 Ext2 磁盘数据结构
+## 18.1 Ext2的一般特征
+
+## 18.2 Ext2磁盘数据结构
+
+p733
+
+<img src="https://gitee.com/lioneie/blog/raw/master/study-notes-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/pictures/Ext2%E5%88%86%E5%8C%BA%E5%92%8CExt2%E5%9D%97%E7%BB%84%E7%9A%84%E5%88%86%E5%B8%83%E5%9B%BE.png" width="66%" />
 
 块位图中有 `8*b` 个位，所以每组中也有 `8*b` 个块，其中 `b` 是块大小（单位Byte）。
 
@@ -18,9 +24,14 @@
 >
 > > 1K = 2^10, 1M = 2^20, 1G = 2^30
 
-## p733 超级块
+### 18.2.1超级块
+
+p733
+
+<img src="https://gitee.com/lioneie/blog/raw/master/study-notes-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/pictures/Ext2%E5%88%86%E5%8C%BA%E5%92%8CExt2%E5%9D%97%E7%BB%84%E7%9A%84%E5%88%86%E5%B8%83%E5%9B%BE.png" width="66%" />
 
 ```c
+// include/linux/ext2_fs.h 
 struct ext2_super_block {
 	__le32  s_inodes_count;         /* Inodes count */
 	__le32  s_blocks_count;         /* Blocks count */
@@ -46,9 +57,14 @@ struct ext2_super_block {
 };
 ```
 
-## p735 组描述符和位图
+### 18.2.2 组描述符和位图
+
+p735
+
+<img src="https://gitee.com/lioneie/blog/raw/master/study-notes-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/pictures/Ext2%E5%88%86%E5%8C%BA%E5%92%8CExt2%E5%9D%97%E7%BB%84%E7%9A%84%E5%88%86%E5%B8%83%E5%9B%BE.png" width="66%" />
 
 ```c
+// include/linux/ext2_fs.h
 struct ext2_group_desc
 {
 	__le32  bg_block_bitmap;                /* Blocks bitmap block */
@@ -59,6 +75,36 @@ struct ext2_group_desc
 	__le16  bg_used_dirs_count;     /* Directories count */
 	__le16  bg_pad;
 	__le32  bg_reserved[3];
+};
+```
+
+### 18.2.3 索引节点表
+
+p736
+
+<img src="https://gitee.com/lioneie/blog/raw/master/study-notes-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/pictures/Ext2%E5%88%86%E5%8C%BA%E5%92%8CExt2%E5%9D%97%E7%BB%84%E7%9A%84%E5%88%86%E5%B8%83%E5%9B%BE.png" width="66%" />
+
+```c
+// include/linux/ext2_fs.h
+struct ext2_inode {
+	__le16  i_mode;         /* File mode */
+	__le16  i_uid;          /* Low 16 bits of Owner Uid */
+	__le32  i_size;         /* Size in bytes */
+	__le32  i_atime;        /* Access time */
+	__le32  i_ctime;        /* Creation time */
+	__le32  i_mtime;        /* Modification time */
+	__le32  i_dtime;        /* Deletion Time */
+	__le16  i_gid;          /* Low 16 bits of Group Id */
+	__le16  i_links_count;  /* Links count */
+	__le32  i_blocks;       /* Blocks count */
+	__le32  i_flags;        /* File flags */
+	union   osd1;                           /* OS dependent 1 */
+	__le32  i_block[EXT2_N_BLOCKS];/* Pointers to blocks */
+	__le32  i_generation;   /* File version (for NFS) */
+	__le32  i_file_acl;     /* File ACL */
+	__le32  i_dir_acl;      /* Directory ACL */
+	__le32  i_faddr;        /* Fragment address */
+	union   osd2;                           /* OS dependent 2 */
 };
 ```
 
