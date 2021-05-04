@@ -618,190 +618,130 @@ config ADFS_FS_RW
 
 使用宏时应避免的事情：
 
-1) macros that affect control flow:
+1. 影响控制流程的宏：
 
-.. code-block:: c
+```c
+#define FOO(x)					\
+	do {					\
+		if (blah(x) < 0)		\
+			return -EBUGGERED;	\
+	} while (0)
+```
 
-	#define FOO(x)					\
-		do {					\
-			if (blah(x) < 0)		\
-				return -EBUGGERED;	\
-		} while (0)
+**非常**不好。 它看起来像一个函数，但是会导致**调用它的**函数退出。不要打乱读者大脑里的语法分析器。
 
-is a **very** bad idea.  It looks like a function call but exits the ``calling``
-function; don't break the internal parsers of those who will read the code.
+2. 依赖于一个固定名字的本地变量的宏
 
-2) macros that depend on having a local variable with a magic name:
+```c
+#define FOO(val) bar(index, val)
+```
 
-.. code-block:: c
+也许看起来不错，但是当人们阅读代码时，它看起来很混乱，并且很容易因不相关的更改而被破坏。
 
-	#define FOO(val) bar(index, val)
+3. 带参数的宏作为左值：`FOO(x) = y;` ，如果有人将`FOO`变成一个内联函数就会出错。
 
-might look like a good thing, but it's confusing as hell when one reads the
-code and it's prone to breakage from seemingly innocent changes.
+4. 忘记优先级：使用表达式定义常量的宏必须将表达式用括号括起来。 带参数的宏也要注意此类问题。
 
-3) macros with arguments that are used as l-values: FOO(x) = y; will
-bite you if somebody e.g. turns FOO into an inline function.
+```c
+#define CONSTANT 0x4000
+#define CONSTEXP (CONSTANT | 3)
+```
 
-4) forgetting about precedence: macros defining constants using expressions
-must enclose the expression in parentheses. Beware of similar issues with
-macros using parameters.
+5. 在类似于函数的宏中定义局部变量时，名称空间冲突：
 
-.. code-block:: c
+```c
+#define FOO(x)				\
+({					\
+	typeof(x) ret;			\
+	ret = calc_ret(x);		\
+	(ret);				\
+})
+```
 
-	#define CONSTANT 0x4000
-	#define CONSTEXP (CONSTANT | 3)
+`ret`是局部变量的通用名称 - `__foo_ret`与现有变量发生冲突的可能性较小。
 
-5) namespace collisions when defining local variables in macros resembling
-functions:
+cpp手册详尽地处理了宏。 gcc internals手册还介绍了RTL，内核里的汇编语言经常用到RTL。
 
-.. code-block:: c
+> 陈孝松注：
+>
+> RTL：寄存器传递语言（register transfer language，缩写为 RTL），又译为暂存器转换语言、寄存器转换语言，一种中间语言，使用于编译器中。
 
-	#define FOO(x)				\
-	({					\
-		typeof(x) ret;			\
-		ret = calc_ret(x);		\
-		(ret);				\
-	})
+## 13) 打印内核消息
 
-ret is a common name for a local variable - __foo_ret is less likely
-to collide with an existing variable.
+内核开发者应该是受过良好教育的。 请注意内核消息的拼写，以给人留下深刻的印象。 不要使用不正确的收缩，例如``dont``； 而要使用``do not`` 或 ``don't``。 使消息简单、明了、无歧义。
 
-The cpp manual deals with macros exhaustively. The gcc internals manual also
-covers RTL which is used frequently with assembly language in the kernel.
+内核消息不必以句点（即点号）终止。
 
-## 13) Printing kernel messages
+括号中的数字 (%d)没有任何价值，应避免使用。
 
-Kernel developers like to be seen as literate. Do mind the spelling
-of kernel messages to make a good impression. Do not use incorrect
-contractions like ``dont``; use ``do not`` or ``don't`` instead. Make the
-messages concise, clear, and unambiguous.
+`<linux/device.h>`中有许多驱动模型诊断宏（driver model diagnostic macros），您应使用这些宏来确保消息与正确的设备和驱动程序匹配，并以正确的级别进行标记： `dev_err()`，`dev_warn()`，`dev_info()`等。 对于与特定设备无关的消息，`<linux/printk.h>` 定义了`pr_notice()`， `pr_info()`，`pr_warn()`， `pr_err()`等。
 
-Kernel messages do not have to be terminated with a period.
+写出好的调试消息可以是一个很大的挑战。 一旦有了它们，它们将为远程故障排除提供巨大帮助。 但是，调试消息的打印方式与打印其他非调试消息的方式不同。 虽然其他`pr_XXX()` 函数无条件打印，但`pr_debug()`不会； 除非定义了`DEBUG`或设置了`CONFIG_DYNAMIC_DEBUG`，否则编译器会忽略它。`dev_dbg()`也是如此，并且相关的约定使用`VERBOSE_DEBUG`将`dev_vdbg()`消息添加到已由`DEBUG`启用的消息中。
 
-Printing numbers in parentheses (%d) adds no value and should be avoided.
+许多子系统具有Kconfig调试选项，可以在相应的Makefile中打开`-DDEBUG`。 在其他情况下，特定文件定义了`#define DEBUG`。 并且当应无条件打印调试消息时（例如，如果它已经在与调试相关的`#ifdef`中），可以使用`printk(KERN_DEBUG ...)` 。
 
-There are a number of driver model diagnostic macros in <linux/device.h>
-which you should use to make sure messages are matched to the right device
-and driver, and are tagged with the right level:  dev_err(), dev_warn(),
-dev_info(), and so forth.  For messages that aren't associated with a
-particular device, <linux/printk.h> defines pr_notice(), pr_info(),
-pr_warn(), pr_err(), etc.
+## 14) 分配内存
 
-Coming up with good debugging messages can be quite a challenge; and once
-you have them, they can be a huge help for remote troubleshooting.  However
-debug message printing is handled differently than printing other non-debug
-messages.  While the other pr_XXX() functions print unconditionally,
-pr_debug() does not; it is compiled out by default, unless either DEBUG is
-defined or CONFIG_DYNAMIC_DEBUG is set.  That is true for dev_dbg() also,
-and a related convention uses VERBOSE_DEBUG to add dev_vdbg() messages to
-the ones already enabled by DEBUG.
+内核提供以下一般用途的内存分配函数：`kmalloc(), kzalloc(), kmalloc_array(), kcalloc(), vmalloc(), vzalloc()`。 请参阅API文档以获取有关它们的更多信息：`Documentation/core-api/memory-allocation.rst
+<memory_allocation>`。
 
-Many subsystems have Kconfig debug options to turn on -DDEBUG in the
-corresponding Makefile; in other cases specific files #define DEBUG.  And
-when a debug message should be unconditionally printed, such as if it is
-already inside a debug-related #ifdef section, printk(KERN_DEBUG ...) can be
-used.
+传递结构体大小的首选形式如下：
 
-## 14) Allocating memory
+```c
+p = kmalloc(sizeof(*p), ...);
+```
 
-The kernel provides the following general purpose memory allocators:
-kmalloc(), kzalloc(), kmalloc_array(), kcalloc(), vmalloc(), and
-vzalloc().  Please refer to the API documentation for further information
-about them.  :ref:`Documentation/core-api/memory-allocation.rst
-<memory_allocation>`
+另外一种传递方式中，`sizeof`的操作数是结构体的名字，这样会降低可读性，并且可能会引
+ 入bug。有可能指针变量类型被改变时，而对应的传递给内存分配函数的`sizeof`的结果不变。
 
-The preferred form for passing a size of a struct is the following:
+> 陈孝松注：有可能出现以下情况：
+>
+> ```c
+> int *p;/* 最开始是 char *p, 后来修改成 int *p */
+> p = kmalloc(sizeof(char), ...);
+> ```
 
-.. code-block:: c
+强制转换void指针的返回值是多余的。 C语言保证了从void指针到任何其他指针类型的转换是没问题的。
 
-	p = kmalloc(sizeof(*p), ...);
+分配数组的首选形式如下：
 
-The alternative form where struct name is spelled out hurts readability and
-introduces an opportunity for a bug when the pointer variable type is changed
-but the corresponding sizeof that is passed to a memory allocator is not.
+```c
+p = kmalloc_array(n, sizeof(...), ...);
+```
 
-Casting the return value which is a void pointer is redundant. The conversion
-from void pointer to any other pointer type is guaranteed by the C programming
-language.
+分配初始化为零的数组的首选形式如下：
 
-The preferred form for allocating an array is the following:
+```c
+p = kcalloc(n, sizeof(...), ...);
+```
 
-.. code-block:: c
+两种形式都检查分配大小`n * sizeof(...)`上的溢出，如果发生，则返回`NULL`。
 
-	p = kmalloc_array(n, sizeof(...), ...);
+这些通用的分配函数在不带`__GFP_NOWARN`的情况下使用时，都会在失败时发出堆栈转储，因此在返回`NULL`时不会有其他失败消息。
 
-The preferred form for allocating a zeroed array is the following:
+## 15) 内联弊病
 
-.. code-block:: c
+有一个常见的误解是内联函数（`inline`）是gcc提供的可以让代码运行更快的一个选项。 虽然可以适当使用内联函数（例如，作为替换宏的一种方法，请参见第12章），不过很多情况下不是这样。 大量使用inline关键字会导致内核变大，这会降低整个系统的速度，这是因为CPU的icache占用量更大，而且会导致pagecache的可用内存减少。 考虑一下; pagecache未命中会导致磁盘查找，这很容易花费5毫秒。 5毫秒的时间内CPU能执行**很多**指令。
 
-	p = kcalloc(n, sizeof(...), ...);
+一个基本的原则是不要对其中包含多于3行代码的函数进行内联。 该规则的例外情况是参数已知为编译时常量，并且由于该常量，你确定编译器将能够在编译时优化大部分函数。 一个很好的示例就是`kmalloc()`内联函数。
 
-Both forms check for overflow on the allocation size n * sizeof(...),
-and return NULL if that occurred.
+人们经常主张说，将`inline`添加到`static`且仅使用一次的函数，不会有任何损失，因为没有什么好权衡的。 尽管从技术上讲这是正确的，但是gcc能够在没有帮助的情况下自动内联这个函数，而且其他用户可能会要求移除inline，由此而来的争论会抵消inline自身的潜在价值，得不偿失。
 
-These generic allocation functions all emit a stack dump on failure when used
-without __GFP_NOWARN so there is no use in emitting an additional failure
-message when NULL is returned.
+## 16) 函数返回值及命名
 
-## 15) The inline disease
+函数可以返回许多不同类型的值，最常见的值之一是指示函数成功还是失败的值。 这样的值可以表示为错误代码整数(-Exxx = failure, 0 = success)或是否成功的布尔值(0 = failure, non-zero = success)。
 
-There appears to be a common misperception that gcc has a magic "make me
-faster" speedup option called ``inline``. While the use of inlines can be
-appropriate (for example as a means of replacing macros, see Chapter 12), it
-very often is not. Abundant use of the inline keyword leads to a much bigger
-kernel, which in turn slows the system as a whole down, due to a bigger
-icache footprint for the CPU and simply because there is less memory
-available for the pagecache. Just think about it; a pagecache miss causes a
-disk seek, which easily takes 5 milliseconds. There are a LOT of cpu cycles
-that can go into these 5 milliseconds.
+混合使用这两种表达方式是难于发现的bug的来源。 如果C语言能严格区分整数和布尔值，则编译器会为我们找到这些错误。。。但是C语言不区分。 为防止此类错误，请始终遵循以下约定：
 
-A reasonable rule of thumb is to not put inline at functions that have more
-than 3 lines of code in them. An exception to this rule are the cases where
-a parameter is known to be a compiletime constant, and as a result of this
-constantness you *know* the compiler will be able to optimize most of your
-function away at compile time. For a good example of this later case, see
-the kmalloc() inline function.
+```
+如果函数的名字是一个动作或者强制性的命令，则该函数应返回错误代码整数。 如果是一个判断，则函数应返回表示是否“成功”的布尔值。
+```
 
-Often people argue that adding inline to functions that are static and used
-only once is always a win since there is no space tradeoff. While this is
-technically correct, gcc is capable of inlining these automatically without
-help, and the maintenance issue of removing the inline when a second user
-appears outweighs the potential value of the hint that tells gcc to do
-something it would have done anyway.
+例如，`add work`是一条命令，`add_work()`函数成功时返回`0`，失败时返回`-EBUSY`。 同样，``PCI device present``是一个判断，如果成功找到匹配的设备，`pci_dev_present()` 函数将返回`1`，否则将返回`0`。
 
-## 16) Function return values and names
+所有`EXPORT`函数必须遵守此约定，所有公共函数也应遵守此约定。 私有（`static`）函数不是必需的，但建议这样做。
 
-Functions can return values of many different kinds, and one of the
-most common is a value indicating whether the function succeeded or
-failed.  Such a value can be represented as an error-code integer
-(-Exxx = failure, 0 = success) or a ``succeeded`` boolean (0 = failure,
-non-zero = success).
-
-Mixing up these two sorts of representations is a fertile source of
-difficult-to-find bugs.  If the C language included a strong distinction
-between integers and booleans then the compiler would find these mistakes
-for us... but it doesn't.  To help prevent such bugs, always follow this
-convention::
-
-	If the name of a function is an action or an imperative command,
-	the function should return an error-code integer.  If the name
-	is a predicate, the function should return a "succeeded" boolean.
-
-For example, ``add work`` is a command, and the add_work() function returns 0
-for success or -EBUSY for failure.  In the same way, ``PCI device present`` is
-a predicate, and the pci_dev_present() function returns 1 if it succeeds in
-finding a matching device or 0 if it doesn't.
-
-All EXPORTed functions must respect this convention, and so should all
-public functions.  Private (static) functions need not, but it is
-recommended that they do.
-
-Functions whose return value is the actual result of a computation, rather
-than an indication of whether the computation succeeded, are not subject to
-this rule.  Generally they indicate failure by returning some out-of-range
-result.  Typical examples would be functions that return pointers; they use
-NULL or the ERR_PTR mechanism to report failure.
+返回值是计算的实际结果而不是指示计算是否成功的函数不受此规则的约束。 通常，它们通过返回超出范围的结果来指示失败。 典型的例子是返回指针的函数。 他们使用`NULL`或`ERR_PTR`机制来报告错误。
 
 ## 17) 使用bool
 
@@ -811,7 +751,7 @@ Linux内核的bool类型是C99 _Bool类型的别名。 bool值只能是0或1，�
 
 在适当的时候使用可以使用bool返回类型的函数和堆栈变量。 鼓励使用布尔值来提高可读性，并且在存储boolean值时通常比使用"int"类型更好。
 
-如果cache line layout或size of the value很重要，请不要使用bool，因为其大小和对齐方式会根据编译的体系结构而变化。 针对对齐和大小进行了优化的结构不应使用布尔值。
+如果缓存行的布局（cache line layout）或值的大小（size of the value）很重要，请不要使用bool，因为其大小和对齐方式会根据编译的体系结构而变化。 针对对齐和大小进行了优化的结构不应使用布尔值。
 
 如果结构体具有许多true/false，请考虑将它们合并到具有1个位成员的位域中，或使用适当的固定宽度类型（例如`u8`）。
 
