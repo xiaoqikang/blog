@@ -209,6 +209,24 @@ obase=A
 scale=3
 ```
 
+# ubuntu挂载samba
+
+```shell
+sudo mount -o username=sonvhi -t cifs //192.168.122.1/forVM /mnt
+```
+
+如果无法挂载，安装以下软件：
+
+```shell
+sudo apt install cifs-utils -y
+```
+
+# Fedora烧录树莓派sd卡
+
+```shell
+sudo dd bs=4M if=2013-09-25-wheezy-raspbian.img of=/dev/sdb
+```
+
 
 
 # TODO：用栈实现加减乘除
