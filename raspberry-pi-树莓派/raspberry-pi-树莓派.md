@@ -1,6 +1,7 @@
 [toc]
 
 # 软件安装
+[ghostwriter markdown编辑器](https://wereturtle.github.io/ghostwriter/download.html)
 
 ```shell
 # 解决git无法显示中文
