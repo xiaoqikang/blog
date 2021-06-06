@@ -12,6 +12,8 @@
 
 # Fedora下安装
 
+ghostwriter是跨平台的，在Linux、macOS、Windows下都能运行，这里我只介绍Fedora（Linux）下的编译运行，其他平台请参考[README.md](https://github.com/lioneie/ghostwriter/blob/master/README.md)。
+
 先安装Fedora下编译所需的软件：
 
 ```shell
