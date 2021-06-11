@@ -17,19 +17,13 @@ git clone linux-next仓库代码：
 git clone https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
 ```
 
-# git发送patch
+# 修改内核代码
 
-## 163邮箱配置
+作为入门，这里只以简单的修复内核告警为例。
 
-此处以163邮箱为例，说明邮箱的配置方法，其他邮箱类似。
+请参考[我提交的一个简单的修改](https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=next-20210611&id=5ca54404e68de8560ca15e8d0e6b625fd05ceeaf)。
 
-默认情况下，163邮箱只能在网页和网易邮箱大师登录。如果要用git通过163邮箱发送邮件则需要对163邮箱进行配置。
-
-在[网页](mail.163.com)登录163邮箱，点击“设置 --> POP3/SMTP/IMAP”，开启SMTP服务，会弹出授权密码窗口，记下这个授权密码（也可以在下方新增授权密码或删除），如下图所示：
-
-![163邮箱配置](https://gitee.com/lioneie/blog/raw/master/kernel-Linux%E5%86%85%E6%A0%B8%E7%A4%BE%E5%8C%BA%E6%8F%90%E4%BA%A4%E8%A1%A5%E4%B8%81/163%E9%82%AE%E7%AE%B1%E9%85%8D%E7%BD%AE.png)
-
-## 生成patch
+# 生成patch文件
 
 以下命令会生成补丁文件：
 ```shell
@@ -54,7 +48,18 @@ git format-patch --subject-prefix="PATCH next,resend,v2" -3 commit号 --cover-le
 vim 0000-cover-letter.patch
 ```
 
-## git发送邮件
+# 163邮箱配置
+
+此处以163邮箱为例，说明邮箱的配置方法，其他邮箱类似。
+
+默认情况下，163邮箱只能在网页和网易邮箱大师登录。如果要用git通过163邮箱发送邮件则需要对163邮箱进行配置。
+
+在[网页](mail.163.com)登录163邮箱，点击“设置 --> POP3/SMTP/IMAP”，开启SMTP服务，会弹出授权密码窗口，记下这个授权密码（也可以在下方新增授权密码或删除），如下图所示：
+
+![163邮箱配置](https://gitee.com/lioneie/blog/raw/master/kernel-Linux%E5%86%85%E6%A0%B8%E7%A4%BE%E5%8C%BA%E6%8F%90%E4%BA%A4%E8%A1%A5%E4%B8%81/163%E9%82%AE%E7%AE%B1%E9%85%8D%E7%BD%AE.png)
+
+
+# git发送邮件
 
 安装：
 ```shell
