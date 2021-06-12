@@ -6,7 +6,7 @@
 
 # 内核社区
 
-Linux内核主要以邮件交流为主。
+Linux内核社区主要以邮件交流为主。
 
 [社区主页](https://www.kernel.org/)
 
@@ -16,11 +16,11 @@ Linux内核主要以邮件交流为主。
 
 [bugzilla](https://bugzilla.kernel.org/)
 
-linux-next仓库：
-```shell
-git clone https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
-```
-如果从社区下载代码太慢，可以先把代码同步到[gitee](https://gitee.com/)，再下载到本地。
+[linux-next仓库](https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git)（速度慢）
+
+[linux-next国内仓库](http://kernel.source.codeaurora.cn/pub/scm/linux/kernel/git/next/linux-next.git)
+
+[Mainland China Mirror](https://kernel.source.codeaurora.cn/)
 
 # 修改内核代码
 
