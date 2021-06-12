@@ -16,10 +16,11 @@ Linux内核主要以邮件交流为主。
 
 [bugzilla](https://bugzilla.kernel.org/)
 
-git clone linux-next仓库代码：
+linux-next仓库：
 ```shell
 git clone https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
 ```
+如果从社区下载代码太慢，可以先把代码同步到[gitee](https://gitee.com/)，再下载到本地。
 
 # 修改内核代码
 
