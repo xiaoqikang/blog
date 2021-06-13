@@ -1,5 +1,14 @@
 [toc]
 
+# 安装系统
+
+从[网站](https://www.raspberrypi.org/software/operating-systems/#raspberry-pi-os-32-bit)下载“Raspberry Pi OS with desktop and recommended software”。
+
+向SD卡烧录系统：
+```shell
+sudo dd bs=4M if=解压之后的img of=/dev/sdb
+```
+
 # 软件安装
 
 ```shell
