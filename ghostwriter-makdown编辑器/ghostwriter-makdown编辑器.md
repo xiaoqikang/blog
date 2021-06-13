@@ -4,7 +4,7 @@
 以前我用的markdown编辑器是typora，但心里一直别扭着，因为typora是非自由非开源的软件。
 
 最近尝试了几款自由开源的markdown编辑器，但都不够理想，不是功能不完善就是缺陷多。
-最后决定使用ghostwriter，这个markdown编辑器功能挺完善，但缺陷也不少。怎么办呢？我决定解决缺陷，完善她（没写错，就是她，很美）。
+最后决定使用[ghostwriter](https://wereturtle.github.io/ghostwriter/download.html)，这个markdown编辑器功能挺完善，但缺陷也不少。怎么办呢？我决定解决缺陷，完善她（没写错，就是她，很美）。
 
 我刚解决了一个**严重的preview显示缺陷**，大家可以先使用源码安装。
 
