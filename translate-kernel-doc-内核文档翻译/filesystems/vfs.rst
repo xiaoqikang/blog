@@ -6,7 +6,8 @@ Linux 虚拟文件系统概述
 
 本文是基于`Documentation/filesystems/vfs.rst`以下提交记录:
 
-.. code-block:: c
+.. code-block:: shell
+
         commit 4c5b479975212065ef39786e115fde42847e95a9
         Author: Miklos Szeredi <mszeredi@redhat.com>
         Date:   Wed Apr 7 14:36:42 2021 +0200
