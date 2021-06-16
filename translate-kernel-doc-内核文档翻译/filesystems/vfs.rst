@@ -1,10 +1,20 @@
 .. SPDX-License-Identifier: GPL-2.0
 
 =========================================
-Overview of the Linux Virtual File System
+Linux 虚拟文件系统概述
 =========================================
 
-Original author: Richard Gooch <rgooch@atnf.csiro.au>
+本文是基于`Documentation/filesystems/vfs.rst`以下提交记录:
+
+```shell
+commit 4c5b479975212065ef39786e115fde42847e95a9
+Author: Miklos Szeredi <mszeredi@redhat.com>
+Date:   Wed Apr 7 14:36:42 2021 +0200
+
+vfs: add fileattr ops
+```
+
+原作者: Richard Gooch <rgooch@atnf.csiro.au>
 
 - Copyright (C) 1999 Richard Gooch
 - Copyright (C) 2005 Pekka Enberg
@@ -13,14 +23,9 @@ Original author: Richard Gooch <rgooch@atnf.csiro.au>
 Introduction
 ============
 
-The Virtual File System (also known as the Virtual Filesystem Switch) is
-the software layer in the kernel that provides the filesystem interface
-to userspace programs.  It also provides an abstraction within the
-kernel which allows different filesystem implementations to coexist.
+虚拟文件系统（也称为虚拟文件系统开关）是内核中的软件层，为用户空间程序提供文件系统接口。 它还在内核中提供了一个抽象，允许不同的文件系统实现共存。
 
-VFS system calls open(2), stat(2), read(2), write(2), chmod(2) and so on
-are called from a process context.  Filesystem locking is described in
-the document Documentation/filesystems/locking.rst.
+VFS 系统调用 open(2)、stat(2)、read(2)、write(2)、chmod(2) 等是从进程上下文调用的。 文件系统锁定在文档 Documentation/filesystems/locking.rst 中有描述。
 
 
 Directory Entry Cache (dcache)
