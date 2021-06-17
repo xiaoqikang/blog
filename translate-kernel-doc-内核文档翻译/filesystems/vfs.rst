@@ -4,7 +4,7 @@
 Linux 虚拟文件系统概述
 =========================================
 
-本文是基于`Documentation/filesystems/vfs.rst`以下提交记录:
+本文是基于``Documentation/filesystems/vfs.rst``以下提交记录:
 
 .. code-block:: shell
 
@@ -31,64 +31,31 @@ VFS 系统调用 open(2)、stat(2)、read(2)、write(2)、chmod(2) 等是从进�
 Directory Entry Cache (dcache)
 ------------------------------
 
-The VFS implements the open(2), stat(2), chmod(2), and similar system
-calls.  The pathname argument that is passed to them is used by the VFS
-to search through the directory entry cache (also known as the dentry
-cache or dcache).  This provides a very fast look-up mechanism to
-translate a pathname (filename) into a specific dentry.  Dentries live
-in RAM and are never saved to disc: they exist only for performance.
+VFS 实现了 open(2)、stat(2)、chmod(2) 和类似的系统调用。 VFS 使用传递给它们的路径名参数来搜索目录条目缓存（也称为 dentry 缓存或 dcache）。 这提供了一种非常快速的查找机制来将路径名（文件名）转换为特定的 dentry。 dentries 存在于 RAM 中，永远不会保存到磁盘：它们的存在只是为了性能。
 
-The dentry cache is meant to be a view into your entire filespace.  As
-most computers cannot fit all dentries in the RAM at the same time, some
-bits of the cache are missing.  In order to resolve your pathname into a
-dentry, the VFS may have to resort to creating dentries along the way,
-and then loading the inode.  This is done by looking up the inode.
+dentry 缓存旨在成为整个文件空间的视图。 由于大多数计算机无法同时容纳 RAM 中的所有 dentry，因此缓存的某些位丢失了。 为了将您的路径名解析为一个 dentry，VFS 可能不得不沿途创建 dentry，然后加载 inode。 这是通过查找 inode 来完成的。
 
 
 The Inode Object
 ----------------
 
-An individual dentry usually has a pointer to an inode.  Inodes are
-filesystem objects such as regular files, directories, FIFOs and other
-beasts.  They live either on the disc (for block device filesystems) or
-in the memory (for pseudo filesystems).  Inodes that live on the disc
-are copied into the memory when required and changes to the inode are
-written back to disc.  A single inode can be pointed to by multiple
-dentries (hard links, for example, do this).
+单个 dentry 通常有一个指向 inode 的指针。 inode 是文件系统对象，例如常规文件、目录、FIFO 和其他beasts。 它们存在于磁盘上（对于块设备文件系统）或内存中（对于伪文件系统）。 需要时将位于磁盘上的 inode 复制到内存中，并将对 inode 的更改写回磁盘。 一个 inode 可以被多个 dentry 指向（例如，硬链接就是这样做的）。
 
-To look up an inode requires that the VFS calls the lookup() method of
-the parent directory inode.  This method is installed by the specific
-filesystem implementation that the inode lives in.  Once the VFS has the
-required dentry (and hence the inode), we can do all those boring things
-like open(2) the file, or stat(2) it to peek at the inode data.  The
-stat(2) operation is fairly simple: once the VFS has the dentry, it
-peeks at the inode data and passes some of it back to userspace.
+查找inode 需要VFS 调用父目录inode 的lookup() 方法。 此方法由 inode 所在的特定文件系统实现安装。 一旦 VFS 拥有所需的 dentry（以及 inode），我们就可以执行所有这些无聊的事情，例如 open(2) 文件或 stat(2) it 查看 inode 数据。 stat(2) 操作相当简单：一旦 VFS 有了 dentry，它就会查看 inode 数据并将其中的一些传回用户空间。
 
 
 The File Object
 ---------------
 
-Opening a file requires another operation: allocation of a file
-structure (this is the kernel-side implementation of file descriptors).
-The freshly allocated file structure is initialized with a pointer to
-the dentry and a set of file operation member functions.  These are
-taken from the inode data.  The open() file method is then called so the
-specific filesystem implementation can do its work.  You can see that
-this is another switch performed by the VFS.  The file structure is
-placed into the file descriptor table for the process.
+打开文件需要另一个操作：文件结构的分配（这是文件描述符的内核端实现）。 新分配的文件结构用指向 dentry 的指针和一组文件操作成员函数进行初始化。 这些取自 inode 数据。 然后调用 open() 文件方法，以便特定的文件系统实现可以完成它的工作。 您可以看到这是 VFS 执行的另一个切换。 文件结构被放入进程的文件描述符表中。
 
-Reading, writing and closing files (and other assorted VFS operations)
-is done by using the userspace file descriptor to grab the appropriate
-file structure, and then calling the required file structure method to
-do whatever is required.  For as long as the file is open, it keeps the
-dentry in use, which in turn means that the VFS inode is still in use.
+读取、写入和关闭文件（以及其他各种 VFS 操作）是通过使用用户空间文件描述符获取适当的文件结构，然后调用所需的文件结构方法来完成所需的操作。 只要文件处于打开状态，它就会一直使用 dentry，这反过来意味着 VFS inode 仍在使用中。
 
 
 Registering and Mounting a Filesystem
 =====================================
 
-To register and unregister a filesystem, use the following API
-functions:
+要注册和取消注册文件系统，请使用以下 API 函数：
 
 .. code-block:: c
 
@@ -97,23 +64,15 @@ functions:
 	extern int register_filesystem(struct file_system_type *);
 	extern int unregister_filesystem(struct file_system_type *);
 
-The passed struct file_system_type describes your filesystem.  When a
-request is made to mount a filesystem onto a directory in your
-namespace, the VFS will call the appropriate mount() method for the
-specific filesystem.  New vfsmount referring to the tree returned by
-->mount() will be attached to the mountpoint, so that when pathname
-resolution reaches the mountpoint it will jump into the root of that
-vfsmount.
+传递的 struct file_system_type 描述了您的文件系统。 当请求将文件系统挂载到命名空间中的目录时，VFS 将为特定文件系统调用适当的 mount() 方法。 引用 ->mount() 返回的树的新 vfsmount 将附加到挂载点，因此当路径名解析到达挂载点时，它将跳转到该 vfsmount 的根目录。
 
-You can see all filesystems that are registered to the kernel in the
-file /proc/filesystems.
+您可以在文件 /proc/filesystems 中看到所有注册到内核的文件系统。
 
 
 struct file_system_type
 -----------------------
 
-This describes the filesystem.  As of kernel 2.6.39, the following
-members are defined:
+这描述了文件系统。 从内核 2.6.39 开始，定义了以下成员：
 
 .. code-block:: c
 
@@ -131,90 +90,68 @@ members are defined:
 	};
 
 ``name``
-	the name of the filesystem type, such as "ext2", "iso9660",
-	"msdos" and so on
+	文件系统类型的名称，例如“ext2”、“iso9660”、“msdos”等
 
 ``fs_flags``
-	various flags (i.e. FS_REQUIRES_DEV, FS_NO_DCACHE, etc.)
+	各种标志（即 FS_REQUIRES_DEV、FS_NO_DCACHE 等）
 
 ``mount``
-	the method to call when a new instance of this filesystem should
-	be mounted
+	应挂载此文件系统的新实例时调用的方法
 
 ``kill_sb``
-	the method to call when an instance of this filesystem should be
-	shut down
-
+	应关闭此文件系统的实例时调用的方法
 
 ``owner``
-	for internal VFS use: you should initialize this to THIS_MODULE
-	in most cases.
+	对于内部 VFS 使用：在大多数情况下，您应该将其初始化为 THIS_MODULE。
 
 ``next``
-	for internal VFS use: you should initialize this to NULL
+	对于内部 VFS 使用：您应该将其初始化为 NULL
 
-  s_lock_key, s_umount_key: lockdep-specific
+s_lock_key, s_umount_key: 特定于 lockdep
 
-The mount() method has the following arguments:
+mount() 方法具有以下参数：
 
 ``struct file_system_type *fs_type``
-	describes the filesystem, partly initialized by the specific
-	filesystem code
+	描述文件系统，部分由特定的文件系统代码初始化
 
 ``int flags``
-	mount flags
+	安装标志
 
 ``const char *dev_name``
-	the device name we are mounting.
+	我们正在安装的设备名称。
 
 ``void *data``
-	arbitrary mount options, usually comes as an ASCII string (see
-	"Mount Options" section)
+	任意挂载选项，通常以 ASCII 字符串形式出现（参见“Mount Options”部分）
 
-The mount() method must return the root dentry of the tree requested by
-caller.  An active reference to its superblock must be grabbed and the
-superblock must be locked.  On failure it should return ERR_PTR(error).
+mount() 方法必须返回调用者请求的树的根目录项。必须获取对其超级块的活动引用，并且必须锁定超级块。失败时它应该返回 ERR_PTR(error)。
 
-The arguments match those of mount(2) and their interpretation depends
-on filesystem type.  E.g. for block filesystems, dev_name is interpreted
-as block device name, that device is opened and if it contains a
-suitable filesystem image the method creates and initializes struct
-super_block accordingly, returning its root dentry to caller.
+参数与 mount(2) 的参数匹配，它们的解释取决于文件系统类型。例如。对于块文件系统，dev_name 被解释为块设备名称，该设备被打开，如果它包含合适的文件系统映像，该方法会相应地创建和初始化 struct super_block，将其根目录返回给调用者。
 
-->mount() may choose to return a subtree of existing filesystem - it
-doesn't have to create a new one.  The main result from the caller's
-point of view is a reference to dentry at the root of (sub)tree to be
-attached; creation of new superblock is a common side effect.
+->mount() 可以选择返回现有文件系统的子树——它不必创建一个新的。从调用者的角度来看，主要结果是对要附加的（子）树根部的 dentry 的引用；创建新的超级块是一种常见的副作用。
 
-The most interesting member of the superblock structure that the mount()
-method fills in is the "s_op" field.  This is a pointer to a "struct
-super_operations" which describes the next level of the filesystem
-implementation.
+mount() 方法填充的超级块结构中最有趣的成员是“s_op”字段。这是一个指向“struct super_operations”的指针，它描述了文件系统实现的下一级。
 
-Usually, a filesystem uses one of the generic mount() implementations
-and provides a fill_super() callback instead.  The generic variants are:
+通常，文件系统使用通用 mount() 实现之一并提供 fill_super() 回调。通用变体是：
 
 ``mount_bdev``
-	mount a filesystem residing on a block device
+	挂载驻留在块设备上的文件系统
 
 ``mount_nodev``
-	mount a filesystem that is not backed by a device
+	挂载不受设备支持的文件系统
 
 ``mount_single``
-	mount a filesystem which shares the instance between all mounts
+	挂载一个在所有挂载之间共享实例的文件系统
 
-A fill_super() callback implementation has the following arguments:
+fill_super() 回调实现具有以下参数：
 
 ``struct super_block *sb``
-	the superblock structure.  The callback must initialize this
-	properly.
+	超级块结构。 回调必须正确初始化它。
 
 ``void *data``
-	arbitrary mount options, usually comes as an ASCII string (see
-	"Mount Options" section)
+	任意挂载选项，通常以 ASCII 字符串形式出现（参见“Mount Options”部分）
 
 ``int silent``
-	whether or not to be silent on error
+	是否对错误保持沉默
 
 
 The Superblock Object
