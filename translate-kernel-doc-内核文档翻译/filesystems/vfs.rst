@@ -4,7 +4,7 @@
 Linux 虚拟文件系统概述
 =========================================
 
-本文是基于``Documentation/filesystems/vfs.rst``以下提交记录:
+本文是基于Documentation/filesystems/vfs.rst以下提交记录:
 
 .. code-block:: shell
 
@@ -41,7 +41,7 @@ The Inode Object
 
 单个 dentry 通常有一个指向 inode 的指针。 inode 是文件系统对象，例如常规文件、目录、FIFO 和其他beasts。 它们存在于磁盘上（对于块设备文件系统）或内存中（对于伪文件系统）。 需要时将位于磁盘上的 inode 复制到内存中，并将对 inode 的更改写回磁盘。 一个 inode 可以被多个 dentry 指向（例如，硬链接就是这样做的）。
 
-查找inode 需要VFS 调用父目录inode 的lookup() 方法。 此方法由 inode 所在的特定文件系统实现安装。 一旦 VFS 拥有所需的 dentry（以及 inode），我们就可以执行所有这些无聊的事情，例如 open(2) 文件或 stat(2) it 查看 inode 数据。 stat(2) 操作相当简单：一旦 VFS 有了 dentry，它就会查看 inode 数据并将其中的一些传回用户空间。
+查找inode 需要VFS 调用父目录inode 的lookup() 方法。 此方法由 inode 所在的特定文件系统实现安装。 一旦 VFS 拥有所需的 dentry（以及 inode），我们就可以执行所有这些无聊的事情，例如 open(2) 或 stat(2) 文件查看 inode 数据。 stat(2) 操作相当简单：一旦 VFS 有了 dentry，它就会查看 inode 数据并将其中的一些传回用户空间。
 
 
 The File Object
