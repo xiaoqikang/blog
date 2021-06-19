@@ -228,6 +228,25 @@ sudo dnf install krita -y
 sudo dnf install gimp -y
 ```
 
+# firefox预览markdown
+
+```shell
+mkdir ~/.local/share/mime/packages/ -p
+```
+`~/.local/share/mime/packages/text-markdown.xml`文件内容：
+```
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+  <mime-type type="text/plain">
+    <glob pattern="*.md"/>
+    <glob pattern="*.mkd"/>
+    <glob pattern="*.markdown"/>
+  </mime-type>
+</mime-info>
+```
+```shell
+update-mime-database ~/.local/share/mime
+```
 
 
 

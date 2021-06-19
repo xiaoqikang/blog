@@ -38,12 +38,13 @@
 如果windows和macOS还是无法访问Linux的文件夹，再进行以下步骤：
 
 ```shell
-sudo firewall-cmd --permanent --add-service=samba		（允许samba服务）
-sudo firewall-cmd --permanent --add-service=samba-dc	（允许samba-dc服务，可能不需要操作）
-sudo setsebool -P samba_enable_home_dirs on		（把用户目录的samba功能使能，可读写）
-sudo firewall-cmd --reload  	（防火墙重新加载配置）
-sudo systemctl stop firewalld.service	（关闭防火墙）
-sudo systemctl restart smb.service		（重启samba服务）
+sudo firewall-cmd --permanent --add-service=samba	#（允许samba服务）
+sudo firewall-cmd --permanent --add-service=samba-dc	#（允许samba-dc服务，可能不需要操作）
+sudo setsebool -P samba_enable_home_dirs on		#（把用户目录的samba功能使能，可读写）
+sudo firewall-cmd --reload  	#（防火墙重新加载配置）
+sudo systemctl stop firewalld.service	#（关闭防火墙）
+sudo systemctl disable firewalld.service	#（开机不启动防火墙）
+sudo systemctl restart smb.service		#（重启samba服务）
 ```
 
 > Fedora系统中:

@@ -60,7 +60,8 @@ qemu-img create -f qcow2 MyDisk.qcow2 64G
 3. 将 `OVMF_CODE.fd` 和 `OVMF_VARS-1024x768.fd` 放到 `/usr/share/OVMF/macOS/` 路径下（或其他路径，在home目录下会报`OVMF_CODE.fd权限错误`）。
 4. 在Virt-Manager中`detail->overview->xml`中将`OVMF_*`路径修改成`/usr/share/OVMF/macOS/`下的文件（**要先允许xml编辑**）
 5. Add Hardware -> Storage -> Details -> Select or create custom storage，添加catalina.qcow2
-6. Boot Options -> Details -> Boot device order, 勾选 SATA Disk 2 和 3
+6. Boot Options -> Details -> Boot device order, 勾选 SATA Disk 2 和 3, 并把刚加的SATA Disk 3 放在最前面
+7. 开机界面，选择最右边的盘
 
 ## 第2b步 (Headless Systems)
 如果你使用的是cloud-based/headless system，则可以使用`headless.sh`来设置一个快速的VNC实例。 设置是通过变量定义的，如以下示例所示。 默认情况下，VNC将在端口 `5900` 上启动。
