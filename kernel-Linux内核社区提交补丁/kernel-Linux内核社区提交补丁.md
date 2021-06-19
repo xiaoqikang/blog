@@ -70,7 +70,7 @@ vim 0000-cover-letter.patch
 ```shell
 sudo yum install git-email -y
 ```
-`vim ~/.gitconfig`：
+163邮箱`~/.gitconfig`：
 ```
 [user]
 	email = lioneie@163.com
@@ -86,6 +86,23 @@ sudo yum install git-email -y
 	smtppass = 此处填写163邮箱的授权密码
 	smtpserverport = 994 
 ```
+
+foxmail邮箱`~/.gitconfig`：
+```shell
+[user]
+        email = lioneie@foxmail.com
+        name = ChenXiaoSong
+[core]
+        editor = vim 
+        quotepath = false
+[sendemail]
+        from = lioneie@foxmail.com
+        smtpserver = smtp.qq.com
+        smtpuser = lioneie@foxmail.com
+        smtpencryption = ssl 
+        smtppass = 此处填写qq邮箱的授权密码
+```
+
 获取maintainer邮箱：
 ```shell
 ./scripts/get_maintainer.pl 补丁文件
