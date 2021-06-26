@@ -157,14 +157,13 @@ fill_super() 回调实现具有以下参数：
 The Superblock Object
 =====================
 
-A superblock object represents a mounted filesystem.
+超级块对象表示已安装的文件系统。
 
 
 struct super_operations
 -----------------------
 
-This describes how the VFS can manipulate the superblock of your
-filesystem.  As of kernel 2.6.22, the following members are defined:
+这描述了VFS如何操作文件系统的超级块。 从内核2.6.22开始，定义了以下成员：
 
 .. code-block:: c
 
@@ -193,169 +192,110 @@ filesystem.  As of kernel 2.6.22, the following members are defined:
 		void (*free_cached_objects)(struct super_block *, int);
 	};
 
-All methods are called without any locks being held, unless otherwise
-noted.  This means that most methods can block safely.  All methods are
-only called from a process context (i.e. not from an interrupt handler
-or bottom half).
+除非另有说明，否则所有方法都会在不持有任何锁的情况下调用。 这意味着大多数方法都可以安全地阻塞。 所有方法仅从进程上下文调用（即不是从中断处理程序或下半部分）。
 
 ``alloc_inode``
-	this method is called by alloc_inode() to allocate memory for
-	struct inode and initialize it.  If this function is not
-	defined, a simple 'struct inode' is allocated.  Normally
-	alloc_inode will be used to allocate a larger structure which
-	contains a 'struct inode' embedded within it.
+        该方法由 alloc_inode() 调用，为 struct inode 分配内存并对其进行初始化。 如果未定义此函数，则会分配一个简单的“struct inode”。 通常 alloc_inode 将用于分配一个更大的结构，其中包含一个嵌入其中的“struct inode”。
 
 ``destroy_inode``
-	this method is called by destroy_inode() to release resources
-	allocated for struct inode.  It is only required if
-	->alloc_inode was defined and simply undoes anything done by
-	->alloc_inode.
+        该方法由 destroy_inode() 调用以释放为 struct inode 分配的资源。 只有在定义了 ->alloc_inode 并且简单地撤消了 ->alloc_inode 所做的任何事情时才需要它。
 
 ``dirty_inode``
-	this method is called by the VFS when an inode is marked dirty.
-	This is specifically for the inode itself being marked dirty,
-	not its data.  If the update needs to be persisted by fdatasync(),
-	then I_DIRTY_DATASYNC will be set in the flags argument.
+        当 inode 被标记为脏时，VFS 会调用此方法。 这是专门针对被标记为脏的 inode 本身，而不是其数据。 如果更新需要由 fdatasync() 持久化，则 I_DIRTY_DATASYNC 将在 flags 参数中设置。
 
 ``write_inode``
-	this method is called when the VFS needs to write an inode to
-	disc.  The second parameter indicates whether the write should
-	be synchronous or not, not all filesystems check this flag.
+        当 VFS 需要将 inode 写入磁盘时调用此方法。 第二个参数指示写入是否应该同步，并非所有文件系统都检查此标志。
 
 ``drop_inode``
-	called when the last access to the inode is dropped, with the
-	inode->i_lock spinlock held.
+        当对 inode 的最后一次访问被删除时调用，并持有 inode->i_lock 自旋锁。
 
-	This method should be either NULL (normal UNIX filesystem
-	semantics) or "generic_delete_inode" (for filesystems that do
-	not want to cache inodes - causing "delete_inode" to always be
-	called regardless of the value of i_nlink)
+        此方法应为 NULL（普通 UNIX 文件系统语义）或“generic_delete_inode”（对于不想缓存 inode 的文件系统 - 导致无论 i_nlink 的值如何，始终调用“delete_inode”）
 
-	The "generic_delete_inode()" behavior is equivalent to the old
-	practice of using "force_delete" in the put_inode() case, but
-	does not have the races that the "force_delete()" approach had.
+        “generic_delete_inode()”行为相当于在 put_inode() 情况下使用“force_delete”的旧做法，但没有“force_delete()”方法所具有的竞争。
 
 ``delete_inode``
-	called when the VFS wants to delete an inode
+        当 VFS 想要删除一个 inode 时调用
 
 ``put_super``
-	called when the VFS wishes to free the superblock
-	(i.e. unmount).  This is called with the superblock lock held
+        当 VFS 希望释放超级块（即卸载）时调用。 这是在持有超级块锁的情况下调用的
 
 ``sync_fs``
-	called when VFS is writing out all dirty data associated with a
-	superblock.  The second parameter indicates whether the method
-	should wait until the write out has been completed.  Optional.
+        当 VFS 写出与超级块相关的所有脏数据时调用。 第二个参数指示该方法是否应该等到写出完成。 可选的。
 
 ``freeze_fs``
-	called when VFS is locking a filesystem and forcing it into a
-	consistent state.  This method is currently used by the Logical
-	Volume Manager (LVM).
+        当 VFS 锁定文件系统并强制其进入一致状态时调用。 此方法当前由逻辑卷管理器 (LVM) 使用。
 
 ``unfreeze_fs``
-	called when VFS is unlocking a filesystem and making it writable
-	again.
+        当 VFS 解锁文件系统并使其再次可写时调用。
 
 ``statfs``
-	called when the VFS needs to get filesystem statistics.
+        当 VFS 需要获取文件系统统计信息时调用。
 
 ``remount_fs``
-	called when the filesystem is remounted.  This is called with
-	the kernel lock held
+        重新挂载文件系统时调用。 这是在持有内核锁的情况下调用的
 
 ``clear_inode``
-	called then the VFS clears the inode.  Optional
+        调用然后 VFS 清除 inode。 可选的
 
 ``umount_begin``
-	called when the VFS is unmounting a filesystem.
+        当 VFS 卸载文件系统时调用。
 
 ``show_options``
-	called by the VFS to show mount options for /proc/<pid>/mounts.
-	(see "Mount Options" section)
+        由 VFS 调用以显示 /proc/<pid>/mounts 的挂载选项。 （请参阅“Mount Options”部分）
 
 ``quota_read``
-	called by the VFS to read from filesystem quota file.
+        由 VFS 调用以从文件系统配额文件中读取。
 
 ``quota_write``
-	called by the VFS to write to filesystem quota file.
+        由 VFS 调用以写入文件系统配额文件。
 
 ``nr_cached_objects``
-	called by the sb cache shrinking function for the filesystem to
-	return the number of freeable cached objects it contains.
-	Optional.
+        由文件系统的 sb 缓存收缩函数调用，以返回它包含的可释放缓存对象的数量。 可选的。
+
 
 ``free_cache_objects``
-	called by the sb cache shrinking function for the filesystem to
-	scan the number of objects indicated to try to free them.
-	Optional, but any filesystem implementing this method needs to
-	also implement ->nr_cached_objects for it to be called
-	correctly.
+        由文件系统的 sb 缓存收缩函数调用以扫描指示尝试释放它们的对象数量。 可选，但任何实现此方法的文件系统还需要实现 ->nr_cached_objects 才能正确调用它。
 
-	We can't do anything with any errors that the filesystem might
-	encountered, hence the void return type.  This will never be
-	called if the VM is trying to reclaim under GFP_NOFS conditions,
-	hence this method does not need to handle that situation itself.
+        我们不能对文件系统可能遇到的任何错误做任何事情，因此返回 void 类型。 如果 VM 在 GFP_NOFS 条件下尝试回收，则永远不会调用此方法，因此此方法不需要自己处理这种情况。
 
-	Implementations must include conditional reschedule calls inside
-	any scanning loop that is done.  This allows the VFS to
-	determine appropriate scan batch sizes without having to worry
-	about whether implementations will cause holdoff problems due to
-	large scan batch sizes.
+        实现必须在完成的任何扫描循环内包括条件重新调度调用。 这允许 VFS 确定适当的扫描批量大小，而不必担心实现是否会由于大扫描批量大小而导致延迟问题。
 
-Whoever sets up the inode is responsible for filling in the "i_op"
-field.  This is a pointer to a "struct inode_operations" which describes
-the methods that can be performed on individual inodes.
+设置 inode 的人负责填写“i_op”字段。 这是一个指向“struct inode_operations”的指针，它描述了可以在单个 inode 上执行的方法。
 
 
 struct xattr_handlers
 ---------------------
 
-On filesystems that support extended attributes (xattrs), the s_xattr
-superblock field points to a NULL-terminated array of xattr handlers.
-Extended attributes are name:value pairs.
+在支持扩展属性 (xattrs) 的文件系统上，s_xattr 超级块字段指向以 NULL 结尾的 xattr 处理程序数组。 扩展属性是name:value(名称：值)对。
 
 ``name``
-	Indicates that the handler matches attributes with the specified
-	name (such as "system.posix_acl_access"); the prefix field must
-	be NULL.
+        指示处理程序匹配具有指定名称的属性（例如“system.posix_acl_access”）； 前缀字段必须为 NULL。
 
 ``prefix``
-	Indicates that the handler matches all attributes with the
-	specified name prefix (such as "user."); the name field must be
-	NULL.
+        指示处理程序匹配具有指定名称前缀的所有属性（例如“user.”）； 名称字段必须为 NULL。
 
 ``list``
-	Determine if attributes matching this xattr handler should be
-	listed for a particular dentry.  Used by some listxattr
-	implementations like generic_listxattr.
+        确定是否应为特定 dentry 列出与此 xattr 处理程序匹配的属性。 由一些 listxattr 实现（如 generic_listxattr）使用。
 
 ``get``
-	Called by the VFS to get the value of a particular extended
-	attribute.  This method is called by the getxattr(2) system
-	call.
+        由 VFS 调用以获取特定扩展属性的值。 该方法由 getxattr(2) 系统调用调用。
 
 ``set``
-	Called by the VFS to set the value of a particular extended
-	attribute.  When the new value is NULL, called to remove a
-	particular extended attribute.  This method is called by the
-	setxattr(2) and removexattr(2) system calls.
+        由 VFS 调用以设置特定扩展属性的值。 当新值为 NULL 时，调用以删除特定的扩展属性。 该方法由 setxattr(2) 和 removexattr(2) 系统调用调用。
 
-When none of the xattr handlers of a filesystem match the specified
-attribute name or when a filesystem doesn't support extended attributes,
-the various ``*xattr(2)`` system calls return -EOPNOTSUPP.
+当文件系统的 xattr 处理程序均不匹配指定的属性名称或文件系统不支持扩展属性时，各种 ``*xattr(2)`` 系统调用将返回 -EOPNOTSUPP。
 
 
 The Inode Object
 ================
 
-An inode object represents an object within the filesystem.
+一个 inode 对象代表文件系统中的一个对象。
 
 
 struct inode_operations
 -----------------------
 
-This describes how the VFS can manipulate an inode in your filesystem.
-As of kernel 2.6.22, the following members are defined:
+这描述了 VFS 如何操作文件系统中的 inode。 从内核 2.6.22 开始，定义了以下成员：
 
 .. code-block:: c
 
@@ -388,150 +328,69 @@ As of kernel 2.6.22, the following members are defined:
 		int (*fileattr_get)(struct dentry *dentry, struct fileattr *fa);
 	};
 
-Again, all methods are called without any locks being held, unless
-otherwise noted.
+同样，除非另有说明，否则所有方法都会在不持有任何锁的情况下调用。
 
 ``create``
-	called by the open(2) and creat(2) system calls.  Only required
-	if you want to support regular files.  The dentry you get should
-	not have an inode (i.e. it should be a negative dentry).  Here
-	you will probably call d_instantiate() with the dentry and the
-	newly created inode
+        由 open(2) 和 creat(2) 系统调用调用。 仅当您想支持常规文件时才需要。 你得到的 dentry 不应该有一个 inode（即它应该是一个负 dentry）。 在这里，您可能会使用 dentry 和新创建的 inode 调用 d_instantiate()
 
 ``lookup``
-	called when the VFS needs to look up an inode in a parent
-	directory.  The name to look for is found in the dentry.  This
-	method must call d_add() to insert the found inode into the
-	dentry.  The "i_count" field in the inode structure should be
-	incremented.  If the named inode does not exist a NULL inode
-	should be inserted into the dentry (this is called a negative
-	dentry).  Returning an error code from this routine must only be
-	done on a real error, otherwise creating inodes with system
-	calls like create(2), mknod(2), mkdir(2) and so on will fail.
-	If you wish to overload the dentry methods then you should
-	initialise the "d_dop" field in the dentry; this is a pointer to
-	a struct "dentry_operations".  This method is called with the
-	directory inode semaphore held
+        当 VFS 需要在父目录中查找 inode 时调用。 要查找的名称可在 dentry 中找到。 此方法必须调用 d_add() 将找到的 inode 插入到 dentry 中。 inode 结构中的“i_count”字段应该递增。 如果指定的 inode 不存在，则应将 NULL inode 插入到 dentry 中（这称为 negative dentry）。 从这个例程返回错误代码必须只在真正的错误时完成，否则创建具有系统调用的 inode 将失败，如 create(2)、mknod(2)、mkdir(2) 等。 如果您希望重载 dentry 方法，那么您应该初始化 dentry 中的“d_dop”字段； 这是一个指向结构“dentry_operations”的指针。 这个方法是用持有的目录 inode 信号量调用的
 
 ``link``
-	called by the link(2) system call.  Only required if you want to
-	support hard links.  You will probably need to call
-	d_instantiate() just as you would in the create() method
+        由 link(2) 系统调用调用。 仅当您想支持硬链接时才需要。 您可能需要像在 create() 方法中一样调用 d_instantiate()
 
 ``unlink``
-	called by the unlink(2) system call.  Only required if you want
-	to support deleting inodes
+        由 unlink(2) 系统调用调用。 仅当您想支持删除 inode 时才需要
 
 ``symlink``
-	called by the symlink(2) system call.  Only required if you want
-	to support symlinks.  You will probably need to call
-	d_instantiate() just as you would in the create() method
+        由 symlink(2) 系统调用调用。 仅当您想支持符号链接时才需要。 您可能需要像在 create() 方法中一样调用 d_instantiate()
 
 ``mkdir``
-	called by the mkdir(2) system call.  Only required if you want
-	to support creating subdirectories.  You will probably need to
-	call d_instantiate() just as you would in the create() method
+        由 mkdir(2) 系统调用调用。 仅当您想支持创建子目录时才需要。 您可能需要像在 create() 方法中一样调用 d_instantiate()
 
 ``rmdir``
-	called by the rmdir(2) system call.  Only required if you want
-	to support deleting subdirectories
+        由 rmdir(2) 系统调用调用。 仅当您想支持删除子目录时才需要
 
 ``mknod``
-	called by the mknod(2) system call to create a device (char,
-	block) inode or a named pipe (FIFO) or socket.  Only required if
-	you want to support creating these types of inodes.  You will
-	probably need to call d_instantiate() just as you would in the
-	create() method
+        由 mknod(2) 系统调用调用以创建设备（字符、块）inode 或命名管道 (FIFO) 或套接字。 仅当您希望支持创建这些类型的 inode 时才需要。 您可能需要像在 create() 方法中一样调用 d_instantiate()
 
 ``rename``
-	called by the rename(2) system call to rename the object to have
-	the parent and name given by the second inode and dentry.
+        由 rename(2) 系统调用调用以重命名对象，使其具有由第二个 inode 和 dentry 给出的父级和名称。
 
-	The filesystem must return -EINVAL for any unsupported or
-	unknown flags.  Currently the following flags are implemented:
-	(1) RENAME_NOREPLACE: this flag indicates that if the target of
-	the rename exists the rename should fail with -EEXIST instead of
-	replacing the target.  The VFS already checks for existence, so
-	for local filesystems the RENAME_NOREPLACE implementation is
-	equivalent to plain rename.
-	(2) RENAME_EXCHANGE: exchange source and target.  Both must
-	exist; this is checked by the VFS.  Unlike plain rename, source
-	and target may be of different type.
+        对于任何不受支持或未知的标志，文件系统必须返回 -EINVAL。 目前实现了以下标志： (1) RENAME_NOREPLACE：这个标志表明如果重命名的目标存在，重命名应该失败并显示 -EEXIST 而不是替换目标。 VFS 已经检查是否存在，因此对于本地文件系统，RENAME_NOREPLACE 实现等效于普通重命名。 (2) RENAME_EXCHANGE：交换源和目标。 两者都必须存在； 这是由 VFS 检查的。 与普通重命名不同，源和目标可能是不同的类型。
 
 ``get_link``
-	called by the VFS to follow a symbolic link to the inode it
-	points to.  Only required if you want to support symbolic links.
-	This method returns the symlink body to traverse (and possibly
-	resets the current position with nd_jump_link()).  If the body
-	won't go away until the inode is gone, nothing else is needed;
-	if it needs to be otherwise pinned, arrange for its release by
-	having get_link(..., ..., done) do set_delayed_call(done,
-	destructor, argument).  In that case destructor(argument) will
-	be called once VFS is done with the body you've returned.  May
-	be called in RCU mode; that is indicated by NULL dentry
-	argument.  If request can't be handled without leaving RCU mode,
-	have it return ERR_PTR(-ECHILD).
+        由 VFS 调用以遵循指向它所指向的 inode 的符号链接。仅当您想支持符号链接时才需要。此方法返回要遍历的符号链接体（并可能使用 nd_jump_link() 重置当前位置）。如果在 inode 消失之前 body 不会消失，则不需要其他任何东西；如果需要以其他方式固定，请通过让 get_link(..., ..., done) 执行 set_delayed_call(done, destructor, argument) 来安排释放。在这种情况下，一旦 VFS 处理完您返回的主体，就会调用destructor(argument)。可以在 RCU 模式下调用；这由 NULL dentry 参数指示。如果不离开 RCU 模式就不能处理请求，让它返回 ERR_PTR(-ECHILD)。
 
-	If the filesystem stores the symlink target in ->i_link, the
-	VFS may use it directly without calling ->get_link(); however,
-	->get_link() must still be provided.  ->i_link must not be
-	freed until after an RCU grace period.  Writing to ->i_link
-	post-iget() time requires a 'release' memory barrier.
+        如果文件系统将符号链接目标存储在 ->i_link 中，则 VFS 可以直接使用它而无需调用 ->get_link();但是，仍然必须提供 ->get_link()。 ->i_link 必须在 RCU 宽限期之后才能释放。写入 ->i_link post-iget() 时间需要“释放”内存屏障。
 
 ``readlink``
-	this is now just an override for use by readlink(2) for the
-	cases when ->get_link uses nd_jump_link() or object is not in
-	fact a symlink.  Normally filesystems should only implement
-	->get_link for symlinks and readlink(2) will automatically use
-	that.
+        这现在只是 readlink(2) 在 ->get_link 使用 nd_jump_link() 或 object 实际上不是符号链接的情况下使用的覆盖。 通常文件系统应该只为符号链接实现 ->get_link 并且 readlink(2) 将自动使用它。
 
 ``permission``
-	called by the VFS to check for access rights on a POSIX-like
-	filesystem.
+        由 VFS 调用以检查对 POSIX-like 的文件系统的访问权限。
 
-	May be called in rcu-walk mode (mask & MAY_NOT_BLOCK).  If in
-	rcu-walk mode, the filesystem must check the permission without
-	blocking or storing to the inode.
+        可以在 rcu-walk 模式下调用（掩码和 MAY_NOT_BLOCK）。 如果在 rcu-walk 模式下，文件系统必须检查权限而不阻塞或存储到 inode。
 
-	If a situation is encountered that rcu-walk cannot handle,
-	return
-	-ECHILD and it will be called again in ref-walk mode.
+        如果遇到 rcu-walk 无法处理的情况，返回 -ECHILD，它将在 ref-walk 模式下再次调用。
 
 ``setattr``
-	called by the VFS to set attributes for a file.  This method is
-	called by chmod(2) and related system calls.
+        由 VFS 调用以设置文件的属性。 此方法由 chmod(2) 和相关系统调用调用。
 
 ``getattr``
-	called by the VFS to get attributes of a file.  This method is
-	called by stat(2) and related system calls.
+        由 VFS 调用以获取文件的属性。 此方法由 stat(2) 和相关系统调用调用。
 
 ``listxattr``
-	called by the VFS to list all extended attributes for a given
-	file.  This method is called by the listxattr(2) system call.
+        由 VFS 调用以列出给定文件的所有扩展属性。 此方法由 listxattr(2) 系统调用调用。
 
 ``update_time``
-	called by the VFS to update a specific time or the i_version of
-	an inode.  If this is not defined the VFS will update the inode
-	itself and call mark_inode_dirty_sync.
+        由 VFS 调用以更新特定时间或 inode 的 i_version。 如果未定义，VFS 将更新 inode 本身并调用 mark_inode_dirty_sync。
 
 ``atomic_open``
-	called on the last component of an open.  Using this optional
-	method the filesystem can look up, possibly create and open the
-	file in one atomic operation.  If it wants to leave actual
-	opening to the caller (e.g. if the file turned out to be a
-	symlink, device, or just something filesystem won't do atomic
-	open for), it may signal this by returning finish_no_open(file,
-	dentry).  This method is only called if the last component is
-	negative or needs lookup.  Cached positive dentries are still
-	handled by f_op->open().  If the file was created, FMODE_CREATED
-	flag should be set in file->f_mode.  In case of O_EXCL the
-	method must only succeed if the file didn't exist and hence
-	FMODE_CREATED shall always be set on success.
+        在打开的最后一个组件上调用。 使用这种可选方法，文件系统可以在一个原子操作中查找、可能创建和打开文件。 如果它想将实际打开留给调用者（例如，如果文件被证明是一个符号链接、设备，或者只是文件系统不会对其进行原子打开的东西），它可以通过返回finish_no_open(file, dentry)来表示这一点。 仅当最后一个组件为负数或需要查找时才调用此方法。 缓存的正项仍然由 f_op->open() 处理。 如果文件已创建，则应在 file->f_mode 中设置 FMODE_CREATED 标志。 在 O_EXCL 的情况下，该方法必须仅在文件不存在时成功，因此 FMODE_CREATED 应始终在成功时设置。
 
 ``tmpfile``
-	called in the end of O_TMPFILE open().  Optional, equivalent to
-	atomically creating, opening and unlinking a file in given
-	directory.
+        在 O_TMPFILE open() 的末尾调用。 可选，相当于在给定目录中自动创建、打开和取消链接文件。
 
 ``fileattr_get``
 	called on ioctl(FS_IOC_GETFLAGS) and ioctl(FS_IOC_FSGETXATTR) to
@@ -539,126 +398,58 @@ otherwise noted.
 	before the relevant SET operation to check what is being changed
 	(in this case with i_rwsem locked exclusive).  If unset, then
 	fall back to f_op->ioctl().
+        调用 ioctl(FS_IOC_GETFLAGS) 和 ioctl(FS_IOC_FSGETXATTR) 以检索其他文件标志和属性。 在相关 SET 操作之前也调用以检查正在更改的内容（在这种情况下与 i_rwsem 锁定独占）。 如果未设置，则回退到 f_op->ioctl()。
 
 ``fileattr_set``
-	called on ioctl(FS_IOC_SETFLAGS) and ioctl(FS_IOC_FSSETXATTR) to
-	change miscellaneous file flags and attributes.  Callers hold
-	i_rwsem exclusive.  If unset, then fall back to f_op->ioctl().
+        调用 ioctl(FS_IOC_SETFLAGS) 和 ioctl(FS_IOC_FSSETXATTR) 以更改其他文件标志和属性。 呼叫者持有 i_rwsem 独占。 如果未设置，则回退到 f_op->ioctl()。
 
 
 The Address Space Object
 ========================
 
-The address space object is used to group and manage pages in the page
-cache.  It can be used to keep track of the pages in a file (or anything
-else) and also track the mapping of sections of the file into process
-address spaces.
+地址空间对象用于对页面缓存中的页面进行分组和管理。它可用于跟踪文件（或其他任何内容）中的页面，还可以跟踪文件部分到进程地址空间的映射。
 
-There are a number of distinct yet related services that an
-address-space can provide.  These include communicating memory pressure,
-page lookup by address, and keeping track of pages tagged as Dirty or
-Writeback.
+地址空间可以提供许多不同但相关的服务。这些包括传达内存压力、按地址查找页面以及跟踪标记为“脏”或“写回”的页面。
 
-The first can be used independently to the others.  The VM can try to
-either write dirty pages in order to clean them, or release clean pages
-in order to reuse them.  To do this it can call the ->writepage method
-on dirty pages, and ->releasepage on clean pages with PagePrivate set.
-Clean pages without PagePrivate and with no external references will be
-released without notice being given to the address_space.
+第一个可以独立于其他人使用。 VM 可以尝试写入脏页以清除它们，或释放干净页以重用它们。为此，它可以在脏页面上调用 ->writepage 方法，在设置了 PagePrivate 的干净页面上调用 ->releasepage 方法。没有 PagePrivate 和没有外部引用的干净页面将被释放，而不会通知 address_space。
 
-To achieve this functionality, pages need to be placed on an LRU with
-lru_cache_add and mark_page_active needs to be called whenever the page
-is used.
+要实现此功能，需要使用 lru_cache_add 将页面放置在 LRU 上，并且在使用页面时需要调用 mark_page_active。
 
-Pages are normally kept in a radix tree index by ->index.  This tree
-maintains information about the PG_Dirty and PG_Writeback status of each
-page, so that pages with either of these flags can be found quickly.
+页面通常通过 ->index 保存在基数树索引中。该树维护有关每个页面的 PG_Dirty 和 PG_Writeback 状态的信息，以便可以快速找到具有这些标志之一的页面。
 
-The Dirty tag is primarily used by mpage_writepages - the default
-->writepages method.  It uses the tag to find dirty pages to call
-->writepage on.  If mpage_writepages is not used (i.e. the address
-provides its own ->writepages) , the PAGECACHE_TAG_DIRTY tag is almost
-unused.  write_inode_now and sync_inode do use it (through
-__sync_single_inode) to check if ->writepages has been successful in
-writing out the whole address_space.
+Dirty 标签主要由 mpage_writepages 使用 - 默认 ->writepages 方法。它使用标记来查找脏页以调用 ->writepage。如果未使用 mpage_writepages（即地址提供自己的 ->writepages），则 PAGECACHE_TAG_DIRTY 标签几乎未使用。 write_inode_now 和sync_inode 确实使用它（通过__sync_single_inode）来检查->writepages 是否已成功写出整个address_space。
 
-The Writeback tag is used by filemap*wait* and sync_page* functions, via
-filemap_fdatawait_range, to wait for all writeback to complete.
+Filemap*wait* 和sync_page* 函数使用Writeback 标记，通过filemap_fdatawait_range 等待所有写回完成。
 
-An address_space handler may attach extra information to a page,
-typically using the 'private' field in the 'struct page'.  If such
-information is attached, the PG_Private flag should be set.  This will
-cause various VM routines to make extra calls into the address_space
-handler to deal with that data.
+address_space 处理程序可以将额外信息附加到页面，通常使用“struct page”中的“private”字段。如果附加了此类信息，则应设置 PG_Private 标志。这将导致各种 VM 例程对 address_space 处理程序进行额外调用以处理该数据。
 
-An address space acts as an intermediate between storage and
-application.  Data is read into the address space a whole page at a
-time, and provided to the application either by copying of the page, or
-by memory-mapping the page.  Data is written into the address space by
-the application, and then written-back to storage typically in whole
-pages, however the address_space has finer control of write sizes.
+地址空间充当存储和应用程序之间的中介。数据一次整页读入地址空间，并通过复制页面或通过内存映射页面提供给应用程序。数据由应用程序写入地址空间，然后通常以整页写回存储，但是 address_space 对写入大小有更好的控制。
 
-The read process essentially only requires 'readpage'.  The write
-process is more complicated and uses write_begin/write_end or
-set_page_dirty to write data into the address_space, and writepage and
-writepages to writeback data to storage.
+读取过程基本上只需要“readpage”。写过程比较复杂，使用write_begin/write_end或set_page_dirty将数据写入address_space，writepage和writepages将数据写回存储。
 
-Adding and removing pages to/from an address_space is protected by the
-inode's i_mutex.
+在 address_space 中添加和删除页面受 inode 的 i_mutex 保护。
 
-When data is written to a page, the PG_Dirty flag should be set.  It
-typically remains set until writepage asks for it to be written.  This
-should clear PG_Dirty and set PG_Writeback.  It can be actually written
-at any point after PG_Dirty is clear.  Once it is known to be safe,
-PG_Writeback is cleared.
+将数据写入页面时，应设置 PG_Dirty 标志。它通常保持设置，直到 writepage 要求写入它。这应该清除 PG_Dirty 并设置 PG_Writeback。实际上可以在 PG_Dirty 清除后的任何时候写入。一旦知道它是安全的，就会清除 PG_Writeback。
 
-Writeback makes use of a writeback_control structure to direct the
-operations.  This gives the writepage and writepages operations some
-information about the nature of and reason for the writeback request,
-and the constraints under which it is being done.  It is also used to
-return information back to the caller about the result of a writepage or
-writepages request.
+回写使用 writeback_control 结构来指导操作。这为 writepage 和 writepages 操作提供了一些关于写回请求的性质和原因的信息，以及执行它的约束条件。它还用于将有关 writepage 或 writepages 请求结果的信息返回给调用者。
 
 
 Handling errors during writeback
 --------------------------------
 
-Most applications that do buffered I/O will periodically call a file
-synchronization call (fsync, fdatasync, msync or sync_file_range) to
-ensure that data written has made it to the backing store.  When there
-is an error during writeback, they expect that error to be reported when
-a file sync request is made.  After an error has been reported on one
-request, subsequent requests on the same file descriptor should return
-0, unless further writeback errors have occurred since the previous file
-syncronization.
+大多数执行缓冲 I/O 的应用程序将定期调用文件同步调用（fsync、fdatasync、msync 或 sync_file_range）以确保写入的数据已进入后备存储。当写回期间出现错误时，他们希望在发出文件同步请求时报告该错误。在对一个请求报告错误后，对同一文件描述符的后续请求应返回 0，除非自上次文件同步以来发生了进一步的写回错误。
 
-Ideally, the kernel would report errors only on file descriptions on
-which writes were done that subsequently failed to be written back.  The
-generic pagecache infrastructure does not track the file descriptions
-that have dirtied each individual page however, so determining which
-file descriptors should get back an error is not possible.
+理想情况下，内核只会报告已写入但随后无法回写的文件描述错误。但是，通用页面缓存基础结构不会跟踪弄脏每个单独页面的文件描述，因此无法确定哪些文件描述符应该返回错误。
 
-Instead, the generic writeback error tracking infrastructure in the
-kernel settles for reporting errors to fsync on all file descriptions
-that were open at the time that the error occurred.  In a situation with
-multiple writers, all of them will get back an error on a subsequent
-fsync, even if all of the writes done through that particular file
-descriptor succeeded (or even if there were no writes on that file
-descriptor at all).
+相反，内核中的通用写回错误跟踪基础结构将错误发生时所有打开的文件描述的错误报告给 fsync。在有多个写入者的情况下，即使通过该特定文件描述符完成的所有写入都成功（或者即使该文件描述符上根本没有写入），所有写入者都会在后续 fsync 中返回错误。
 
-Filesystems that wish to use this infrastructure should call
-mapping_set_error to record the error in the address_space when it
-occurs.  Then, after writing back data from the pagecache in their
-file->fsync operation, they should call file_check_and_advance_wb_err to
-ensure that the struct file's error cursor has advanced to the correct
-point in the stream of errors emitted by the backing device(s).
+希望使用此基础结构的文件系统应在发生错误时调用 mapping_set_error 将错误记录在 address_space 中。然后，在他们的 file->fsync 操作中从 pagecache 写回数据后，他们应该调用 file_check_and_advance_wb_err 以确保结构文件的错误游标已经前进到后备设备发出的错误流中的正确点。
 
 
 struct address_space_operations
 -------------------------------
 
-This describes how the VFS can manipulate mapping of a file to page
-cache in your filesystem.  The following members are defined:
+这描述了 VFS 如何操作文件到文件系统中页面缓存的映射。 定义了以下成员：
 
 .. code-block:: c
 
@@ -698,231 +489,102 @@ cache in your filesystem.  The following members are defined:
 	};
 
 ``writepage``
-	called by the VM to write a dirty page to backing store.  This
-	may happen for data integrity reasons (i.e. 'sync'), or to free
-	up memory (flush).  The difference can be seen in
-	wbc->sync_mode.  The PG_Dirty flag has been cleared and
-	PageLocked is true.  writepage should start writeout, should set
-	PG_Writeback, and should make sure the page is unlocked, either
-	synchronously or asynchronously when the write operation
-	completes.
+        由 VM 调用以将脏页写入后备存储。这可能出于数据完整性原因（即“同步”）或释放内存（刷新）而发生。区别可以在 wbc->sync_mode 中看到。 PG_Dirty 标志已被清除并且 PageLocked 为真。 writepage 应该开始写出，应该设置 PG_Writeback，并且应该确保在写操作完成时同步或异步地解锁页面。
 
-	If wbc->sync_mode is WB_SYNC_NONE, ->writepage doesn't have to
-	try too hard if there are problems, and may choose to write out
-	other pages from the mapping if that is easier (e.g. due to
-	internal dependencies).  If it chooses not to start writeout, it
-	should return AOP_WRITEPAGE_ACTIVATE so that the VM will not
-	keep calling ->writepage on that page.
+        如果 wbc->sync_mode 是 WB_SYNC_NONE，->writepage 如果有问题就不必太努力，如果更容易（例如由于内部依赖），可以选择从映射中写出其他页面。如果它选择不开始写出，它应该返回 AOP_WRITEPAGE_ACTIVATE 以便虚拟机不会继续在该页面上调用 ->writepage。
 
-	See the file "Locking" for more details.
+        有关更多详细信息，请参阅文件“Locking”。
 
 ``readpage``
-	called by the VM to read a page from backing store.  The page
-	will be Locked when readpage is called, and should be unlocked
-	and marked uptodate once the read completes.  If ->readpage
-	discovers that it needs to unlock the page for some reason, it
-	can do so, and then return AOP_TRUNCATED_PAGE.  In this case,
-	the page will be relocated, relocked and if that all succeeds,
-	->readpage will be called again.
+        由 VM 调用以从后备存储读取页面。调用 readpage 时该页面将被锁定，一旦读取完成，应解锁并标记为更新。如果 ->readpage 发现由于某种原因需要对页面进行解锁，则可以这样做，然后返回 AOP_TRUNCATED_PAGE。在这种情况下，页面将被重新定位、重新锁定，如果一切成功，->readpage 将再次被调用。
 
 ``writepages``
-	called by the VM to write out pages associated with the
-	address_space object.  If wbc->sync_mode is WB_SYNC_ALL, then
-	the writeback_control will specify a range of pages that must be
-	written out.  If it is WB_SYNC_NONE, then a nr_to_write is
-	given and that many pages should be written if possible.  If no
-	->writepages is given, then mpage_writepages is used instead.
-	This will choose pages from the address space that are tagged as
-	DIRTY and will pass them to ->writepage.
+        由 VM 调用以写出与 address_space 对象关联的页面。如果 wbc->sync_mode 是 WB_SYNC_ALL，则 writeback_control 将指定必须写出的页面范围。如果它是 WB_SYNC_NONE，则给出 nr_to_write 并且如果可能的话应该写入许多页面。如果没有给出 ->writepages，则使用 mpage_writepages 代替。这将从地址空间中选择标记为 DIRTY 的页面并将它们传递给 ->writepage。
 
 ``set_page_dirty``
-	called by the VM to set a page dirty.  This is particularly
-	needed if an address space attaches private data to a page, and
-	that data needs to be updated when a page is dirtied.  This is
-	called, for example, when a memory mapped page gets modified.
-	If defined, it should set the PageDirty flag, and the
-	PAGECACHE_TAG_DIRTY tag in the radix tree.
+        由 VM 调用以设置页面脏。如果地址空间将私有数据附加到页面，并且在页面变脏时需要更新该数据，则这尤其需要。例如，当内存映射页面被修改时，就会调用它。如果定义，它应该在基数树中设置 PageDirty 标志和 PAGECACHE_TAG_DIRTY 标记。
 
 ``readahead``
-	Called by the VM to read pages associated with the address_space
-	object.  The pages are consecutive in the page cache and are
-	locked.  The implementation should decrement the page refcount
-	after starting I/O on each page.  Usually the page will be
-	unlocked by the I/O completion handler.  If the filesystem decides
-	to stop attempting I/O before reaching the end of the readahead
-	window, it can simply return.  The caller will decrement the page
-	refcount and unlock the remaining pages for you.  Set PageUptodate
-	if the I/O completes successfully.  Setting PageError on any page
-	will be ignored; simply unlock the page if an I/O error occurs.
+        由 VM 调用以读取与 address_space 对象关联的页面。页在页缓存中是连续的并且被锁定。在每个页面上启动 I/O 后，实现应该减少页面引用计数。通常页面将被 I/O 完成处理程序解锁。如果文件系统决定在到达预读窗口的末尾之前停止尝试 I/O，它可以简单地返回。调用者将减少页面引用计数并为您解锁剩余的页面。如果 I/O 成功完成，则设置 PageUptodate。在任何页面上设置 PageError 都将被忽略；如果发生 I/O 错误，只需解锁页面即可。
 
 ``readpages``
-	called by the VM to read pages associated with the address_space
-	object.  This is essentially just a vector version of readpage.
-	Instead of just one page, several pages are requested.
-	readpages is only used for read-ahead, so read errors are
-	ignored.  If anything goes wrong, feel free to give up.
-	This interface is deprecated and will be removed by the end of
-	2020; implement readahead instead.
+        由 VM 调用以读取与 address_space 对象关联的页面。这本质上只是 readpage 的矢量版本。请求的不是一页，而是多页。 readpages 仅用于预读，因此忽略读取错误。如果出现任何问题，请随时放弃。此接口已弃用，将于 2020 年底移除；改为 readahead。
 
 ``write_begin``
-	Called by the generic buffered write code to ask the filesystem
-	to prepare to write len bytes at the given offset in the file.
-	The address_space should check that the write will be able to
-	complete, by allocating space if necessary and doing any other
-	internal housekeeping.  If the write will update parts of any
-	basic-blocks on storage, then those blocks should be pre-read
-	(if they haven't been read already) so that the updated blocks
-	can be written out properly.
+        由通用缓冲写入代码调用，以要求文件系统准备在文件中的给定偏移量处写入 len 个字节。 address_space 应该检查写入是否能够完成，必要时通过分配空间并执行任何其他内部管理。如果写入将更新存储上任何基本块的部分，那么这些块应该被预读（如果它们还没有被读取），以便可以正确地写出更新的块。
 
-	The filesystem must return the locked pagecache page for the
-	specified offset, in ``*pagep``, for the caller to write into.
+        文件系统必须返回指定偏移量的锁定页面缓存页面，在 ``*pagep`` 中，供调用者写入。
 
-	It must be able to cope with short writes (where the length
-	passed to write_begin is greater than the number of bytes copied
-	into the page).
+        它必须能够处理短写入（其中传递给 write_begin 的长度大于复制到页面中的字节数）。
 
-	flags is a field for AOP_FLAG_xxx flags, described in
-	include/linux/fs.h.
+        flags 是 AOP_FLAG_xxx 标志的字段，在 include/linux/fs.h 中有描述。
 
-	A void * may be returned in fsdata, which then gets passed into
-	write_end.
+        一个 void * 可能会在 fsdata 中返回，然后被传递到 write_end。
 
-	Returns 0 on success; < 0 on failure (which is the error code),
-	in which case write_end is not called.
+        成功返回 0； < 0 失败（这是错误代码），在这种情况下不调用 write_end。
 
 ``write_end``
-	After a successful write_begin, and data copy, write_end must be
-	called.  len is the original len passed to write_begin, and
-	copied is the amount that was able to be copied.
+        在成功的 write_begin 和数据复制之后，必须调用 write_end。 len 是传递给 write_begin 的原始 len，而被复制的是能够被复制的数量。
 
-	The filesystem must take care of unlocking the page and
-	releasing it refcount, and updating i_size.
+        文件系统必须负责解锁页面并释放它的引用计数，以及更新 i_size。
 
-	Returns < 0 on failure, otherwise the number of bytes (<=
-	'copied') that were able to be copied into pagecache.
+        失败时返回 < 0，否则返回能够复制到页面缓存中的字节数 (<= 'copied')。
 
 ``bmap``
-	called by the VFS to map a logical block offset within object to
-	physical block number.  This method is used by the FIBMAP ioctl
-	and for working with swap-files.  To be able to swap to a file,
-	the file must have a stable mapping to a block device.  The swap
-	system does not go through the filesystem but instead uses bmap
-	to find out where the blocks in the file are and uses those
-	addresses directly.
+        由 VFS 调用以将对象内的逻辑块偏移量映射到物理块号。此方法由 FIBMAP ioctl 使用并用于处理交换文件。为了能够交换到文件，该文件必须具有到块设备的稳定映射。交换系统不通过文件系统，而是使用 bmap 找出文件中的块所在的位置并直接使用这些地址。
 
 ``invalidatepage``
-	If a page has PagePrivate set, then invalidatepage will be
-	called when part or all of the page is to be removed from the
-	address space.  This generally corresponds to either a
-	truncation, punch hole or a complete invalidation of the address
-	space (in the latter case 'offset' will always be 0 and 'length'
-	will be PAGE_SIZE).  Any private data associated with the page
-	should be updated to reflect this truncation.  If offset is 0
-	and length is PAGE_SIZE, then the private data should be
-	released, because the page must be able to be completely
-	discarded.  This may be done by calling the ->releasepage
-	function, but in this case the release MUST succeed.
+        如果页面设置了 PagePrivate，则在要从地址空间中删除部分或全部页面时将调用 invalidatepage。这通常对应于地址空间的截断、打孔或完全无效（在后一种情况下，'offset' 将始终为 0，'length' 将为 PAGE_SIZE）。应更新与页面关联的任何私人数据以反映此截断。如果offset为0，length为PAGE_SIZE，那么私有数据应该被释放，因为页面必须能够被完全丢弃。这可以通过调用 ->releasepage 函数来完成，但在这种情况下，释放必须成功。
 
 ``releasepage``
-	releasepage is called on PagePrivate pages to indicate that the
-	page should be freed if possible.  ->releasepage should remove
-	any private data from the page and clear the PagePrivate flag.
-	If releasepage() fails for some reason, it must indicate failure
-	with a 0 return value.  releasepage() is used in two distinct
-	though related cases.  The first is when the VM finds a clean
-	page with no active users and wants to make it a free page.  If
-	->releasepage succeeds, the page will be removed from the
-	address_space and become free.
+        在 PagePrivate 页面上调用 releasepage 以指示应尽可能释放该页面。 ->releasepage 应该从页面中删除任何私有数据并清除 PagePrivate 标志。如果 releasepage() 由于某种原因失败，它必须用 0 返回值指示失败。 releasepage() 用于两种不同但相关的情况。第一种是当 VM 找到一个没有活动用户的干净页面并希望将其设为free页面时。如果 ->releasepage 成功，该页面将从 address_space 中删除并变为空闲。
 
-	The second case is when a request has been made to invalidate
-	some or all pages in an address_space.  This can happen through
-	the fadvise(POSIX_FADV_DONTNEED) system call or by the
-	filesystem explicitly requesting it as nfs and 9fs do (when they
-	believe the cache may be out of date with storage) by calling
-	invalidate_inode_pages2().  If the filesystem makes such a call,
-	and needs to be certain that all pages are invalidated, then its
-	releasepage will need to ensure this.  Possibly it can clear the
-	PageUptodate bit if it cannot free private data yet.
+        第二种情况是当请求使 address_space 中的某些或所有页面无效时。这可以通过 fadvise(POSIX_FADV_DONTNEED) 系统调用或文件系统通过调用 invalidate_inode_pages2() 像 nfs 和 9fs 那样显式请求它（当他们认为缓存可能已过期）发生。如果文件系统进行了这样的调用，并且需要确定所有页面都无效，那么它的 releasepage 将需要确保这一点。如果它还不能释放私有数据，它可能可以清除 PageUptodate 位。
 
 ``freepage``
-	freepage is called once the page is no longer visible in the
-	page cache in order to allow the cleanup of any private data.
-	Since it may be called by the memory reclaimer, it should not
-	assume that the original address_space mapping still exists, and
-	it should not block.
+        一旦页面在页面缓存中不再可见，就会调用 freepage 以允许清理任何私有数据。由于可能被内存回收者调用，所以不应该假设原来的address_space映射仍然存在，也不应该阻塞。
 
 ``direct_IO``
-	called by the generic read/write routines to perform direct_IO -
-	that is IO requests which bypass the page cache and transfer
-	data directly between the storage and the application's address
-	space.
+        由通用读/写例程调用以执行 direct_IO - 即绕过页面缓存并直接在存储和应用程序地址空间之间传输数据的 IO 请求。
 
 ``isolate_page``
-	Called by the VM when isolating a movable non-lru page.  If page
-	is successfully isolated, VM marks the page as PG_isolated via
-	__SetPageIsolated.
+        在隔离可移动的非 lru 页面时由 VM 调用。如果页面被成功隔离，VM 通过 __SetPageIsolated 将该页面标记为 PG_isolated。
 
 ``migrate_page``
-	This is used to compact the physical memory usage.  If the VM
-	wants to relocate a page (maybe off a memory card that is
-	signalling imminent failure) it will pass a new page and an old
-	page to this function.  migrate_page should transfer any private
-	data across and update any references that it has to the page.
+        这用于压缩物理内存使用。如果 VM 想要重新定位页面（可能是从发出即将发生故障的存储卡上移出），它将向此函数传递一个新页面和一个旧页面。 migrate_page 应该传输任何私有数据并更新它对页面的任何引用。
 
 ``putback_page``
-	Called by the VM when isolated page's migration fails.
+        当隔离页迁移失败时由 VM 调用。
 
 ``launder_page``
-	Called before freeing a page - it writes back the dirty page.
-	To prevent redirtying the page, it is kept locked during the
-	whole operation.
+        在释放页面之前调用 - 它写回脏页面。为了防止重新脏页面，在整个操作过程中保持锁定。
 
 ``is_partially_uptodate``
-	Called by the VM when reading a file through the pagecache when
-	the underlying blocksize != pagesize.  If the required block is
-	up to date then the read can complete without needing the IO to
-	bring the whole page up to date.
+        当底层块大小 != 页面大小(underlying blocksize != pagesize)时，VM 在通过页面缓存读取文件时调用。如果所需的块是最新的，那么读取就可以完成，而无需 IO 来更新整个页面。
 
 ``is_dirty_writeback``
-	Called by the VM when attempting to reclaim a page.  The VM uses
-	dirty and writeback information to determine if it needs to
-	stall to allow flushers a chance to complete some IO.
-	Ordinarily it can use PageDirty and PageWriteback but some
-	filesystems have more complex state (unstable pages in NFS
-	prevent reclaim) or do not set those flags due to locking
-	problems.  This callback allows a filesystem to indicate to the
-	VM if a page should be treated as dirty or writeback for the
-	purposes of stalling.
+        尝试回收页面时由 VM 调用。 VM 使用脏信息和写回信息来确定它是否需要暂停以允许刷新程序有机会完成某些 IO。通常它可以使用 PageDirty 和 PageWriteback 但是一些文件系统有更复杂的状态（NFS 中不稳定的页面阻止回收）或者由于锁定问题不设置这些标志。此回调允许文件系统向 VM 指示是否应将页面视为脏页或回写以便停止。
 
 ``error_remove_page``
-	normally set to generic_error_remove_page if truncation is ok
-	for this address space.  Used for memory failure handling.
-	Setting this implies you deal with pages going away under you,
-	unless you have them locked or reference counts increased.
+        如果此地址空间可以截断，则通常设置为 generic_error_remove_page。用于内存故障处理。设置此选项意味着您处理在您身下消失的页面，除非您将它们锁定或引用计数增加。
 
 ``swap_activate``
-	Called when swapon is used on a file to allocate space if
-	necessary and pin the block lookup information in memory.  A
-	return value of zero indicates success, in which case this file
-	can be used to back swapspace.
+        在文件上使用 swapon 时调用以在必要时分配空间并将块查找信息固定在内存中。返回值为零表示成功，在这种情况下，此文件可用于备份交换空间。
 
 ``swap_deactivate``
-	Called during swapoff on files where swap_activate was
-	successful.
+        在swap_activate 成功的文件的swapoff 期间调用。
 
 
 The File Object
 ===============
 
-A file object represents a file opened by a process.  This is also known
-as an "open file description" in POSIX parlance.
+文件对象代表进程打开的文件。 这在 POSIX 用语中也称为“打开文件描述”。
 
 
 struct file_operations
 ----------------------
 
-This describes how the VFS can manipulate an open file.  As of kernel
-4.18, the following members are defined:
+这描述了 VFS 如何操作打开的文件。 从内核 4.18 开始，定义了以下成员：
 
 .. code-block:: c
 
@@ -966,133 +628,93 @@ This describes how the VFS can manipulate an open file.  As of kernel
 		int (*fadvise)(struct file *, loff_t, loff_t, int);
 	};
 
-Again, all methods are called without any locks being held, unless
-otherwise noted.
+同样，除非另有说明，否则所有方法都会在不持有任何锁的情况下调用。
 
 ``llseek``
-	called when the VFS needs to move the file position index
+        当 VFS 需要移动文件位置索引时调用
 
 ``read``
-	called by read(2) and related system calls
+        由 read(2) 和相关系统调用调用
 
 ``read_iter``
-	possibly asynchronous read with iov_iter as destination
+        可能以 iov_iter 作为目标异步读取
 
 ``write``
-	called by write(2) and related system calls
+        由 write(2) 和相关系统调用调用
 
 ``write_iter``
-	possibly asynchronous write with iov_iter as source
+        可能以 iov_iter 作为源的异步写入
 
 ``iopoll``
-	called when aio wants to poll for completions on HIPRI iocbs
+        当 aio 想要轮询 HIPRI iocbs 上的完成情况时调用
 
 ``iterate``
-	called when the VFS needs to read the directory contents
+        当 VFS 需要读取目录内容时调用
 
 ``iterate_shared``
-	called when the VFS needs to read the directory contents when
-	filesystem supports concurrent dir iterators
+        当文件系统支持并发目录迭代器时，当 VFS 需要读取目录内容时调用
 
 ``poll``
-	called by the VFS when a process wants to check if there is
-	activity on this file and (optionally) go to sleep until there
-	is activity.  Called by the select(2) and poll(2) system calls
+        当进程想要检查此文件上是否有活动并且（可选）进入睡眠状态直到有活动时，由 VFS 调用。由 select(2) 和 poll(2) 系统调用调用
 
 ``unlocked_ioctl``
-	called by the ioctl(2) system call.
+        由 ioctl(2) 系统调用调用。
 
 ``compat_ioctl``
-	called by the ioctl(2) system call when 32 bit system calls are
-	 used on 64 bit kernels.
+        在 64 位内核上使用 32 位系统调用时由 ioctl(2) 系统调用调用。
 
 ``mmap``
-	called by the mmap(2) system call
+        由 mmap(2) 系统调用调用
 
 ``open``
-	called by the VFS when an inode should be opened.  When the VFS
-	opens a file, it creates a new "struct file".  It then calls the
-	open method for the newly allocated file structure.  You might
-	think that the open method really belongs in "struct
-	inode_operations", and you may be right.  I think it's done the
-	way it is because it makes filesystems simpler to implement.
-	The open() method is a good place to initialize the
-	"private_data" member in the file structure if you want to point
-	to a device structure
+        当应该打开一个 inode 时由 VFS 调用。当 VFS 打开一个文件时，它会创建一个新的“结构文件”。然后它为新分配的文件结构调用 open 方法。您可能认为 open 方法确实属于“struct inode_operations”，您可能是对的。我认为这样做是因为它使文件系统更易于实现。如果要指向设备结构，open() 方法是初始化文件结构中的“private_data”成员的好地方
 
 ``flush``
-	called by the close(2) system call to flush a file
+        由 close(2) 系统调用调用以刷新文件
 
 ``release``
-	called when the last reference to an open file is closed
+        当对打开的文件的最后一个引用关闭时调用
 
 ``fsync``
-	called by the fsync(2) system call.  Also see the section above
-	entitled "Handling errors during writeback".
+        由 fsync(2) 系统调用调用。另请参阅上面标题为"Handling errors during writeback"(“在写回期间处理错误”)的部分。
 
 ``fasync``
-	called by the fcntl(2) system call when asynchronous
-	(non-blocking) mode is enabled for a file
+        当为文件启用异步（非阻塞）模式时由 fcntl(2) 系统调用调用
 
 ``lock``
-	called by the fcntl(2) system call for F_GETLK, F_SETLK, and
-	F_SETLKW commands
+        由 fcntl(2) 系统调用调用 F_GETLK、F_SETLK 和 F_SETLKW 命令
 
 ``get_unmapped_area``
-	called by the mmap(2) system call
+        由 mmap(2) 系统调用调用
 
 ``check_flags``
-	called by the fcntl(2) system call for F_SETFL command
+        由 fcntl(2) 系统调用调用 F_SETFL 命令
 
 ``flock``
-	called by the flock(2) system call
+        由 flock(2) 系统调用调用
 
 ``splice_write``
-	called by the VFS to splice data from a pipe to a file.  This
-	method is used by the splice(2) system call
+        由 VFS 调用以将数据从管道拼接到文件。该方法由 splice(2) 系统调用使用
 
 ``splice_read``
-	called by the VFS to splice data from file to a pipe.  This
-	method is used by the splice(2) system call
+        由 VFS 调用以将数据从文件拼接到管道。该方法由 splice(2) 系统调用使用
 
 ``setlease``
-	called by the VFS to set or release a file lock lease.  setlease
-	implementations should call generic_setlease to record or remove
-	the lease in the inode after setting it.
+        由 VFS 调用以设置或释放文件锁租用。 setlease 实现应该调用 generic_setlease 来记录或删除 inode 中的租约。
 
 ``fallocate``
-	called by the VFS to preallocate blocks or punch a hole.
+        由 VFS 调用以预分配块或打孔。
 
 ``copy_file_range``
-	called by the copy_file_range(2) system call.
+        由 copy_file_range(2) 系统调用调用。
 
 ``remap_file_range``
-	called by the ioctl(2) system call for FICLONERANGE and FICLONE
-	and FIDEDUPERANGE commands to remap file ranges.  An
-	implementation should remap len bytes at pos_in of the source
-	file into the dest file at pos_out.  Implementations must handle
-	callers passing in len == 0; this means "remap to the end of the
-	source file".  The return value should the number of bytes
-	remapped, or the usual negative error code if errors occurred
-	before any bytes were remapped.  The remap_flags parameter
-	accepts REMAP_FILE_* flags.  If REMAP_FILE_DEDUP is set then the
-	implementation must only remap if the requested file ranges have
-	identical contents.  If REMAP_FILE_CAN_SHORTEN is set, the caller is
-	ok with the implementation shortening the request length to
-	satisfy alignment or EOF requirements (or any other reason).
+        由 ioctl(2) 系统调用调用 FICLONERANGE 和 FICLONE 和 FIDEDUPERANGE 命令以重新映射文件范围。 实现应将源文件 pos_in 处的 len 字节重新映射到 pos_out 处的 dest 文件中。 实现必须处理传入 len == 0 的调用者； 这意味着“重新映射到源文件的末尾”。 返回值应该是重新映射的字节数，如果在重新映射任何字节之前发生错误，则返回通常的负错误代码。 remap_flags 参数接受 REMAP_FILE_* 标志。 如果设置了 REMAP_FILE_DEDUP，则实现必须仅在请求的文件范围具有相同内容时重新映射。 如果设置了 REMAP_FILE_CAN_SHORTEN，调用者就可以缩短请求长度以满足对齐或 EOF 要求（或任何其他原因）的实现。
 
 ``fadvise``
-	possibly called by the fadvise64() system call.
+        可能由 fadvise64() 系统调用调用。
 
-Note that the file operations are implemented by the specific
-filesystem in which the inode resides.  When opening a device node
-(character or block special) most filesystems will call special
-support routines in the VFS which will locate the required device
-driver information.  These support routines replace the filesystem file
-operations with those for the device driver, and then proceed to call
-the new open() method for the file.  This is how opening a device file
-in the filesystem eventually ends up calling the device driver open()
-method.
+请注意，文件操作由 inode 所在的特定文件系统实现。 当打开设备节点（字符或块特殊）时，大多数文件系统将调用 VFS 中的特殊支持例程，它将定位所需的设备驱动程序信息。 这些支持例程将文件系统文件操作替换为设备驱动程序的操作，然后继续为文件调用新的 open() 方法。 这就是在文件系统中打开设备文件最终调用设备驱动程序 open() 方法的方式。
 
 
 Directory Entry Cache (dcache)
@@ -1102,12 +724,7 @@ Directory Entry Cache (dcache)
 struct dentry_operations
 ------------------------
 
-This describes how a filesystem can overload the standard dentry
-operations.  Dentries and the dcache are the domain of the VFS and the
-individual filesystem implementations.  Device drivers have no business
-here.  These methods may be set to NULL, as they are either optional or
-the VFS uses a default.  As of kernel 2.6.22, the following members are
-defined:
+这描述了文件系统如何重载标准 dentry 操作。 dentries 和 dcache 是 VFS 和单个文件系统实现的域。 设备驱动程序在这里没有业务。 这些方法可以设置为 NULL，因为它们要么是可选的，要么 VFS 使用默认值。 从内核 2.6.22 开始，定义了以下成员：
 
 .. code-block:: c
 
@@ -1128,105 +745,53 @@ defined:
 	};
 
 ``d_revalidate``
-	called when the VFS needs to revalidate a dentry.  This is
-	called whenever a name look-up finds a dentry in the dcache.
-	Most local filesystems leave this as NULL, because all their
-	dentries in the dcache are valid.  Network filesystems are
-	different since things can change on the server without the
-	client necessarily being aware of it.
+        当 VFS 需要重新验证 dentry 时调用。每当名称查找在 dcache 中找到一个 dentry 时就会调用它。大多数本地文件系统将其保留为 NULL，因为它们在 dcache 中的所有 dentry 都是有效的。网络文件系统是不同的，因为服务器上的事情可能会发生变化，而客户端不一定会意识到这一点。
 
-	This function should return a positive value if the dentry is
-	still valid, and zero or a negative error code if it isn't.
+        如果 dentry 仍然有效，这个函数应该返回一个正值，如果不是，则返回零或负错误代码。
 
-	d_revalidate may be called in rcu-walk mode (flags &
-	LOOKUP_RCU).  If in rcu-walk mode, the filesystem must
-	revalidate the dentry without blocking or storing to the dentry,
-	d_parent and d_inode should not be used without care (because
-	they can change and, in d_inode case, even become NULL under
-	us).
+        d_revalidate 可以在 rcu-walk 模式下调用（flags & LOOKUP_RCU）。如果在 rcu-walk 模式下，文件系统必须在不阻塞或存储到 dentry 的情况下重新验证 dentry， d_parent 和 d_inode 不应随意使用（因为它们可以更改，在 d_inode 的情况下，甚至在我们的情况下变为 NULL）。
 
-	If a situation is encountered that rcu-walk cannot handle,
-	return
-	-ECHILD and it will be called again in ref-walk mode.
+        如果遇到 rcu-walk 无法处理的情况，返回 -ECHILD，它将在 ref-walk 模式下再次调用。
 
-``_weak_revalidate``
-	called when the VFS needs to revalidate a "jumped" dentry.  This
-	is called when a path-walk ends at dentry that was not acquired
-	by doing a lookup in the parent directory.  This includes "/",
-	"." and "..", as well as procfs-style symlinks and mountpoint
-	traversal.
+``d_weak_revalidate``
+        当 VFS 需要重新验证“jumped”(“跳跃”)的 dentry 时调用。当路径遍历在 dentry 处结束时调用，该 dentry 不是通过在父目录中查找而获得的。这包括 ”/”， ”.”和“..”，以及 procfs-style 的符号链接和挂载点遍历。
 
-	In this case, we are less concerned with whether the dentry is
-	still fully correct, but rather that the inode is still valid.
-	As with d_revalidate, most local filesystems will set this to
-	NULL since their dcache entries are always valid.
+        在这种情况下，我们不太关心 dentry 是否仍然完全正确，而是关心 inode 仍然有效。与 d_revalidate 一样，大多数本地文件系统会将其设置为 NULL，因为它们的 dcache 条目始终有效。
 
-	This function has the same return code semantics as
-	d_revalidate.
+        此函数具有与 d_revalidate 相同的返回码语义。
 
-	d_weak_revalidate is only called after leaving rcu-walk mode.
+        d_weak_revalidate 只有在离开 rcu-walk 模式后才会被调用。
 
 ``d_hash``
-	called when the VFS adds a dentry to the hash table.  The first
-	dentry passed to d_hash is the parent directory that the name is
-	to be hashed into.
+        当 VFS 向哈希表添加一个 dentry 时调用。传递给 d_hash 的第一个 dentry 是名称要散列到的父目录。
 
-	Same locking and synchronisation rules as d_compare regarding
-	what is safe to dereference etc.
+        与 d_compare 相同的锁定和同步规则关于什么是安全的解除引用等。
 
 ``d_compare``
-	called to compare a dentry name with a given name.  The first
-	dentry is the parent of the dentry to be compared, the second is
-	the child dentry.  len and name string are properties of the
-	dentry to be compared.  qstr is the name to compare it with.
+        调用以将 dentry 名称与给定名称进行比较。第一个 dentry 是要比较的 dentry 的父级，第二个是子 dentry。 len 和 name string 是要比较的 dentry 的属性。 qstr 是要与之进行比较的名称。
 
-	Must be constant and idempotent, and should not take locks if
-	possible, and should not or store into the dentry.  Should not
-	dereference pointers outside the dentry without lots of care
-	(eg.  d_parent, d_inode, d_name should not be used).
+        必须是常量和幂等的，如果可能的话不应该拿锁，也不应该或存储到 dentry 中。不应该在没有很多注意的情况下取消引用 dentry 之外的指针（例如，不应使用 d_parent、d_inode、d_name）。
 
-	However, our vfsmount is pinned, and RCU held, so the dentries
-	and inodes won't disappear, neither will our sb or filesystem
-	module.  ->d_sb may be used.
+        然而，我们的 vfsmount 是固定的，并且 RCU 被保持，所以 dentries 和 inode 不会消失，我们的 sb 或文件系统模块也不会消失。 ->d_sb 可以使用。
 
-	It is a tricky calling convention because it needs to be called
-	under "rcu-walk", ie. without any locks or references on things.
+        这是一个棘手的调用约定，因为它需要在“rcu-walk”下调用，即,没有任何锁定或对事物的引用。
 
 ``d_delete``
-	called when the last reference to a dentry is dropped and the
-	dcache is deciding whether or not to cache it.  Return 1 to
-	delete immediately, or 0 to cache the dentry.  Default is NULL
-	which means to always cache a reachable dentry.  d_delete must
-	be constant and idempotent.
+        当对 dentry 的最后一个引用被删除并且 dcache 决定是否缓存它时调用。返回 1 以立即删除，或返回 0 以缓存 dentry。默认值为 NULL，这意味着始终缓存可访问的 dentry。 d_delete 必须是常数和幂等的。
 
 ``d_init``
-	called when a dentry is allocated
+        在分配 dentry 时调用
 
 ``d_release``
-	called when a dentry is really deallocated
+        当 dentry 真正被释放时调用
 
 ``d_iput``
-	called when a dentry loses its inode (just prior to its being
-	deallocated).  The default when this is NULL is that the VFS
-	calls iput().  If you define this method, you must call iput()
-	yourself
+        当 dentry 丢失其 inode 时调用（就在其被释放之前）。 NULL 时的默认值是 VFS 调用 iput()。如果你定义了这个方法，你必须自己调用 iput()
 
 ``d_dname``
-	called when the pathname of a dentry should be generated.
-	Useful for some pseudo filesystems (sockfs, pipefs, ...) to
-	delay pathname generation.  (Instead of doing it when dentry is
-	created, it's done only when the path is needed.).  Real
-	filesystems probably dont want to use it, because their dentries
-	are present in global dcache hash, so their hash should be an
-	invariant.  As no lock is held, d_dname() should not try to
-	modify the dentry itself, unless appropriate SMP safety is used.
-	CAUTION : d_path() logic is quite tricky.  The correct way to
-	return for example "Hello" is to put it at the end of the
-	buffer, and returns a pointer to the first char.
-	dynamic_dname() helper function is provided to take care of
-	this.
+        在应生成 dentry 的路径名时调用。对某些伪文件系统（sockfs、pipefs 等）有用以延迟路径名生成。 （而不是在创建 dentry 时执行它，它仅在需要路径时执行。）。真正的文件系统可能不想使用它，因为它们的 dentry 存在于全局 dcache 散列中，所以它们的散列应该是一个不变的。由于没有持有锁，d_dname() 不应尝试修改 dentry 本身，除非使用适当的 SMP 安全。注意：d_path() 逻辑非常棘手。返回例如“Hello”的正确方法是将其放在缓冲区的末尾，并返回指向第一个字符的指针。提供了 dynamic_dname() 帮助函数来解决这个问题。
 
-	Example :
+	例子 :
 
 .. code-block:: c
 
@@ -1237,111 +802,54 @@ defined:
 	}
 
 ``d_automount``
-	called when an automount dentry is to be traversed (optional).
-	This should create a new VFS mount record and return the record
-	to the caller.  The caller is supplied with a path parameter
-	giving the automount directory to describe the automount target
-	and the parent VFS mount record to provide inheritable mount
-	parameters.  NULL should be returned if someone else managed to
-	make the automount first.  If the vfsmount creation failed, then
-	an error code should be returned.  If -EISDIR is returned, then
-	the directory will be treated as an ordinary directory and
-	returned to pathwalk to continue walking.
+        当要遍历自动挂载 dentry 时调用（可选）。这应该创建一个新的 VFS 挂载记录并将记录返回给调用者。调用者被提供一个路径参数，给出自动挂载目录来描述自动挂载目标和父 VFS 挂载记录以提供可继承的挂载参数。如果其他人设法首先进行自动挂载，则应返回 NULL。如果 vfsmount 创建失败，则应返回错误代码。如果返回-EISDIR，则该目录将被视为普通目录并返回pathwalk继续行走。
 
-	If a vfsmount is returned, the caller will attempt to mount it
-	on the mountpoint and will remove the vfsmount from its
-	expiration list in the case of failure.  The vfsmount should be
-	returned with 2 refs on it to prevent automatic expiration - the
-	caller will clean up the additional ref.
+        如果返回了 vfsmount，调用者将尝试将其挂载到挂载点，并在失败时从其过期列表中删除 vfsmount。 vfsmount 应该返回 2 个引用以防止自动过期 - 调用者将清理额外的引用。
 
-	This function is only used if DCACHE_NEED_AUTOMOUNT is set on
-	the dentry.  This is set by __d_instantiate() if S_AUTOMOUNT is
-	set on the inode being added.
+        仅当在 dentry 上设置 DCACHE_NEED_AUTOMOUNT 时才使用此函数。如果在添加的 inode 上设置了 S_AUTOMOUNT，则由 __d_instantiate() 设置。
 
 ``d_manage``
-	called to allow the filesystem to manage the transition from a
-	dentry (optional).  This allows autofs, for example, to hold up
-	clients waiting to explore behind a 'mountpoint' while letting
-	the daemon go past and construct the subtree there.  0 should be
-	returned to let the calling process continue.  -EISDIR can be
-	returned to tell pathwalk to use this directory as an ordinary
-	directory and to ignore anything mounted on it and not to check
-	the automount flag.  Any other error code will abort pathwalk
-	completely.
+        调用以允许文件系统管理从 dentry 的转换（可选）。例如，这允许 autofs 阻止客户端等待在“挂载点”后面探索，同时让守护程序经过并在那里构建子树。应该返回 0 以让调用过程继续。可以返回 -EISDIR 以告诉 pathwalk 将此目录用作普通目录并忽略安装在其上的任何内容并且不检查自动挂载标志。任何其他错误代码都将完全中止 pathwalk。
 
-	If the 'rcu_walk' parameter is true, then the caller is doing a
-	pathwalk in RCU-walk mode.  Sleeping is not permitted in this
-	mode, and the caller can be asked to leave it and call again by
-	returning -ECHILD.  -EISDIR may also be returned to tell
-	pathwalk to ignore d_automount or any mounts.
+        如果 'rcu_walk' 参数为真，则调用者正在 RCU-walk 模式下进行路径漫游。在这种模式下不允许休眠，并且可以通过返回 -ECHILD 要求调用者离开它并再次调用。 -EISDIR 也可以返回以告诉 pathwalk 忽略 d_automount 或任何挂载。
 
-	This function is only used if DCACHE_MANAGE_TRANSIT is set on
-	the dentry being transited from.
+        此函数仅在 DCACHE_MANAGE_TRANSIT 设置在被传输的 dentry 上时使用。
 
 ``d_real``
-	overlay/union type filesystems implement this method to return
-	one of the underlying dentries hidden by the overlay.  It is
-	used in two different modes:
+        覆盖/联合类型文件系统实现此方法以返回被覆盖隐藏的底层 dentry 之一。它用于两种不同的模式：
 
-	Called from file_dentry() it returns the real dentry matching
-	the inode argument.  The real dentry may be from a lower layer
-	already copied up, but still referenced from the file.  This
-	mode is selected with a non-NULL inode argument.
+        从 file_dentry() 调用它返回与 inode 参数匹配的真实 dentry。真正的 dentry 可能来自已经复制的较低层，但仍从文件中引用。使用非 NULL inode 参数选择此模式。
 
-	With NULL inode the topmost real underlying dentry is returned.
+        使用 NULL inode 返回最顶层真实的底层 dentry。
 
-Each dentry has a pointer to its parent dentry, as well as a hash list
-of child dentries.  Child dentries are basically like files in a
-directory.
+每个 dentry 都有一个指向其父 dentry 的指针，以及一个子 dentry 的哈希列表。子目录基本上就像目录中的文件。
 
 
 Directory Entry Cache API
 --------------------------
 
-There are a number of functions defined which permit a filesystem to
-manipulate dentries:
+定义了许多允许文件系统操作 dentry 的函数：
 
 ``dget``
-	open a new handle for an existing dentry (this just increments
-	the usage count)
+        为现有的 dentry 打开一个新句柄（这只会增加使用计数）
 
 ``dput``
-	close a handle for a dentry (decrements the usage count).  If
-	the usage count drops to 0, and the dentry is still in its
-	parent's hash, the "d_delete" method is called to check whether
-	it should be cached.  If it should not be cached, or if the
-	dentry is not hashed, it is deleted.  Otherwise cached dentries
-	are put into an LRU list to be reclaimed on memory shortage.
+        关闭 dentry 的句柄（减少使用计数）。如果使用计数下降到 0，并且 dentry 仍在其父项的哈希中，则调用“d_delete”方法来检查它是否应该被缓存。如果它不应该被缓存，或者如果 dentry 没有被散列，它就会被删除。否则，缓存的 dentry 会被放入 LRU 列表中，以便在内存不足时回收。
 
 ``d_drop``
-	this unhashes a dentry from its parents hash list.  A subsequent
-	call to dput() will deallocate the dentry if its usage count
-	drops to 0
+        这会从其父哈希列表中对 dentry 进行哈希处理。如果 dentry 的使用计数下降到 0，则对 dput() 的后续调用将取消分配该 dentry
 
 ``d_delete``
-	delete a dentry.  If there are no other open references to the
-	dentry then the dentry is turned into a negative dentry (the
-	d_iput() method is called).  If there are other references, then
-	d_drop() is called instead
+        删除一个dentry。如果没有其他对 dentry 的开放引用，则该 dentry 将变成负 dentry（调用 d_iput() 方法）。如果有其他引用，则调用 d_drop() 代替
 
 ``d_add``
-	add a dentry to its parents hash list and then calls
-	d_instantiate()
+        将 dentry 添加到其父哈希列表中，然后调用 d_instantiate()
 
 ``d_instantiate``
-	add a dentry to the alias hash list for the inode and updates
-	the "d_inode" member.  The "i_count" member in the inode
-	structure should be set/incremented.  If the inode pointer is
-	NULL, the dentry is called a "negative dentry".  This function
-	is commonly called when an inode is created for an existing
-	negative dentry
+        向 inode 的别名哈希列表添加一个 dentry 并更新“d_inode”成员。 inode 结构中的“i_count”成员应该被设置/递增。如果 inode 指针为 NULL，则该 dentry 被称为“负 dentry”。当为现有的负 dentry 创建 inode 时，通常会调用此函数
 
 ``d_lookup``
-	look up a dentry given its parent and path name component It
-	looks up the child of that given name from the dcache hash
-	table.  If it is found, the reference count is incremented and
-	the dentry is returned.  The caller must use dput() to free the
-	dentry when it finishes using it.
+        在给定其父项和路径名组件的情况下查找 dentry 它从 dcache 哈希表中查找该给定名称的子项。如果找到，则增加引用计数并返回 dentry。调用者必须使用 dput() 在完成使用后释放 dentry。
 
 
 Mount Options
@@ -1351,45 +859,31 @@ Mount Options
 Parsing options
 ---------------
 
-On mount and remount the filesystem is passed a string containing a
-comma separated list of mount options.  The options can have either of
-these forms:
+在挂载和重新挂载时，文件系统会传递一个字符串，其中包含以逗号分隔的挂载选项列表。 选项可以具有以下任一形式：
 
-  option
-  option=value
+        option
+        option=value
 
-The <linux/parser.h> header defines an API that helps parse these
-options.  There are plenty of examples on how to use it in existing
-filesystems.
+<linux/parser.h> 头文件定义了一个 API 来帮助解析这些选项。 有很多关于如何在现有文件系统中使用它的示例。
 
 
 Showing options
 ---------------
 
-If a filesystem accepts mount options, it must define show_options() to
-show all the currently active options.  The rules are:
+如果文件系统接受挂载选项，它必须定义 show_options() 以显示所有当前活动的选项。 规则是：
 
-  - options MUST be shown which are not default or their values differ
-    from the default
+  - 必须显示非默认选项或它们的值与默认值不同
+  - 可以显示默认启用或具有默认值的选项
 
-  - options MAY be shown which are enabled by default or have their
-    default value
+仅在挂载助手和内核之间内部使用的选项（例如文件描述符），或仅在挂载期间有效的选项（例如控制日志创建的选项）不受上述规则的约束。
 
-Options used only internally between a mount helper and the kernel (such
-as file descriptors), or which only have an effect during the mounting
-(such as ones controlling the creation of a journal) are exempt from the
-above rules.
-
-The underlying reason for the above rules is to make sure, that a mount
-can be accurately replicated (e.g. umounting and mounting again) based
-on the information found in /proc/mounts.
+上述规则的根本原因是确保可以根据 /proc/mounts 中的信息准确复制挂载（例如卸载和再次挂载）。
 
 
 Resources
 =========
 
-(Note some of these resources are not up-to-date with the latest kernel
- version.)
+(请注意，其中一些资源不是最新的内核版本。)
 
 Creating Linux virtual filesystems. 2002
     <https://lwn.net/Articles/13325/>
@@ -1402,3 +896,4 @@ A tour of the Linux VFS by Michael K. Johnson. 1996
 
 A small trail through the Linux kernel by Andries Brouwer. 2001
     <https://www.win.tue.nl/~aeb/linux/vfs/trail.html>
+
