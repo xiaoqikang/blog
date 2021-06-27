@@ -36,82 +36,37 @@ blk-mq 有两组队列：软件暂存队列和硬件调度队列。当请求到�
 
 然后，在软件队列处理完请求后，它们将被放置在硬件队列中，第二阶段队列是硬件可以直接访问以处理这些请求。但是，如果硬件没有足够的资源来接受更多的请求，blk-mq 会将请求放置在一个临时队列中，以便将来在硬件有能力时发送。
 
-Software staging queues
+Software staging queues(软件暂存队列)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-The block IO subsystem adds requests  in the software staging queues
-(represented by struct blk_mq_ctx) in case that they weren't sent
-directly to the driver. A request is one or more BIOs. They arrived at the
-block layer through the data structure struct bio. The block layer
-will then build a new structure from it, the struct request that will
-be used to communicate with the device driver. Each queue has its own lock and
-the number of queues is defined by a per-CPU or per-node basis.
+块 IO 子系统将请求添加到软件暂存队列（由 struct blk_mq_ctx 表示）中，以防它们没有直接发送到驱动程序。一个请求是一个或多个 BIO。他们通过数据结构struct bio到达了block层。然后块层会从中构建一个新的结构，这个结构请求将用于与设备驱动程序进行通信。每个队列都有自己的锁，队列的数量由每个 CPU 或每个节点定义。
 
-The staging queue can be used to merge requests for adjacent sectors. For
-instance, requests for sector 3-6, 6-7, 7-9 can become one request for 3-9.
-Even if random access to SSDs and NVMs have the same time of response compared
-to sequential access, grouped requests for sequential access decreases the
-number of individual requests. This technique of merging requests is called
-plugging.
+分段队列可用于合并相邻扇区的请求。例如，对扇区 3-6、6-7、7-9 的请求可以成为对 3-9 的一个请求。即使与顺序访问相比，对 SSD 和 NVM 的随机访问具有相同的响应时间，顺序访问的分组请求也会减少单个请求的数量。这种合并请求的技术称为插入。
 
-Along with that, the requests can be reordered to ensure fairness of system
-resources (e.g. to ensure that no application suffers from starvation) and/or to
-improve IO performance, by an IO scheduler.
+除此之外，可以通过 IO 调度程序重新排序请求以确保系统资源的公平性（例如，确保没有应用程序遭受饥饿）和/或提高 IO 性能。
 
 IO Schedulers
 ^^^^^^^^^^^^^
 
-There are several schedulers implemented by the block layer, each one following
-a heuristic to improve the IO performance. They are "pluggable" (as in plug
-and play), in the sense of they can be selected at run time using sysfs. You
-can read more about Linux's IO schedulers `here
-<https://www.kernel.org/doc/html/latest/block/index.html>`_. The scheduling
-happens only between requests in the same queue, so it is not possible to merge
-requests from different queues, otherwise there would be cache trashing and a
-need to have a lock for each queue. After the scheduling, the requests are
-eligible to be sent to the hardware. One of the possible schedulers to be
-selected is the NONE scheduler, the most straightforward one. It will just
-place requests on whatever software queue the process is running on, without
-any reordering. When the device starts processing requests in the hardware
-queue (a.k.a. run the hardware queue), the software queues mapped to that
-hardware queue will be drained in sequence according to their mapping.
+块层实现了多个调度程序，每个调度程序都遵循启发式方法来提高 IO 性能。 它们是“可插拔的”（如即插即用），因为它们可以在运行时使用 sysfs 进行选择。 您可以在 `此处 <https://www.kernel.org/doc/html/latest/block/index.html>`_ 阅读有关 Linux IO 调度程序的更多信息。 调度只发生在同一个队列中的请求之间，所以不能合并来自不同队列的请求，否则会出现缓存垃圾，并且需要为每个队列都有一个锁。 在调度之后，请求有资格被发送到硬件。 要选择的可能调度程序之一是 NONE 调度程序，这是最直接的一种。 它只会将请求放置在进程正在运行的任何软件队列上，而无需任何重新排序。 当设备开始处理硬件队列中的请求（即运行硬件队列）时，映射到该硬件队列的软件队列将根据它们的映射顺序排空。
 
-Hardware dispatch queues
+Hardware dispatch queues(硬件调度队列)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The hardware queue (represented by struct blk_mq_hw_ctx) is a struct
-used by device drivers to map the device submission queues (or device DMA ring
-buffer), and are the last step of the block layer submission code before the
-low level device driver taking ownership of the request. To run this queue, the
-block layer removes requests from the associated software queues and tries to
-dispatch to the hardware.
+硬件队列（由struct blk_mq_hw_ctx表示）是设备驱动用来映射设备提交队列（或设备DMA环形缓冲区）的结构，是底层设备驱动取得所有权之前的块层提交代码的最后一步请求。为了运行这个队列，块层从相关的软件队列中删除请求并尝试分派到硬件。
 
-If it's not possible to send the requests directly to hardware, they will be
-added to a linked list (``hctx->dispatch``) of requests. Then,
-next time the block layer runs a queue, it will send the requests laying at the
-``dispatch`` list first, to ensure a fairness dispatch with those
-requests that were ready to be sent first. The number of hardware queues
-depends on the number of hardware contexts supported by the hardware and its
-device driver, but it will not be more than the number of cores of the system.
-There is no reordering at this stage, and each software queue has a set of
-hardware queues to send requests for.
+如果无法将请求直接发送到硬件，它们将被添加到请求的链表 (hctx->dispatch) 中。然后，下一次块层运行队列时，它将首先发送位于调度列表中的请求，以确保对那些准备好首先发送的请求进行公平调度。硬件队列的数量取决于硬件及其设备驱动支持的硬件上下文的数量，但不会超过系统的核心数量。在这个阶段没有重新排序，每个软件队列都有一组硬件队列来发送请求。
 
 .. note::
 
-        Neither the block layer nor the device protocols guarantee
-        the order of completion of requests. This must be handled by
-        higher layers, like the filesystem.
+        块层和设备协议都不能保证请求的完成顺序。这必须由更高层处理，例如文件系统。
 
-Tag-based completion
+
+
+Tag-based completion(基于标签的补全)
 ~~~~~~~~~~~~~~~~~~~~
 
-In order to indicate which request has been completed, every request is
-identified by an integer, ranging from 0 to the dispatch queue size. This tag
-is generated by the block layer and later reused by the device driver, removing
-the need to create a redundant identifier. When a request is completed in the
-drive, the tag is sent back to the block layer to notify it of the finalization.
-This removes the need to do a linear search to find out which IO has been
-completed.
+为了指示哪个请求已经完成，每个请求都由一个整数标识，范围从 0 到调度队列大小。该标签由块层生成，稍后由设备驱动程序重用，无需创建冗余标识符。当驱动器中的请求完成时，标签被发送回块层以通知它完成。这消除了进行线性搜索以找出已完成的 IO 的需要。
 
 Further reading
 ---------------
