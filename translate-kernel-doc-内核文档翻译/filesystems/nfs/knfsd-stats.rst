@@ -30,83 +30,37 @@ Kernel NFS Server Statistics
 所有计数器都是 64 位宽并自然换行。 没有办法将这些计数器归零，而是应用程序应该进行自己的速率转换。
 
 pool
-	The id number of the NFS thread pool to which this line applies.
-	This number does not change.
+        此行适用的 NFS 线程池的 ID 号。这个数字不会改变。
 
-	Thread pool ids are a contiguous set of small integers starting
-	at zero.  The maximum value depends on the thread pool mode, but
-	currently cannot be larger than the number of CPUs in the system.
-	Note that in the default case there will be a single thread pool
-	which contains all the nfsd threads and all the CPUs in the system,
-	and thus this file will have a single line with a pool id of "0".
+        线程池 ID 是一组从零开始的连续小整数。最大值取决于线程池模式，但目前不能大于系统中的 CPU 数量。请注意，在默认情况下，将有一个线程池，其中包含系统中的所有 nfsd 线程和所有 CPU，因此该文件将只有一行，池 ID 为“0”。
 
 packets-arrived
-	Counts how many NFS packets have arrived.  More precisely, this
-	is the number of times that the network stack has notified the
-	sunrpc server layer that new data may be available on a transport
-	(e.g. an NFS or UDP socket or an NFS/RDMA endpoint).
+        计算已到达的 NFS 数据包数量。更准确地说，这是网络堆栈通知 sunrpc 服务器层新数据可能在传输（例如 NFS 或 UDP 套接字或 NFS/RDMA 端点）上可用的次数。
 
-	Depending on the NFS workload patterns and various network stack
-	effects (such as Large Receive Offload) which can combine packets
-	on the wire, this may be either more or less than the number
-	of NFS calls received (which statistic is available elsewhere).
-	However this is a more accurate and less workload-dependent measure
-	of how much CPU load is being placed on the sunrpc server layer
-	due to NFS network traffic.
+        根据 NFS 工作负载模式和可以在线路上组合数据包的各种网络堆栈效应（例如大型接收卸载），这可能比收到的 NFS 调用数量更多或更少（该统计数据可在其他地方获得）。然而，这是一种更准确且与工作负载无关的测量方法，用于衡量由于 NFS 网络流量而在 sunrpc 服务器层上放置了多少 CPU 负载。
 
 sockets-enqueued
-	Counts how many times an NFS transport is enqueued to wait for
-	an nfsd thread to service it, i.e. no nfsd thread was considered
-	available.
+        计算 NFS 传输排队等待 nfsd 线程为其提供服务的次数，即认为没有 nfsd 线程可用。
 
-	The circumstance this statistic tracks indicates that there was NFS
-	network-facing work to be done but it couldn't be done immediately,
-	thus introducing a small delay in servicing NFS calls.  The ideal
-	rate of change for this counter is zero; significantly non-zero
-	values may indicate a performance limitation.
+        该统计数据跟踪的情况表明，有面向 NFS 网络的工作要完成，但无法立即完成，从而在服务 NFS 调用时引入了小延迟。这个计数器的理想变化率是零；显着非零值可能表示性能限制。
 
-	This can happen because there are too few nfsd threads in the thread
-	pool for the NFS workload (the workload is thread-limited), in which
-	case configuring more nfsd threads will probably improve the
-	performance of the NFS workload.
+        这可能是因为 NFS 工作负载的线程池中的 nfsd 线程太少（工作负载受线程限制），在这种情况下，配置更多 nfsd 线程可能会提高 NFS 工作负载的性能。
 
 threads-woken
-	Counts how many times an idle nfsd thread is woken to try to
-	receive some data from an NFS transport.
+        计算空闲 nfsd 线程被唤醒以尝试从 NFS 传输接收一些数据的次数。
 
-	This statistic tracks the circumstance where incoming
-	network-facing NFS work is being handled quickly, which is a good
-	thing.  The ideal rate of change for this counter will be close
-	to but less than the rate of change of the packets-arrived counter.
+        此统计信息跟踪传入的面向网络的 NFS 工作被快速处理的情况，这是一件好事。该计数器的理想变化率将接近但小于数据包到达计数器的变化率。
 
 threads-timedout
-	Counts how many times an nfsd thread triggered an idle timeout,
-	i.e. was not woken to handle any incoming network packets for
-	some time.
+        计算 nfsd 线程触发空闲超时的次数，即一段时间内没有被唤醒以处理任何传入的网络数据包。
 
-	This statistic counts a circumstance where there are more nfsd
-	threads configured than can be used by the NFS workload.  This is
-	a clue that the number of nfsd threads can be reduced without
-	affecting performance.  Unfortunately, it's only a clue and not
-	a strong indication, for a couple of reasons:
+        此统计信息计算了配置的 nfsd 线程数超过 NFS 工作负载可以使用的数量的情况。这是一个线索，可以在不影响性能的情况下减少 nfsd 线程的数量。不幸的是，这只是一个线索，而不是一个强有力的迹象，原因如下：
 
-	 - Currently the rate at which the counter is incremented is quite
-	   slow; the idle timeout is 60 minutes.  Unless the NFS workload
-	   remains constant for hours at a time, this counter is unlikely
-	   to be providing information that is still useful.
-
-	 - It is usually a wise policy to provide some slack,
-	   i.e. configure a few more nfsds than are currently needed,
-	   to allow for future spikes in load.
+         - 目前，计数器递增的速度非常慢； 空闲超时为 60 分钟。 除非 NFS 工作负载一次保持几个小时不变，否则此计数器不太可能提供仍然有用的信息。
+         - 提供一些 slack 通常是一个明智的策略，即配置比当前需要的更多的 nfsd，以允许未来的负载峰值。
 
 
-Note that incoming packets on NFS transports will be dealt with in
-one of three ways.  An nfsd thread can be woken (threads-woken counts
-this case), or the transport can be enqueued for later attention
-(sockets-enqueued counts this case), or the packet can be temporarily
-deferred because the transport is currently being used by an nfsd
-thread.  This last case is not very interesting and is not explicitly
-counted, but can be inferred from the other counters thus::
+请注意，NFS 传输上的传入数据包将以三种方式之一进行处理。 一个 nfsd 线程可以被唤醒（threads-woken 计数这种情况），或者传输可以排队等待稍后注意（sockets-enqueued 计数这种情况），或者可以暂时推迟数据包，因为传输当前正被 nfsd thread 使用。 最后一种情况不是很有趣，也没有明确计算，但可以从其他计数器推断如下 ::
 
 	packets-deferred = packets-arrived - ( sockets-enqueued + threads-woken )
 
@@ -114,4 +68,4 @@ counted, but can be inferred from the other counters thus::
 More
 ====
 
-Descriptions of the other statistics file should go here.
+其他统计文件的描述应该放在这里。
