@@ -215,34 +215,24 @@ Implementation notes:
 =====================
 
 SSV:
-  The spec claims this is mandatory, but we don't actually know of any
-  implementations, so we're ignoring it for now.  The server returns
-  NFS4ERR_ENCR_ALG_UNSUPP on EXCHANGE_ID, which should be future-proof.
+  规范声称这是强制性的，但我们实际上并不知道任何实现，所以我们现在忽略它。服务器在 EXCHANGE_ID 上返回 NFS4ERR_ENCR_ALG_UNSUPP，这应该是面向未来的。
 
 GSS on the backchannel:
-  Again, theoretically required but not widely implemented (in
-  particular, the current Linux client doesn't request it).  We return
-  NFS4ERR_ENCR_ALG_UNSUPP on CREATE_SESSION.
+  同样，理论上需要但没有广泛实现（特别是当前的 Linux 客户端不要求它）。我们在 CREATE_SESSION 上返回 NFS4ERR_ENCR_ALG_UNSUPP。
 
 DELEGPURGE:
-  mandatory only for servers that support CLAIM_DELEGATE_PREV and/or
-  CLAIM_DELEG_PREV_FH (which allows clients to keep delegations that
-  persist across client reboots).  Thus we need not implement this for
-  now.
+  仅适用于支持 CLAIM_DELEGATE_PREV 和/或 CLAIM_DELEG_PREV_FH（允许客户端保留在客户端重新启动后持续存在的委派）的服务器。因此我们现在不需要实现它。
 
 EXCHANGE_ID:
-  implementation ids are ignored
+  忽略实现 ID
 
 CREATE_SESSION:
-  backchannel attributes are ignored
+  忽略反向通道属性
 
 SEQUENCE:
-  no support for dynamic slot table renegotiation (optional)
+  不支持动态槽表重新协商（可选）
 
 Nonstandard compound limitations:
-  No support for a sessions fore channel RPC compound that requires both a
-  ca_maxrequestsize request and a ca_maxresponsesize reply, so we may
-  fail to live up to the promise we made in CREATE_SESSION fore channel
-  negotiation.
+  不支持需要 ca_maxrequestsize 请求和 ca_maxresponsesize 回复的会话前通道 RPC 复合，因此我们可能无法兑现我们在 CREATE_SESSION 前通道协商中做出的承诺。
 
 See also http://wiki.linux-nfs.org/wiki/index.php/Server_4.0_and_4.1_issues.
