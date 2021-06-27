@@ -1,5 +1,5 @@
 ==========================
-BFQ (Budget Fair Queueing)
+BFQ (Budget Fair Queueing)(预算公平排队)
 ==========================
 
 本文是基于Documentation/block/bfq-iosched.rst以下提交记录:
@@ -12,62 +12,28 @@ BFQ (Budget Fair Queueing)
 
         block/bfq: update comments and default value in docs for fifo_expire
 
-BFQ is a proportional-share I/O scheduler, with some extra
-low-latency capabilities. In addition to cgroups support (blkio or io
-controllers), BFQ's main features are:
+BFQ 是一个比例共享 I/O 调度程序，具有一些额外的低延迟功能。除了 cgroups 支持（blkio 或 io 控制器），BFQ 的主要特点是：
 
-- BFQ guarantees a high system and application responsiveness, and a
-  low latency for time-sensitive applications, such as audio or video
-  players;
-- BFQ distributes bandwidth, and not just time, among processes or
-  groups (switching back to time distribution when needed to keep
-  throughput high).
+- BFQ 保证系统和应用程序的高响应性，以及对时间敏感的应用程序（例如音频或视频播放器）的低延迟；
+- BFQ 在进程或组之间分配带宽，而不仅仅是时间（在需要保持高吞吐量时切换回时间分配）。
 
-In its default configuration, BFQ privileges latency over
-throughput. So, when needed for achieving a lower latency, BFQ builds
-schedules that may lead to a lower throughput. If your main or only
-goal, for a given device, is to achieve the maximum-possible
-throughput at all times, then do switch off all low-latency heuristics
-for that device, by setting low_latency to 0. See Section 3 for
-details on how to configure BFQ for the desired tradeoff between
-latency and throughput, or on how to maximize throughput.
+在其默认配置中，BFQ 优先考虑延迟而不是吞吐量。因此，当需要实现较低的延迟时，BFQ 会构建可能导致较低吞吐量的计划。如果您对给定设备的主要或唯一目标是始终实现最大可能的吞吐量，则通过将 low_latency 设置为 0 来关闭该设备的所有低延迟启发式方法。有关如何操作的详细信息，请参阅第 3 节为延迟和吞吐量之间的所需权衡配置 BFQ，或者如何最大化吞吐量。
 
-As every I/O scheduler, BFQ adds some overhead to per-I/O-request
-processing. To give an idea of this overhead, the total,
-single-lock-protected, per-request processing time of BFQ---i.e., the
-sum of the execution times of the request insertion, dispatch and
-completion hooks---is, e.g., 1.9 us on an Intel Core i7-2760QM@2.40GHz
-(dated CPU for notebooks; time measured with simple code
-instrumentation, and using the throughput-sync.sh script of the S
-suite [1], in performance-profiling mode). To put this result into
-context, the total, single-lock-protected, per-request execution time
-of the lightest I/O scheduler available in blk-mq, mq-deadline, is 0.7
-us (mq-deadline is ~800 LOC, against ~10500 LOC for BFQ).
+与每个 I/O 调度程序一样，BFQ 为每个 I/O 请求处理增加了一些开销。为了给出这个开销的概念，BFQ 的总的、单锁保护的、每个请求的处理时间---即请求插入、分派和完成钩子的执行时间的总和---是，例如，在英特尔酷睿 i7-2760QM@2.40GHz 上为 1.9 us（笔记本电脑的过时 CPU；使用简单的代码工具测量时间，并使用 S 套件 [1] 的吞吐量同步.sh 脚本，在性能分析模式下）。将这个结果放到上下文中，blk-mq 中可用的最轻量 I/O 调度程序的每个请求的单锁保护的总执行时间，mq-deadline，是 0.7 us（mq-deadline 是 ~800 LOC， BFQ 约 10500 LOC）。
 
-Scheduling overhead further limits the maximum IOPS that a CPU can
-process (already limited by the execution of the rest of the I/O
-stack). To give an idea of the limits with BFQ, on slow or average
-CPUs, here are, first, the limits of BFQ for three different CPUs, on,
-respectively, an average laptop, an old desktop, and a cheap embedded
-system, in case full hierarchical support is enabled (i.e.,
-CONFIG_BFQ_GROUP_IOSCHED is set), but CONFIG_BFQ_CGROUP_DEBUG is not
-set (Section 4-2):
+调度开销进一步限制了 CPU 可以处理的最大 IOPS（已经受到其余 I/O 堆栈执行的限制）。为了了解 BFQ 在慢速或普通 CPU 上的限制，首先，以下是三种不同 CPU 的 BFQ 限制，分别用于普通笔记本电脑、旧台式机和廉价嵌入式系统，以防万一启用了完整的分层支持（即 CONFIG_BFQ_GROUP_IOSCHED 已设置），但未设置 CONFIG_BFQ_CGROUP_DEBUG（第 4-2 节）：
 - Intel i7-4850HQ: 400 KIOPS
 - AMD A8-3850: 250 KIOPS
 - ARM CortexTM-A53 Octa-core: 80 KIOPS
 
-If CONFIG_BFQ_CGROUP_DEBUG is set (and of course full hierarchical
-support is enabled), then the sustainable throughput with BFQ
-decreases, because all blkio.bfq* statistics are created and updated
-(Section 4-2). For BFQ, this leads to the following maximum
-sustainable throughputs, on the same systems as above:
+如果设置了 CONFIG_BFQ_CGROUP_DEBUG（当然也启用了完整的分层支持），那么 BFQ 的可持续吞吐量会降低，因为所有 blkio.bfq* 统计信息都被创建和更新（第 4-2 节）。对于 BFQ，这会在与上述相同的系统上实现以下最大可持续吞吐量：
 - Intel i7-4850HQ: 310 KIOPS
 - AMD A8-3850: 200 KIOPS
 - ARM CortexTM-A53 Octa-core: 56 KIOPS
 
-BFQ works for multi-queue devices too.
+BFQ 也适用于多队列设备。
 
-.. The table of contents follow. Impatients can just jump to Section 3.
+.. 目录如下。 不耐烦的人可以直接跳到第 3 部分。
 
 .. CONTENTS
 
@@ -80,34 +46,26 @@ BFQ works for multi-queue devices too.
     4-1 Service guarantees provided
     4-2 Interface
 
-1. When may BFQ be useful?
+1. When may BFQ be useful?(BFQ 什么时候有用？)
 ==========================
 
-BFQ provides the following benefits on personal and server systems.
+BFQ 在个人和服务器系统上提供以下好处。
 
-1-1 Personal systems
+1-1 Personal systems(个人系统)
 --------------------
 
-Low latency for interactive applications
+Low latency for interactive applications(交互式应用程序的低延迟)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Regardless of the actual background workload, BFQ guarantees that, for
-interactive tasks, the storage device is virtually as responsive as if
-it was idle. For example, even if one or more of the following
-background workloads are being executed:
+不管实际的后台工作负载如何，BFQ 都保证，对于交互式任务，存储设备几乎像空闲一样响应。例如，即使正在执行以下一项或多项后台工作负载：
 
-- one or more large files are being read, written or copied,
-- a tree of source files is being compiled,
-- one or more virtual machines are performing I/O,
-- a software update is in progress,
-- indexing daemons are scanning filesystems and updating their
-  databases,
+- 正在读取、写入或复制一个或多个大文件，
+- 正在编译源文件树，
+- 一台或多台虚拟机正在执行 I/O，
+- 正在进行软件更新，
+- 索引守护进程正在扫描文件系统并更新它们的数据库，
 
-starting an application or loading a file from within an application
-takes about the same time as if the storage device was idle. As a
-comparison, with CFQ, NOOP or DEADLINE, and in the same conditions,
-applications experience high latencies, or even become unresponsive
-until the background workload terminates (also on SSDs).
+启动应用程序或从应用程序中加载文件所需的时间与存储设备空闲的时间大致相同。相比之下，使用 CFQ、NOOP 或 DEADLINE，在相同条件下，应用程序会遇到高延迟，甚至在后台工作负载终止之前（也在 SSD 上）变得无响应。
 
 Low latency for soft real-time applications
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
