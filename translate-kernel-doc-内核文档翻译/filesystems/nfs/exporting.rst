@@ -39,146 +39,70 @@ a. 一个 dentry 标志 DCACHE_DISCONNECTED，它被设置在任何可能不是�
 
    请注意，这样的 dentry 可以在不丢失 DCACHE_DISCONNECTED 的情况下获取子项、名称、祖先等 - 只有当子树成功重新连接到根时才会清除该标志。 在此之前，只有在存在引用时才会保留此类子树中的 dentry； refcount 达到零意味着立即驱逐，与未散列的 dentry 相同。 这保证了我们不需要在 umount 上追捕它们。
 
-b. A primitive for creation of secondary roots - d_obtain_root(inode).
-   Those do _not_ bear DCACHE_DISCONNECTED.  They are placed on the
-   per-superblock list (->s_roots), so they can be located at umount
-   time for eviction purposes.
+b. 用于创建次根的原语 - d_obtain_root(inode)。 那些_不_承担 DCACHE_DISCONNECTED。 它们被放置在 per-superblock 列表 (->s_roots) 中，因此它们可以在 umount 时定位以进行驱逐。
 
-c. Helper routines to allocate anonymous dentries, and to help attach
-   loose directory dentries at lookup time. They are:
+c. 帮助程序分配匿名目录，并在查找时帮助附加松散的目录dentry。 他们是：
 
-    d_obtain_alias(inode) will return a dentry for the given inode.
-      If the inode already has a dentry, one of those is returned.
+    d_obtain_alias(inode) 将返回给定 inode 的 dentry。
+      如果 inode 已经有一个 dentry，则返回其中一个。
 
-      If it doesn't, a new anonymous (IS_ROOT and
-      DCACHE_DISCONNECTED) dentry is allocated and attached.
+       如果没有，则会分配并附加一个新的匿名（IS_ROOT 和 DCACHE_DISCONNECTED）dentry。
 
-      In the case of a directory, care is taken that only one dentry
-      can ever be attached.
+       在目录的情况下，注意只能附加一个 dentry。
 
-    d_splice_alias(inode, dentry) will introduce a new dentry into the tree;
-      either the passed-in dentry or a preexisting alias for the given inode
-      (such as an anonymous one created by d_obtain_alias), if appropriate.
-      It returns NULL when the passed-in dentry is used, following the calling
-      convention of ->lookup.
+    d_splice_alias(inode, dentry) 将在树中引入一个新的 dentry；
+      如果合适，传入的 dentry 或给定 inode 的预先存在的别名（例如由 d_obtain_alias 创建的匿名别名）。 当使用传入的 dentry 时，它返回 NULL，遵循 ->lookup 的调用约定。
 
-Filesystem Issues
+Filesystem Issues(文件系统问题)
 -----------------
 
-For a filesystem to be exportable it must:
+对于可导出的文件系统，它必须：
 
-   1. provide the filehandle fragment routines described below.
-   2. make sure that d_splice_alias is used rather than d_add
-      when ->lookup finds an inode for a given parent and name.
+   1. 提供下面描述的文件句柄片段例程。
+   2. 确保当 ->lookup 找到给定父节点和名称的 inode 时，使用 d_splice_alias 而不是 d_add。
 
-      If inode is NULL, d_splice_alias(inode, dentry) is equivalent to::
+      如果 inode 为 NULL，则 d_splice_alias(inode, dentry) 等效于：
 
 		d_add(dentry, inode), NULL
 
-      Similarly, d_splice_alias(ERR_PTR(err), dentry) = ERR_PTR(err)
+      同理，d_splice_alias(ERR_PTR(err), dentry) = ERR_PTR(err)
 
-      Typically the ->lookup routine will simply end with a::
+      通常 ->lookup 例程将简单地以以下内容结束：
 
 		return d_splice_alias(inode, dentry);
 	}
 
+文件系统实现通过在 struct super_block 中设置 s_export_op 字段来声明文件系统的实例是可导出的。 此字段必须指向具有以下成员的“struct export_operations”结构：
 
-
-A file system implementation declares that instances of the filesystem
-are exportable by setting the s_export_op field in the struct
-super_block.  This field must point to a "struct export_operations"
-struct which has the following members:
-
- encode_fh  (optional)
-    Takes a dentry and creates a filehandle fragment which can later be used
-    to find or create a dentry for the same object.  The default
-    implementation creates a filehandle fragment that encodes a 32bit inode
-    and generation number for the inode encoded, and if necessary the
-    same information for the parent.
+  encode_fh  (optional)
+    获取一个 dentry 并创建一个文件句柄片段，稍后可用于为同一对象查找或创建一个 dentry。默认实现会创建一个文件句柄片段，该片段对 32 位 inode 和已编码的 inode 的生成编号进行编码，并在必要时为父级提供相同的信息。
 
   fh_to_dentry (mandatory)
-    Given a filehandle fragment, this should find the implied object and
-    create a dentry for it (possibly with d_obtain_alias).
+    给定一个文件句柄片段，这应该找到隐含的对象并为其创建一个 dentry（可能使用 d_obtain_alias）。
 
   fh_to_parent (optional but strongly recommended)
-    Given a filehandle fragment, this should find the parent of the
-    implied object and create a dentry for it (possibly with
-    d_obtain_alias).  May fail if the filehandle fragment is too small.
+    给定一个文件句柄片段，这应该找到隐含对象的父对象并为其创建一个 dentry（可能使用 d_obtain_alias）。如果文件句柄片段太小，可能会失败。
 
   get_parent (optional but strongly recommended)
-    When given a dentry for a directory, this should return  a dentry for
-    the parent.  Quite possibly the parent dentry will have been allocated
-    by d_alloc_anon.  The default get_parent function just returns an error
-    so any filehandle lookup that requires finding a parent will fail.
-    ->lookup("..") is *not* used as a default as it can leave ".." entries
-    in the dcache which are too messy to work with.
+    当给定目录的 dentry 时，这应该返回父目录的 dentry。很可能父 dentry 已由 d_alloc_anon 分配。默认的 get_parent 函数只返回一个错误，因此任何需要查找父级的文件句柄查找都将失败。 ->lookup("..") *不用作*默认值，因为它可能会在 dcache 中留下“..”entries，这些entries太乱而无法使用。
 
   get_name (optional)
-    When given a parent dentry and a child dentry, this should find a name
-    in the directory identified by the parent dentry, which leads to the
-    object identified by the child dentry.  If no get_name function is
-    supplied, a default implementation is provided which uses vfs_readdir
-    to find potential names, and matches inode numbers to find the correct
-    match.
+    当给定一个父 dentry 和一个子 dentry 时，这应该在由父 dentry 标识的目录中找到一个名称，这会导致由子 dentry 标识的对象。如果未提供 get_name 函数，则提供默认实现，该实现使用 vfs_readdir 查找潜在名称，并匹配 inode 编号以查找正确匹配项。
 
   flags
-    Some filesystems may need to be handled differently than others. The
-    export_operations struct also includes a flags field that allows the
-    filesystem to communicate such information to nfsd. See the Export
-    Operations Flags section below for more explanation.
+    某些文件系统可能需要以与其他文件系统不同的方式进行处理。 export_operations 结构还包括一个标志字段，允许文件系统将此类信息传达给 nfsd。有关更多说明，请参阅下面的Export Operations Flags(导出操作标志)部分。
 
-A filehandle fragment consists of an array of 1 or more 4byte words,
-together with a one byte "type".
-The decode_fh routine should not depend on the stated size that is
-passed to it.  This size may be larger than the original filehandle
-generated by encode_fh, in which case it will have been padded with
-nuls.  Rather, the encode_fh routine should choose a "type" which
-indicates the decode_fh how much of the filehandle is valid, and how
-it should be interpreted.
+文件句柄片段由 1 个或多个 4byte words 的数组以及一个 1 字节的“类型”组成。 decode_fh 例程不应依赖于传递给它的规定大小。这个大小可能比encode_fh 生成的原始文件句柄大，在这种情况下，它将用空值填充。相反，encode_fh 例程应该选择一个“类型”，它指示 decode_fh 文件句柄有多少是有效的，以及应该如何解释它。
 
 Export Operations Flags
 -----------------------
-In addition to the operation vector pointers, struct export_operations also
-contains a "flags" field that allows the filesystem to communicate to nfsd
-that it may want to do things differently when dealing with it. The
-following flags are defined:
+除了操作向量指针之外，struct export_operations 还包含一个“flags”字段，允许文件系统与 nfsd 通信，在处理它时它可能希望以不同的方式做事。定义了以下标志：
 
-  EXPORT_OP_NOWCC - disable NFSv3 WCC attributes on this filesystem
-    RFC 1813 recommends that servers always send weak cache consistency
-    (WCC) data to the client after each operation. The server should
-    atomically collect attributes about the inode, do an operation on it,
-    and then collect the attributes afterward. This allows the client to
-    skip issuing GETATTRs in some situations but means that the server
-    is calling vfs_getattr for almost all RPCs. On some filesystems
-    (particularly those that are clustered or networked) this is expensive
-    and atomicity is difficult to guarantee. This flag indicates to nfsd
-    that it should skip providing WCC attributes to the client in NFSv3
-    replies when doing operations on this filesystem. Consider enabling
-    this on filesystems that have an expensive ->getattr inode operation,
-    or when atomicity between pre and post operation attribute collection
-    is impossible to guarantee.
+  EXPORT_OP_NOWCC - 在此文件系统上禁用 NFSv3 WCC 属性
+    RFC 1813 建议服务器在每次操作后始终向客户端发送弱缓存一致性 (WCC) 数据。服务器应该自动收集有关 inode 的属性，对其进行操作，然后再收集这些属性。这允许客户端在某些情况下跳过发出 GETATTR，但这意味着服务器正在为几乎所有 RPC 调用 vfs_getattr。在某些文件系统上（特别是那些集群或网络的文件系统），这是昂贵的并且难以保证原子性。此标志向 nfsd 指示，在此文件系统上执行操作时，它应跳过在 NFSv3 回复中向客户端提供 WCC 属性。考虑在具有昂贵的 ->getattr inode 操作的文件系统上启用此功能，或者在无法保证操作前后属性集合之间的原子性时。
 
-  EXPORT_OP_NOSUBTREECHK - disallow subtree checking on this fs
-    Many NFS operations deal with filehandles, which the server must then
-    vet to ensure that they live inside of an exported tree. When the
-    export consists of an entire filesystem, this is trivial. nfsd can just
-    ensure that the filehandle live on the filesystem. When only part of a
-    filesystem is exported however, then nfsd must walk the ancestors of the
-    inode to ensure that it's within an exported subtree. This is an
-    expensive operation and not all filesystems can support it properly.
-    This flag exempts the filesystem from subtree checking and causes
-    exportfs to get back an error if it tries to enable subtree checking
-    on it.
+  EXPORT_OP_NOSUBTREECHK - 禁止对此 fs 进行子树检查
+    许多 NFS 操作处理文件句柄，然后服务器必须对其进行审查以确保它们存在于导出的树中。当导出包含整个文件系统时，这是微不足道的。 nfsd 可以确保文件句柄存在于文件系统上。但是，当仅导出文件系统的一部分时，nfsd 必须遍历 inode 的祖先以确保它位于导出的子树中。这是一项昂贵的操作，并非所有文件系统都能正确支持它。此标志免除文件系统的子树检查，如果它尝试启用子树检查，则会导致 exportfs 返回错误。
 
-  EXPORT_OP_CLOSE_BEFORE_UNLINK - always close cached files before unlinking
-    On some exportable filesystems (such as NFS) unlinking a file that
-    is still open can cause a fair bit of extra work. For instance,
-    the NFS client will do a "sillyrename" to ensure that the file
-    sticks around while it's still open. When reexporting, that open
-    file is held by nfsd so we usually end up doing a sillyrename, and
-    then immediately deleting the sillyrenamed file just afterward when
-    the link count actually goes to zero. Sometimes this delete can race
-    with other operations (for instance an rmdir of the parent directory).
-    This flag causes nfsd to close any open files for this inode _before_
-    calling into the vfs to do an unlink or a rename that would replace
-    an existing file.
+  EXPORT_OP_CLOSE_BEFORE_UNLINK - 在取消链接之前始终关闭缓存文件
+    在某些可导出的文件系统（例如 NFS）上，取消链接仍然打开的文件可能会导致大量额外的工作。例如，NFS 客户端将执行“sillyrename”以确保文件在它仍然打开时仍然存在。重新导出时，该打开的文件由 nfsd 保存，因此我们通常会执行一个"sillyrename"，然后在链接计数实际上为零时立即删除"sillyrename"的文件。有时，此删除操作会与其他操作（例如父目录的 rmdir）竞争。此标志会导致 nfsd 关闭此 inode _before_ 调用到 vfs 以执行取消链接或重命名以替换现有文件的所有打开文件。
