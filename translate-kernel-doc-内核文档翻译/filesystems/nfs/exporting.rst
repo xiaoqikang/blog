@@ -6,6 +6,7 @@ Making Filesystems Exportable
 本文是基于Documentation/filesystems/nfs/exporting.rst以下提交记录:
 
 .. code-block:: shell
+
 	commit 7f84b488f9add1d5cca3e6197c95914c7bd3c1cf
 	Author: Jeff Layton <jeff.layton@primarydata.com>
 	Date:   Mon Nov 30 17:03:16 2020 -0500

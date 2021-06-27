@@ -5,6 +5,7 @@ NFSv4.1 Server Implementation
 本文是基于Documentation/filesystems/nfs/exporting.rst以下提交记录:
 
 .. code-block:: shell
+
 	commit 04f81fb08d067f79c59fe132929a9c81eb9cb74b
 	Author: Daniel W. S. Almeida <dwlsalmeida@gmail.com>
 	Date:   Wed Jan 29 01:49:16 2020 -0300

@@ -5,6 +5,7 @@ rpcsec_gss support for kernel RPC servers
 本文是基于Documentation/filesystems/nfs/rpc-server-gss.rst以下提交记录:
 
 .. code-block:: shell
+
         commit ade3dbad1459e0a9a8ee8812925e0d968a2a5252
         Author: J. Bruce Fields <bfields@redhat.com>
         Date:   Thu Aug 27 12:06:06 2020 -0400

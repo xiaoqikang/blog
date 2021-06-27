@@ -7,6 +7,7 @@ Multi-Queue Block IO Queueing Mechanism (blk-mq)（多队列块 IO 排队机制 
 本文是基于Documentation/block/blk-mq.rst以下提交记录:
 
 .. code-block:: shell
+
         commit 8ac867340bd8cc8c65d4cafbf634873b8ddcf3f7
         Author: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
         Date:   Tue Sep 29 10:04:26 2020 +0200
