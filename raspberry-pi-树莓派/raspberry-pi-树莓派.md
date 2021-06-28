@@ -20,13 +20,17 @@ sudo apt-get update -y
 sudo apt install ibus*wubi* -y
 
 # 安装firefox
-sudo apt update -y
-sudo apt-get install iceweasel -y
+# sudo apt update -y
+# sudo apt-get install iceweasel -y
 
 sudo apt update -y
 # 安装emacs
 sudo apt install emacs -y
 # 安装gvim
 sudo apt install vim-gtk3 -y
+```
+
+```shell
+chromium-browser --proxy-server="https=127.0.0.1:1080;http=127.0.0.1:1080;ftp=127.0.0.1:1080"
 ```
 

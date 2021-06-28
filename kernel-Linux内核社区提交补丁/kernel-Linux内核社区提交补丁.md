@@ -90,13 +90,13 @@ sudo yum install git-email -y
 foxmail邮箱`~/.gitconfig`：
 ```shell
 [user]
-        email = lioneie@foxmail.com
+        email = linux.chenxiaosong@foxmail.com
         name = ChenXiaoSong
 [core]
         editor = vim 
         quotepath = false
 [sendemail]
-        from = lioneie@foxmail.com
+        from = linux.chenxiaosong@foxmail.com
         smtpserver = smtp.qq.com
         smtpuser = lioneie@foxmail.com
         smtpencryption = ssl 
