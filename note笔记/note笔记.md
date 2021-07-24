@@ -86,6 +86,12 @@ Socket(s):                       1
 # 编译内核
 
 ```shell
+#fedora编译最新内核
+sudo dnf install ncurses-devel -y
+sudo yum install openssl -y
+sudo dnf install dwarves -y
+sudo yum install zstd -y
+
 # menuconfig错误时需要安装
 sudo yum install ncurses-devel -y
 make oldconfig
@@ -246,6 +252,13 @@ mkdir ~/.local/share/mime/packages/ -p
 ```
 ```shell
 update-mime-database ~/.local/share/mime
+```
+
+# virtualbox
+
+```shell
+vboxmanage list vms
+VBoxManage modifyvm "fedora34" --nested-hw-virt on # 注意：前面一定不能加sudo
 ```
 
 
