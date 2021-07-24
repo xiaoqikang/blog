@@ -73,15 +73,15 @@ sudo yum install git-email -y
 163邮箱`~/.gitconfig`：
 ```
 [user]
-	email = lioneie@163.com
+	email = chenxiaosongemail@163.com
 	name = ChenXiaoSong
 [core]
 	editor = vim 
 	quotepath = false
 [sendemail]
-	from = lioneie@163.com
+	from = chenxiaosongemail@163.com
 	smtpserver = smtp.163.com
-	smtpuser = lioneie@163.com
+	smtpuser = chenxiaosongemail@163.com
 	smtpencryption = ssl 
 	smtppass = 此处填写163邮箱的授权密码
 	smtpserverport = 994 
@@ -90,15 +90,15 @@ sudo yum install git-email -y
 foxmail邮箱`~/.gitconfig`：
 ```shell
 [user]
-        email = linux.chenxiaosong@foxmail.com
+        email = chenxiaosongemail@foxmail.com
         name = ChenXiaoSong
 [core]
         editor = vim 
         quotepath = false
 [sendemail]
-        from = linux.chenxiaosong@foxmail.com
+        from = chenxiaosongemail@foxmail.com
         smtpserver = smtp.qq.com
-        smtpuser = lioneie@foxmail.com
+        smtpuser = chenxiaosongemail@foxmail.com
         smtpencryption = ssl 
         smtppass = 此处填写qq邮箱的授权密码
 ```
