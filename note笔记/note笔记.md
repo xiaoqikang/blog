@@ -261,6 +261,17 @@ vboxmanage list vms
 VBoxManage modifyvm "fedora34" --nested-hw-virt on # 注意：前面一定不能加sudo
 ```
 
+# 添加swap
+```shell
+sudo fallocate -l 4G /swapfile
+sudo chmod 600 /swapfile
+ls -lh /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+sudo swapon -s
+sudo vi /etc/fstab
+# 在/etc/fstab最后一行添加 /swapfile  none  swap  sw  0  0
+```
 
 
 
