@@ -273,6 +273,28 @@ sudo vi /etc/fstab
 # 在/etc/fstab最后一行添加 /swapfile  none  swap  sw  0  0
 ```
 
+# fedora swap
+
+```shell
+sudo vim /usr/lib/systemd/zram-generator.conf
+```
+
+# git配置
+
+```shell
+[user]
+        email = chenxiaosongemail@foxmail.com
+        name = ChenXiaoSong
+[core]
+        editor = vim
+        quotepath = false
+[sendemail]
+        from = chenxiaosongemail@foxmail.com
+        smtpserver = smtp.qq.com
+        smtpuser = chenxiaosongemail@foxmail.com
+        smtpencryption = ssl
+        smtppass = 此处填写qq邮箱的授权密码
+```
 
 
 
