@@ -26,7 +26,7 @@ set pastetoggle=<F9>    "F9粘贴设置切换
 set mouse-=a			"鼠标选择文字不会进入visual模式
 colorscheme desert      "支持的color查看/usr/share/vim/vim82/colors/（vim82是vim版本）
 set ic                  "set ic忽略大小写(ignore case), set noic 不忽略大小写
-set cscopequickfix=a-,c-,d-,e-,f-,g-,i-,s-,t-
+set cscopequickfix=a-,c-,d-,e-,f-,g-,i-,s-,t- "cscope打开quickfix窗口
 ```
 
 加载其他的.vimrc，在~/.vimrc中加入以下内容：
