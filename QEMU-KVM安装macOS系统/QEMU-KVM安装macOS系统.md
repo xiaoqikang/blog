@@ -22,6 +22,8 @@ macOS和KVM的新手？ 请看[the FAQs](https://github.com/lioneie/macOS-Simple
 
 ```
 sudo apt-get install qemu-system qemu-utils python3 python3-pip  # for Ubuntu, Debian, Mint, and PopOS.
+sudo apt-get install qemu-kvm virt-manager bridge-utils -y # ubuntu 20.04
+
 sudo pacman -S qemu python python-pip python-wheel  # for Arch.
 sudo xbps-install -Su qemu python3 python3-pip   # for Void Linux.
 sudo zypper in qemu-tools qemu-kvm qemu-x86 qemu-audio-pa python3-pip  # for openSUSE Tumbleweed
@@ -57,7 +59,7 @@ qemu-img create -f qcow2 MyDisk.qcow2 64G
 ## 第2a步 (Virtual Machine Manager)
 1. 如果你想导入到Virt-Manager中进行进一步的配置（而不是只在QEMU上运行），只需运行`sudo ./make.sh --add`。
 3. 运行上述命令后，在Virt-Manager的设置中添加 `MyDisk.qcow2` SATA Disk。
-3. 将 `OVMF_CODE.fd` 和 `OVMF_VARS-1024x768.fd` 放到 `/usr/share/OVMF/macOS/` 路径下（或其他路径，在home目录下会报`OVMF_CODE.fd权限错误`）。
+3. (Fedora需要这步操作，Ubuntu不需要)将 `OVMF_CODE.fd` 和 `OVMF_VARS-1024x768.fd` 放到 `/usr/share/OVMF/macOS/` 路径下（或其他路径，在home目录下会报`OVMF_CODE.fd权限错误`）。
 4. 在Virt-Manager中`detail->overview->xml`中将`OVMF_*`路径修改成`/usr/share/OVMF/macOS/`下的文件（**要先允许xml编辑**）
 5. Add Hardware -> Storage -> Details -> Select or create custom storage，添加catalina.qcow2
 6. Boot Options -> Details -> Boot device order, 勾选 SATA Disk 2 和 3, 并把刚加的SATA Disk 3 放在最前面
