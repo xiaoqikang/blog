@@ -257,6 +257,7 @@ update-mime-database ~/.local/share/mime
 # virtualbox
 
 ```shell
+vboxmanage internalcommands sethduuid Fedora-Workstation-Live-x86_64-34-1.2.vmdk # 更新 uuid
 vboxmanage list vms
 VBoxManage modifyvm "fedora34" --nested-hw-virt on # 注意：前面一定不能加sudo
 ```
