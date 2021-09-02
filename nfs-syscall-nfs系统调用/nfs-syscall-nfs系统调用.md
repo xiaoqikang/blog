@@ -26,6 +26,10 @@ SYSCALL_DEFINE5(mount,
   ksys_mount
     do_mount
       do_new_mount
+        get_fs_type
+          __get_fs_type
+            find_filesystem
+              // TODO: file_systems 变量
         vfs_kern_mount
           mount_fs
             // type->mount
@@ -60,25 +64,26 @@ SYSCALL_DEFINE5(mount,
 // 4.19
 SYSCALL_DEFINE3(open,
   do_sys_open
-    get_unused_fd_flags
+    get_unused_fd_flags // 获取没有用的 fd
     do_filp_open
+      // nameidata 在解析和查找路径的时候提供辅助作用
       set_nameidata
       path_openat
         alloc_empty_file
-        path_init
-        link_path_walk
+        path_init // 初始化 nameidata，准备开始节点路径查找
+        link_path_walk // 路径查找
         do_last
           lookup_fast // 缓存中找
           lookup_open // 创建
             // dir_inode->i_op->lookup
-            inode_operations
+            nfs_lookup
           vfs_open
             do_dentry_open
               // open = f->f_op->open
               nfs4_file_open
-              file_ra_state_init
+              file_ra_state_init // 初始化 file_ra_state
       restore_nameidata
-    fd_install
+    fd_install // fd 和 file 关联
 ```
 
 # close
