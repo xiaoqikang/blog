@@ -45,4 +45,13 @@ mv /usr/lib/systemd/zram-generator.conf /usr/lib/systemd/zram-generator.conf.bak
 
 mkfs.ext4 -b 4096 -F /dev/sda
 mkfs.ext4 -b 4096 -F /dev/sdb
+
+[root@fedora ~]# cat /etc/exports
+/root/ext4 *(rw,sync,fsid=0)
+
+# nfsv4 挂载要用 192.168.122.87:/
+mount -t nfs -o v4.1 192.168.122.87:/ nfs4/
+
+# nfsv3 挂载
+mount -t nfs -o v3 192.168.122.87:/root/ext4 nfs4/
 ```
