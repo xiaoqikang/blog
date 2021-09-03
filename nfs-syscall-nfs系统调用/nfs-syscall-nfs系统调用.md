@@ -24,7 +24,10 @@ SYSCALL_DEFINE5(mount,
 // 4.19
 SYSCALL_DEFINE5(mount,
   ksys_mount
+    copy_mount_string // 从用户空间复制字符串
+    copy_mount_options
     do_mount
+      user_path // 挂载点
       do_new_mount
         get_fs_type
           __get_fs_type
