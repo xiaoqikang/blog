@@ -2,6 +2,14 @@
 
 fedora server 安装时， 根文件系统一定不能使用 LVM
 
+```shell
+sudo apt-get install libelf-dev libssl-dev -y
+# 在 Virtual Machine Manager 中创建 qcow2 格式，会马上分配所有空间，所以需要在命令行中创建 qcow2
+qemu-img create -f qcow2 fedora34-server.qcow2 512G
+# allow virbr0
+sudo vim /etc/qemu/bridge.conf
+```
+
 9p: https://wiki.qemu.org/Documentation/9psetup
 
 ```
@@ -15,6 +23,8 @@ CONFIG_VIRTIO_PCI=y
 ```
 
 ```shell
+fallocate -l 10G 2
+
 qemu-system-x86_64 \
         -enable-kvm \
         -smp 8 \
@@ -30,6 +40,9 @@ qemu-system-x86_64 \
 ```
 
 ```shell
-# 删除 zram 的配置文件
+# 启动的时候等待： A start job is running for /dev/zram0，解决办法：删除 zram 的配置文件
 mv /usr/lib/systemd/zram-generator.conf /usr/lib/systemd/zram-generator.conf.bak
+
+mkfs.ext4 -b 4096 -F /dev/sda
+mkfs.ext4 -b 4096 -F /dev/sdb
 ```
