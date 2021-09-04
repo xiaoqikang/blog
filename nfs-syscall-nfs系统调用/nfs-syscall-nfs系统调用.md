@@ -11,6 +11,9 @@ module_init(init_nfs_fs)
       register_filesystem // nfs
       register_nfs4_fs // nfsv4
         register_filesystem
+
+// TODO
+module_init(init_nfs_v4
 ```
 
 ```c
@@ -53,81 +56,120 @@ SYSCALL_DEFINE5(mount,
             alloc_secdata // 安全相关？
             security_sb_copy_data // 安全相关？
             // type->mount
-            nfs4_remote_mount
-              nfs4_create_server
-                nfs_alloc_server // 分配
-                  rpc_init_wait_queue // 优先级队列
-                nfs4_init_server
-                  nfs_init_timeout_values // 超时时间
-                  nfs4_set_client
-                    rpc_get_port // 端口
-                    nfs_get_client // 根据 ip 和 协议版本号 获取 client
-                      nfs_match_client // 第一次找不到
-                        list_for_each_entry // 从链表中找
-                        refcount_inc // 先增加引用
-                        nfs_wait_client_init_complete // 如果找到，等到 client 初始化完成
-                        nfs_put_client // 减小引用
-                        rpc_cmp_addr_port // 对比
-                      // rpc_ops->alloc_client
-                      nfs4_alloc_client // 分配
-                        nfs_alloc_client
-                          // TODO: cookie 怎么理解？
-                          nfs_fscache_get_client_cookie
-                        // TODO: idr 不理解
-                        nfs_get_cb_ident_idr
-                        rpc_init_wait_queue // 优先级队列
-                        nfs_create_rpc_client // 创建 rpc client
-                          rpc_create
-                            xprt_create_transport
-                            rpc_create_xprt
-                              rpc_new_client
-                              rpc_ping // 检测网络是否通，不会永远卡住
-                                err = rpc_call_sync(clnt, &msg, RPC_TASK_SOFT | RPC_TASK_SOFTCONN);
-                        // TODO: idmap 怎么用?
-                        nfs_idmap_new
-                      nfs_match_client // 还找不到
-                      list_add_tail // 加到链表中
-                      // rpc_ops->init_client
-                      nfs4_init_client
-                        nfs4_init_client_minor_version // 次版本号，4.1
-                          // clp->cl_mvops->init_client
-                          nfs41_init_client
-                            nfs4_alloc_session
-                            nfs_mark_client_ready(clp, NFS_CS_SESSION_INITING); // 正在初始化
-                        nfs4_discover_server_trunking
-                          nfs4_get_clid_cred // 凭据
-                          // ops->detect_trunking
-                          nfs41_discover_server_trunking
-                            // TODO: 这里是要干啥？
-                            nfs4_proc_exchange_id
-                            nfs41_walk_client_list
-                              nfs4_match_client
-                                nfs_wait_client_init_complete
-                              nfs4_check_serverowner_major_id
-                            nfs4_schedule_state_manager // 异步状态管理
-                              kthread_run(nfs4_run_state_manager,
-                            nfs_wait_client_init_complete
-                  nfs_init_server_rpcclient // general RPC client
-                nfs4_server_common_setup // rpc client
-                  nfs_alloc_fattr
-                  nfs4_init_session
-                  server->caps |= NFS_CAP_UIDGID_NOMAP; // idmap
-                  nfs4_get_rootfh // file handle
-                    nfs4_proc_get_rootfh // 从 server 获取
-                  nfs_probe_fsinfo
-                    nfs_server_set_fsinfo
-                  nfs4_session_limit_rwsize // 限制大小
-                  nfs_server_insert_lists // 加到链表中
-              nfs_fs_mount_common // i am here
-                sget // 得到 super block
+            nfs_fs_mount
+              nfs_alloc_parsed_mount_data
+              nfs_alloc_fhandle
+              nfs_validate_mount_data
+                nfs4_validate_mount_data
+                  return NFS_TEXT_DATA;
+              nfs_validate_text_mount_data // 字符串解析
+                nfs_parse_mount_options // 挂载选项解析
+                nfs_verify_server_address // 校验服务器地址
+                port = NFS_PORT; // 默认端口 2049
+                nfs_validate_transport_protocol // 校验协议
+                nfs4_validate_mount_flags // 校验标志
+                nfs_set_port // 设置端口
+                nfs_parse_devname // 解析 192.168.122.88:/ 冒号后的路径
+              get_nfs_version // 获取版本
+              // nfs_mod->rpc_ops->try_mount
+              nfs4_try_mount
+                nfs_do_root_mount
+                  vfs_kern_mount
+                    mount_fs
+                    // type->mount
+                    nfs4_remote_mount // 见后面的分析
+                nfs_follow_remote_path // 后面的路径
+                  nfs_referral_loop_protect // 引用计数保护？
+                  mount_subtree
+                    create_mnt_ns
+                    vfs_path_lookup
+                      filename_lookup
+                  nfs_referral_loop_unprotect
             security_sb_kern_mount // 安全相关？
             free_secdata
           list_add_tail // 添加到链表
         put_filesystem // 减小引用计数
         mount_too_revealing // 可见？
         do_add_mount // 添加到 tree
+          check_mnt
+          d_is_symlink // 不能是 symlink
+          graft_tree
       path_put // 减小引用计数
     kfree // 释放内核空间字符串
+
+
+nfs4_remote_mount
+  nfs4_create_server
+    nfs_alloc_server // 分配
+      rpc_init_wait_queue // 优先级队列
+    nfs4_init_server
+      nfs_init_timeout_values // 超时时间
+      nfs4_set_client
+        rpc_get_port // 端口
+        nfs_get_client // 根据 ip 和 协议版本号 获取 client
+          nfs_match_client // 第一次找不到
+            list_for_each_entry // 从链表中找
+            refcount_inc // 先增加引用
+            nfs_wait_client_init_complete // 如果找到，等到 client 初始化完成
+            nfs_put_client // 减小引用
+            rpc_cmp_addr_port // 对比
+          // rpc_ops->alloc_client
+          nfs4_alloc_client // 分配
+            nfs_alloc_client
+              // TODO: cookie 怎么理解？
+              nfs_fscache_get_client_cookie
+            // TODO: idr 不理解
+            nfs_get_cb_ident_idr
+            rpc_init_wait_queue // 优先级队列
+            nfs_create_rpc_client // 创建 rpc client
+              rpc_create
+                xprt_create_transport
+                rpc_create_xprt
+                  rpc_new_client
+                  rpc_ping // 检测网络是否通，不会永远卡住
+                    err = rpc_call_sync(clnt, &msg, RPC_TASK_SOFT | RPC_TASK_SOFTCONN);
+            // TODO: idmap 怎么用?
+            nfs_idmap_new
+          nfs_match_client // 还找不到
+          list_add_tail // 加到链表中
+          // rpc_ops->init_client
+          nfs4_init_client
+            nfs4_init_client_minor_version // 次版本号，4.1
+              // clp->cl_mvops->init_client
+              nfs41_init_client
+                nfs4_alloc_session
+                nfs_mark_client_ready(clp, NFS_CS_SESSION_INITING); // 正在初始化
+            nfs4_discover_server_trunking
+              nfs4_get_clid_cred // 凭据
+              // ops->detect_trunking
+              nfs41_discover_server_trunking
+                // TODO: 这里是要干啥？
+                nfs4_proc_exchange_id
+                nfs41_walk_client_list
+                  nfs4_match_client
+                    nfs_wait_client_init_complete
+                  nfs4_check_serverowner_major_id
+                nfs4_schedule_state_manager // 异步状态管理
+                  kthread_run(nfs4_run_state_manager,
+                nfs_wait_client_init_complete
+      nfs_init_server_rpcclient // general RPC client
+    nfs4_server_common_setup // rpc client
+      nfs_alloc_fattr
+      nfs4_init_session
+      server->caps |= NFS_CAP_UIDGID_NOMAP; // idmap
+      nfs4_get_rootfh // file handle
+        nfs4_proc_get_rootfh // 从 server 获取
+      nfs_probe_fsinfo
+        nfs_server_set_fsinfo
+      nfs4_session_limit_rwsize // 限制大小
+      nfs_server_insert_lists // 加到链表中
+  nfs_fs_mount_common
+    sget // 得到 super block
+    // mount_info->fill_super
+    nfs_fill_super ?
+    nfs_get_cache_cookie
+    nfs_get_root
+    mount_info->set_security
 ```
 
 # open
