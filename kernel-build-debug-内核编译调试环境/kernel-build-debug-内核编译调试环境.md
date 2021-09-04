@@ -1,5 +1,7 @@
 [toc]
 
+openEuler nfs mount: https://gitee.com/src-openeuler/nfs-utils/issues/I46NSS?_from=gitee_search
+
 fedora server 安装时， 根文件系统一定不能使用 LVM
 
 ```shell
@@ -43,15 +45,29 @@ qemu-system-x86_64 \
 # 启动的时候等待： A start job is running for /dev/zram0，解决办法：删除 zram 的配置文件
 mv /usr/lib/systemd/zram-generator.conf /usr/lib/systemd/zram-generator.conf.bak
 
+# 格式化硬盘
 mkfs.ext4 -b 4096 -F /dev/sda
 mkfs.ext4 -b 4096 -F /dev/sdb
 
 [root@fedora ~]# cat /etc/exports
 /root/ext4 *(rw,sync,fsid=0)
 
+[root@fedora ~]# cat setup-nfs-svr.sh 
+ulimit -n 65535
+# iptables -F
+exportfs -r
+systemctl stop firewalld
+setenforce 0
+systemctl restart nfs-server.service
+systemctl restart rpcbind
+
 # nfsv4 挂载要用 192.168.122.87:/
 mount -t nfs -o v4.1 192.168.122.87:/ nfs4/
 
 # nfsv3 挂载
 mount -t nfs -o v3 192.168.122.87:/root/ext4 nfs4/
+
+# fedora26 安装 vim 前，先升级
+sudo dnf update vim-common vim-minimal -y
 ```
+
