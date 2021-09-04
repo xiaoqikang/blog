@@ -7,8 +7,9 @@
 // fs/nfs/inode.c
 module_init(init_nfs_fs)
   init_nfs_fs
-    register_nfs_fs
-      register_nfs4_fs
+    register_nfs_fs // 注册 nfs 文件系统
+      register_filesystem // nfs
+      register_nfs4_fs // nfsv4
         register_filesystem
 ```
 
@@ -22,44 +23,95 @@ SYSCALL_DEFINE5(mount,
 
 ```c
 // 4.19
+// mount("192.168.122.88:/", "/root/nfs4", "nfs", 0, "vers=4.2,addr=192.168.122.88,cli"...) = 0
 SYSCALL_DEFINE5(mount,
   ksys_mount
     copy_mount_string // 从用户空间复制字符串
     copy_mount_options
     do_mount
-      user_path // 挂载点
+      user_path // 挂载点, 得到 struct path
+        user_path_at_empty
+          filename_lookup
+            set_nameidata
+              p->saved = old; // 保存旧的数据
+            path_lookupat
+              path_init
+              link_path_walk // 循环解析路径
+              lookup_last // 最后一级
+              trailing_symlink // 处理符号链接
+              complete_walk // 解析完成
+              terminate_walk // 结束
+            restore_nameidata // 恢复旧的数据
       do_new_mount
         get_fs_type
           __get_fs_type
             find_filesystem
               // TODO: file_systems 变量
         vfs_kern_mount
+          alloc_vfsmnt // 分配内存
           mount_fs
+            alloc_secdata // 安全相关？
+            security_sb_copy_data // 安全相关？
             // type->mount
             nfs4_remote_mount
               nfs4_create_server
+                nfs_alloc_server // 分配
+                  rpc_init_wait_queue // 优先级队列
                 nfs4_init_server
+                  nfs_init_timeout_values // 超时时间
                   nfs4_set_client
-                    nfs_get_client
+                    rpc_get_port // 端口
+                    nfs_get_client // 根据 ip 和 协议版本号 获取 client
                       nfs_match_client // 第一次找不到
-                        list_for_each_entry
+                        list_for_each_entry // 从链表中找
+                        refcount_inc // 先增加引用
                         nfs_wait_client_init_complete // 如果找到，等到 client 初始化完成
+                        nfs_put_client // 减小引用
+                        rpc_cmp_addr_port // 对比
                       // rpc_ops->alloc_client
-                      nfs4_alloc_client
-                        nfs_create_rpc_client
+                      nfs4_alloc_client // 分配
+                        nfs_alloc_client
+                          // TODO: cookie 怎么理解？
+                          nfs_fscache_get_client_cookie
+                        // TODO: idr 不理解
+                        nfs_get_cb_ident_idr
+                        rpc_init_wait_queue // 优先级队列
+                        nfs_create_rpc_client // 创建 rpc client
                           rpc_create
+                            xprt_create_transport
                             rpc_create_xprt
-                              rpc_ping
+                              rpc_new_client
+                              rpc_ping // 检测网络是否通，不会永远卡住
+                                err = rpc_call_sync(clnt, &msg, RPC_TASK_SOFT | RPC_TASK_SOFTCONN);
+                        // TODO: idmap 怎么用?
+                        nfs_idmap_new
                       nfs_match_client // 还找不到
                       list_add_tail // 加到链表中
                       // rpc_ops->init_client
                       nfs4_init_client
+                        nfs4_init_client_minor_version // 次版本号，4.1
+                          // clp->cl_mvops->init_client
+                          nfs41_init_client
+                            nfs4_alloc_session
+                            nfs_mark_client_ready(clp, NFS_CS_SESSION_INITING); // 正在初始化
                         nfs4_discover_server_trunking
+                          nfs4_get_clid_cred // 凭据
                           // ops->detect_trunking
                           nfs41_discover_server_trunking
                             nfs41_walk_client_list
                               nfs4_match_client
                                 nfs_wait_client_init_complete
+                  nfs_init_server_rpcclient // general RPC client
+                nfs4_server_common_setup // rpc client
+              nfs_fs_mount_common
+            security_sb_kern_mount // 安全相关？
+            free_secdata
+          list_add_tail // 添加到链表
+        put_filesystem // 减小引用计数
+        mount_too_revealing // 可见？
+        do_add_mount // 添加到 tree
+      path_put // 减小引用计数
+    kfree // 释放内核空间字符串
 ```
 
 # open
