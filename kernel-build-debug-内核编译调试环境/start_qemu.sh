@@ -1,3 +1,5 @@
+# quiet: 不打印信息
+# -append "quiet console=ttyS0 IP=192.168.122.2 root=/dev/vda1 rw kmemleak=on" \
 qemu-system-x86_64 \
 	-enable-kvm \
 	-smp 8 \
@@ -12,6 +14,6 @@ qemu-system-x86_64 \
 	-device scsi-hd,drive=dd_1,id=disk_1 \
 	-drive file=2,if=none,format=raw,id=dd_2 \
 	-device scsi-hd,drive=dd_2,id=disk_2 \
-	-append "quiet console=ttyS0 IP=192.168.122.2 root=/dev/vda1 rw kmemleak=on" \
+	-append "console=ttyS0 IP=192.168.122.2 root=/dev/vda1 rw kmemleak=on" \
 	-nographic \
 	--virtfs local,id=kmod_dev,path=/home/sonvhi/chenxiaosong/code/,security_model=none,mount_tag=kmod_mount

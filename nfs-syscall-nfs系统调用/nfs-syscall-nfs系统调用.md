@@ -98,12 +98,28 @@ SYSCALL_DEFINE5(mount,
                           nfs4_get_clid_cred // 凭据
                           // ops->detect_trunking
                           nfs41_discover_server_trunking
+                            // TODO: 这里是要干啥？
+                            nfs4_proc_exchange_id
                             nfs41_walk_client_list
                               nfs4_match_client
                                 nfs_wait_client_init_complete
+                              nfs4_check_serverowner_major_id
+                            nfs4_schedule_state_manager // 异步状态管理
+                              kthread_run(nfs4_run_state_manager,
+                            nfs_wait_client_init_complete
                   nfs_init_server_rpcclient // general RPC client
                 nfs4_server_common_setup // rpc client
-              nfs_fs_mount_common
+                  nfs_alloc_fattr
+                  nfs4_init_session
+                  server->caps |= NFS_CAP_UIDGID_NOMAP; // idmap
+                  nfs4_get_rootfh // file handle
+                    nfs4_proc_get_rootfh // 从 server 获取
+                  nfs_probe_fsinfo
+                    nfs_server_set_fsinfo
+                  nfs4_session_limit_rwsize // 限制大小
+                  nfs_server_insert_lists // 加到链表中
+              nfs_fs_mount_common // i am here
+                sget // 得到 super block
             security_sb_kern_mount // 安全相关？
             free_secdata
           list_add_tail // 添加到链表

@@ -26,19 +26,6 @@ CONFIG_VIRTIO_PCI=y
 
 ```shell
 fallocate -l 10G 2
-
-qemu-system-x86_64 \
-        -enable-kvm \
-        -smp 8 \
-        -m 4096 \
-        -kernel bzImage \
-        -device virtio-scsi-pci \
-        -net nic,model=virtio,macaddr=DE:AD:BE:EF:00:00 \
-        -net bridge,br=virbr0 \
-        -drive file=fedora34-server.img,if=none,cache=none,id=root,format=raw,file.locking=off \
-        -device virtio-blk,drive=root,id=d_root \
-        -append "quiet console=ttyS0 IP=192.168.122.2 root=/dev/vda1 rw kmemleak=on" \
-        -nographic
 ```
 
 ```shell
