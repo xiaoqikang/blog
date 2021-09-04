@@ -175,17 +175,25 @@ nfs4_remote_mount
 # open
 ```c
 // 4.19
+// nfs
+// open("nfs4/thanos", O_RDONLY)           = 3
 SYSCALL_DEFINE3(open,
+  // TODO: 干啥的？
+  force_o_largefile
   do_sys_open
-    get_unused_fd_flags // 获取没有用的 fd
+    getname // 获取 struct filename
+    get_unused_fd_flags // 获取未使用的文件描述符
     do_filp_open
       // nameidata 在解析和查找路径的时候提供辅助作用
       set_nameidata
-      path_openat
+      // rcu-walk, 使用 RCU 保护散列桶的链表,使用 序列号保护目录
+      // 其他处理器可以并行地修改目录, RCU 查找方式速度最快
+      path_openat(..., flags | LOOKUP_RCU)
         alloc_empty_file
         path_init // 初始化 nameidata，准备开始节点路径查找
         link_path_walk // 路径查找
-        do_last
+        do_last // 最后一步
+          // i am here
           lookup_fast // 缓存中找
           lookup_open // 创建
             // dir_inode->i_op->lookup
@@ -195,8 +203,17 @@ SYSCALL_DEFINE3(open,
               // open = f->f_op->open
               nfs4_file_open
               file_ra_state_init // 初始化 file_ra_state
+        terminate_walk
+      // ref-walk, 使用 RCU 保护散列桶的链表,使用自旋锁保护目录，并且把目录的引用计数加1
+      // 引用查找方式速度比较慢
+      path_openat(..., flags)
+      // 二次解析发现信息过期，返回错误号 -ESTALE，那么第三次解析传入标志 LOOKUP_REVAL
+      // 表示需要重新确认信息是否有效
+      path_openat(..., flags | LOOKUP_REVAL)
       restore_nameidata
+    fsnotify_open // 通知
     fd_install // fd 和 file 关联
+    putname // 减小 struct filename 引用计数
 ```
 
 # close
