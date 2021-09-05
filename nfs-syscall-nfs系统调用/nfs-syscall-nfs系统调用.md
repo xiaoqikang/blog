@@ -169,6 +169,8 @@ nfs4_remote_mount
     nfs_fill_super ?
     nfs_get_cache_cookie
     nfs_get_root
+      nfs_fhget
+        inode->i_flags |= S_NOATIME|S_NOCMTIME;
     mount_info->set_security
 ```
 
@@ -230,6 +232,10 @@ SYSCALL_DEFINE3(open,
                             rpc_wait_for_completion_task
                           nfs_fattr_map_and_free_names // idmap ?
                         _nfs4_opendata_to_nfs4_state
+                          nfs4_opendata_find_nfs4_state
+                            nfs4_opendata_get_inode
+                              nfs_fhget
+                                inode->i_flags |= S_NOATIME|S_NOCMTIME
                         d_exact_alias // alias
                         d_splice_alias // alias
                         nfs4_opendata_access // 权限检查
@@ -274,19 +280,32 @@ SYSCALL_DEFINE3(open,
 // 4.19
 SYSCALL_DEFINE3(read,
   ksys_read
+    file_pos_read // 读取当前位置
     vfs_read
+      access_ok // 权限
+      rw_verify_area // 检查区域
       __vfs_read
         new_sync_read
           call_read_iter
             // file->f_op->read_iter
-            // TODO: 找不到 nfs4_file_operations 中的 .read_iter
             nfs_file_read
               generic_file_read_iter
                 // if (iocb->ki_flags & IOCB_DIRECT) {
+                file_accessed // 不更新 access time
+                  touch_atime
+                    atime_needs_update
+                      if (inode->i_flags & S_NOATIME) // 在 nfs_fhget 中设置
+                      return false;
                 // mapping->a_ops->direct_IO
                 nfs_direct_IO
+                  // i am here
                   nfs_file_direct_read
-                    // TODO: nfs block io
+                    get_nfs_open_context
+                    nfs_start_io_direct
+                    nfs_direct_read_schedule_iovec
+                    nfs_end_io_direct
+                    nfs_direct_wait
+                // 缓存
                 generic_file_buffered_read
                   page_cache_sync_readahead
                   find_get_page
@@ -294,6 +313,36 @@ SYSCALL_DEFINE3(read,
                   // TODO: PageReadahead 找不到定义
                   page_cache_async_readahead // 异步预读
                   copy_page_to_iter // 从内核缓存页拷贝到用户内存空间
+      fsnotify_access
+    file_pos_write // 更新位置
+```
+
+```c
+// 3.10
+// nfs
+SYSCALL_DEFINE3(read,
+  vfs_read
+    do_sync_read
+      // filp->f_op->aio_read
+      nfs_file_read
+        generic_file_aio_read
+          do_generic_file_read
+            // mapping->a_ops->readpage
+            nfs_readpage
+              nfs_readpage_from_fscache
+              nfs_readpage_async
+                nfs_pageio_add_request
+                  __nfs_pageio_add_request
+                    nfs_pageio_do_add_request
+                    nfs_pageio_doio
+                      // desc->pg_ops->pg_doio
+                      nfs_generic_pg_readpages
+                        nfs_do_multiple_reads
+                          nfs_do_read
+                            nfs_initiate_read
+                  nfs_do_recoalesce
+            lock_page_killable
+              __lock_page_killable
 ```
 
 ```c
