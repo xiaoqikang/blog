@@ -193,15 +193,63 @@ SYSCALL_DEFINE3(open,
         path_init // 初始化 nameidata，准备开始节点路径查找
         link_path_walk // 路径查找
         do_last // 最后一步
-          // i am here
+          handle_dots
           lookup_fast // 缓存中找
+            __d_lookup_rcu
+            __d_lookup // 非rcu
+            d_revalidate
+              // dentry->d_op->d_revalidate
+              nfs4_lookup_revalidate
+                // reval
+                nfs4_do_lookup_revalidate
+            follow_managed
+          mnt_want_write // 写权限
+            __mnt_want_write
+              mnt_is_readonly // 如果只读，返回 -EROFS
           lookup_open // 创建
+            d_lookup // 寻找 dentry
+            atomic_open
+              // dir->i_op->atomic_open
+              // 第一次打开文件时会执行到这里，且不执行后面的 nfs4_file_open
+              // 第二次打开文件不会执行到这里
+              nfs_atomic_open 
+                nfs_check_flags // 只有 nfs 实现了 check_flags 方法
+                create_nfs_open_context 分配 struct nfs_open_context
+                // NFS_PROTO(dir)->open_context(
+                nfs4_atomic_open
+                  nfs4_do_open
+                    _nfs4_do_open
+                      nfs4_get_state_owner
+                      nfs4_opendata_alloc
+                      _nfs4_open_and_get_state
+                        _nfs4_proc_open
+                          nfs4_run_open_task
+                            nfs4_init_sequence
+                            rpc_run_task
+                              rpc_execute
+                            rpc_wait_for_completion_task
+                          nfs_fattr_map_and_free_names // idmap ?
+                        _nfs4_opendata_to_nfs4_state
+                        d_exact_alias // alias
+                        d_splice_alias // alias
+                        nfs4_opendata_access // 权限检查
+                nfs_finish_open
+              d_lookup_done
+              fsnotify_create
             // dir_inode->i_op->lookup
-            nfs_lookup
+            nfs_lookup // 未执行到这里，atomic_open 执行完就退出
+          follow_managed
+          may_open // 检查
           vfs_open
             do_dentry_open
               // open = f->f_op->open
+              // 第一次打开文件不会执行到这里
+              // 第二次打开文件时会执行到这里，且不执行前面的 nfs_atomic_open
               nfs4_file_open
+                // NFS_PROTO(dir)->open_context
+                nfs4_atomic_open
+                nfs_file_set_open_context
+                nfs_fscache_open_file
               file_ra_state_init // 初始化 file_ra_state
         terminate_walk
       // ref-walk, 使用 RCU 保护散列桶的链表,使用自旋锁保护目录，并且把目录的引用计数加1
