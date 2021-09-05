@@ -298,11 +298,23 @@ SYSCALL_DEFINE3(read,
                       return false;
                 // mapping->a_ops->direct_IO
                 nfs_direct_IO
-                  // i am here
                   nfs_file_direct_read
                     get_nfs_open_context
                     nfs_start_io_direct
                     nfs_direct_read_schedule_iovec
+                      nfs_pageio_add_request
+                        nfs_pageio_add_request_mirror
+                          __nfs_pageio_add_request
+                            nfs_pageio_do_add_request
+                            nfs_pageio_doio
+                              // desc->pg_ops->pg_doio
+                              nfs_generic_pg_pgios
+                                nfs_initiate_pgio
+                                  // hdr->rw_ops->rw_initiate
+                                  nfs_initiate_read
+                                  rpc_run_task
+                                  rpc_wait_for_completion_task
+                          nfs_do_recoalesce
                     nfs_end_io_direct
                     nfs_direct_wait
                 // 缓存
@@ -313,6 +325,18 @@ SYSCALL_DEFINE3(read,
                   // TODO: PageReadahead 找不到定义
                   page_cache_async_readahead // 异步预读
                   copy_page_to_iter // 从内核缓存页拷贝到用户内存空间
+                  // mapping->a_ops->readpage
+                  nfs_readpage
+                    nfs_readpage_async
+                      nfs_pageio_add_request
+                        nfs_pageio_setup_mirroring
+                        nfs_pageio_add_request_mirror
+                          __nfs_pageio_add_request
+                            nfs_pageio_do_add_request
+                            nfs_pageio_doio
+                              // desc->pg_ops->pg_doio
+                              nfs_generic_pg_pgios
+                          nfs_do_recoalesce
       fsnotify_access
     file_pos_write // 更新位置
 ```
