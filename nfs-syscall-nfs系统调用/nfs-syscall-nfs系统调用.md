@@ -170,7 +170,7 @@ nfs4_remote_mount
     nfs_get_cache_cookie
     nfs_get_root
       nfs_fhget
-        inode->i_flags |= S_NOATIME|S_NOCMTIME;
+        inode->i_flags |= S_NOATIME|S_NOCMTIME; // 不更改 access time
     mount_info->set_security
 ```
 
@@ -235,7 +235,7 @@ SYSCALL_DEFINE3(open,
                           nfs4_opendata_find_nfs4_state
                             nfs4_opendata_get_inode
                               nfs_fhget
-                                inode->i_flags |= S_NOATIME|S_NOCMTIME
+                                inode->i_flags |= S_NOATIME|S_NOCMTIME // 不更改 access time
                         d_exact_alias // alias
                         d_splice_alias // alias
                         nfs4_opendata_access // 权限检查
@@ -269,9 +269,6 @@ SYSCALL_DEFINE3(open,
     fd_install // fd 和 file 关联
     putname // 减小 struct filename 引用计数
 ```
-
-# close
-
 
 # read
 
@@ -446,4 +443,35 @@ SYSCALL_DEFINE3(write,
                                 writeback_sb_inodes
                                   __writeback_single_inode
                                     do_writepages
+```
+
+# close
+
+```c
+SYSCALL_DEFINE1(close,
+  __close_fd
+    filp_close
+      // filp->f_op->flush
+      nfs4_file_flush
+      dnotify_flush // 通知
+      fput
+        // schedule_delayed_work(&delayed_fput_work,
+        // static DECLARE_DELAYED_WORK(delayed_fput_work, delayed_fput
+        delayed_fput
+          __fput
+            fsnotify_close // 通知
+            // file->f_op->release
+            nfs_file_release
+              nfs_file_clear_open_context
+                invalidate_inode_pages2
+                put_nfs_open_context_sync
+                  __put_nfs_open_context
+                    // NFS_PROTO(inode)->close_context
+                    nfs4_close_context
+                      nfs4_close_sync
+                        __nfs4_close
+                          nfs4_do_close
+                            rpc_run_task
+                            rpc_wait_for_completion_task
+            file_free
 ```
