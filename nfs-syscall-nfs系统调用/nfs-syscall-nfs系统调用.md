@@ -161,9 +161,7 @@ module_init(init_nfs_fs)
       register_filesystem // nfs
       register_nfs4_fs // nfsv4
         register_filesystem
-
-// TODO
-module_init(init_nfs_v4
+          find_filesystem
 ```
 
 ```c
@@ -183,7 +181,7 @@ SYSCALL_DEFINE5(mount,
 ```c
 // 4.19
 // nfs
-// open("nfs4/thanos", O_RDONLY)           = 3
+// open("nfs4/file", O_RDONLY)           = 3
 SYSCALL_DEFINE3(open,
   // TODO: 干啥的？
   force_o_largefile
