@@ -4,27 +4,6 @@
 # mount
 
 ```c
-// fs/nfs/inode.c
-module_init(init_nfs_fs)
-  init_nfs_fs
-    register_nfs_fs // 注册 nfs 文件系统
-      register_filesystem // nfs
-      register_nfs4_fs // nfsv4
-        register_filesystem
-
-// TODO
-module_init(init_nfs_v4
-```
-
-```c
-// 5.10
-SYSCALL_DEFINE5(mount,
-  do_mount
-    path_mount
-      do_new_mount
-``` 
-
-```c
 // 4.19
 // mount("192.168.122.88:/", "/root/nfs4", "nfs", 0, "vers=4.2,addr=192.168.122.88,cli"...) = 0
 SYSCALL_DEFINE5(mount,
@@ -173,6 +152,32 @@ nfs4_remote_mount
         inode->i_flags |= S_NOATIME|S_NOCMTIME; // 不更改 access time
     mount_info->set_security
 ```
+
+```c
+// fs/nfs/inode.c
+module_init(init_nfs_fs)
+  init_nfs_fs
+    register_nfs_fs // 注册 nfs 文件系统
+      register_filesystem // nfs
+      register_nfs4_fs // nfsv4
+        register_filesystem
+
+// TODO
+module_init(init_nfs_v4
+```
+
+```c
+// 5.10
+SYSCALL_DEFINE5(mount,
+  do_mount
+    path_mount
+      do_new_mount
+        vfs_get_tree
+          nfs4_try_get_tree
+            // do_nfs4_mount(nfs4_create_server
+            nfs4_create_server
+            do_nfs4_mount
+``` 
 
 # open
 ```c
@@ -339,8 +344,8 @@ SYSCALL_DEFINE3(read,
 ```
 
 ```c
-// 3.10
 // nfs
+// 3.10
 SYSCALL_DEFINE3(read,
   vfs_read
     do_sync_read
