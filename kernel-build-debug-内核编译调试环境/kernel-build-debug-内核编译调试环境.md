@@ -100,3 +100,10 @@ sudo mount /dev/nbd0p1 mnt/
 sudo umount mnt
 sudo qemu-nbd --disconnect /dev/nbd0
 ```
+
+xfstests:
+yum -y install libtool -y
+yum install libuuid-devel -y
+yum install xfsprogs-devel -y
+yum install libacl-devel -y
+
