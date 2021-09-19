@@ -102,8 +102,16 @@ sudo qemu-nbd --disconnect /dev/nbd0
 ```
 
 xfstests:
+```shell
 yum -y install libtool -y
 yum install libuuid-devel -y
 yum install xfsprogs-devel -y
 yum install libacl-devel -y
+```
 
+免密ssh
+```shell
+# 在物理机中
+ssh-keygen
+ssh-copy-id root@192.168.122.87
+```

@@ -2,6 +2,20 @@
 
 本文章没有什么高大上的内容，只是一些笔记，方便日后查询。
 
+# 20.04
+
+```shell
+sudo apt install build-essential -y
+sudo apt install vim emacs vim-gtk3 -y
+sudo apt-get install qemu-kvm virt-manager bridge-utils -y
+sudo apt install *ibus*wubi* -y
+sudo apt install libncurses-dev -y
+sudo apt install bison -y
+sudo apt install flex -y
+sudo apt install libelf-dev -y
+sudo apt-get install libssl-dev -y
+```
+
 # git仓库迁移
 
 git远程仓库迁移时，当有多个分支时，需要一个一个分支上传，不仅耗时又容易出错。
@@ -215,18 +229,6 @@ obase=A
 scale=3
 ```
 
-# ubuntu挂载samba
-
-```shell
-sudo mount -o username=sonvhi -t cifs //192.168.122.1/forVM /mnt
-```
-
-如果无法挂载，安装以下软件：
-
-```shell
-sudo apt install cifs-utils -y
-```
-
 # fedora安装画图软件
 
 ```shell
@@ -296,6 +298,7 @@ sudo vim /usr/lib/systemd/zram-generator.conf
         smtpencryption = ssl
         smtppass = 此处填写qq邮箱的授权密码
 ```
+
 
 
 

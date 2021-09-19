@@ -59,3 +59,4 @@ Windows系统下，在Windows资源管理器中输入 `\\192.168.122.1\forVM` �
 
 macOS系统下，在Finder中按快捷键cmd+k，跳出Connect to Server窗口，输入`smb://192.168.122.1/forVM` （192.168.122.1为Linux系统的ip，forVM是配置文件里的选项名称）就可访问Linux系统的文件。
 
+Linux系统下，安装 `sudo apt install cifs-utils -y`，挂载: `sudo mount -t cifs -o username=sonvhi //192.168.122.1/forVM forVM`
