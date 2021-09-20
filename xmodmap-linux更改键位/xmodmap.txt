@@ -1,3 +1,5 @@
+! vscode escape 不生效，解决办法：设置 Keyboard:Dispatch 修改成 keyCode
+
 ! clear shift  
 clear lock   
 clear control
