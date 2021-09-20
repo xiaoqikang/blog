@@ -21,7 +21,7 @@ Linux一直坚持采用对称多处理器模型，内核不会对某个cpu有任
 
 > 这个图是从pdf书上截图的
 
-![](https://gitee.com/lioneie/blog/raw/master/cpu%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/%E8%B0%83%E5%BA%A6%E5%9F%9F%E5%88%86%E5%B1%82%E7%9A%843%E4%B8%AA%E5%AE%9E%E4%BE%8B.png)
+![](https://gitee.com/chenxiaosonggitee/blog/raw/master/cpu%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/%E8%B0%83%E5%BA%A6%E5%9F%9F%E5%88%86%E5%B1%82%E7%9A%843%E4%B8%AA%E5%AE%9E%E4%BE%8B.png)
 
 所有物理cpu调度域描述符存放在每cpu变量中：
 

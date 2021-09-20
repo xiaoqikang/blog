@@ -25,7 +25,7 @@ $ sudo yum install ibus*wubi* -y
 
 Linux下的极点五笔输入法，四码唯一不自动上屏，只需要修改为：Details -> Auto commit mode: **Normal**
 
-<img src="https://gitee.com/lioneie/blog/raw/master/wubi-%E4%BA%94%E7%AC%94%E8%BE%93%E5%85%A5%E6%B3%95/%E6%9E%81%E7%82%B9%E4%BA%94%E7%AC%94%E8%BE%93%E5%85%A5%E6%B3%95%E9%85%8D%E7%BD%AE.png" width="60%" />
+<img src="https://gitee.com/chenxiaosonggitee/blog/raw/master/wubi-%E4%BA%94%E7%AC%94%E8%BE%93%E5%85%A5%E6%B3%95/%E6%9E%81%E7%82%B9%E4%BA%94%E7%AC%94%E8%BE%93%E5%85%A5%E6%B3%95%E9%85%8D%E7%BD%AE.png" width="60%" />
 
 Fedora系统五笔输入法，如果按右shift键，会变成拼音输入法（当然，不是智能拼音）。
 
@@ -35,7 +35,7 @@ Fedora系统五笔输入法，如果按右shift键，会变成拼音输入法（
 
 用五笔很多年了，已经不需要字根助记词了，但。。。毕竟曾经背诵过，还是把图贴出来，86版五笔：
 
-![](https://gitee.com/lioneie/blog/raw/master/wubi-%E4%BA%94%E7%AC%94%E8%BE%93%E5%85%A5%E6%B3%95/%E4%BA%94%E7%AC%94.PNG)
+![](https://gitee.com/chenxiaosonggitee/blog/raw/master/wubi-%E4%BA%94%E7%AC%94%E8%BE%93%E5%85%A5%E6%B3%95/%E4%BA%94%E7%AC%94.PNG)
 
 # 最后
 

@@ -8,7 +8,7 @@
 
 p733
 
-<img src="https://gitee.com/lioneie/blog/raw/master/study-notes-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/pictures/Ext2%E5%88%86%E5%8C%BA%E5%92%8CExt2%E5%9D%97%E7%BB%84%E7%9A%84%E5%88%86%E5%B8%83%E5%9B%BE.png" width="66%" />
+<img src="https://gitee.com/chenxiaosonggitee/blog/raw/master/study-notes-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/pictures/Ext2%E5%88%86%E5%8C%BA%E5%92%8CExt2%E5%9D%97%E7%BB%84%E7%9A%84%E5%88%86%E5%B8%83%E5%9B%BE.png" width="66%" />
 
 块位图中有 `8*b` 个位，所以每组中也有 `8*b` 个块，其中 `b` 是块大小（单位Byte）。
 
@@ -28,7 +28,7 @@ p733
 
 p733
 
-<img src="https://gitee.com/lioneie/blog/raw/master/study-notes-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/pictures/Ext2%E5%88%86%E5%8C%BA%E5%92%8CExt2%E5%9D%97%E7%BB%84%E7%9A%84%E5%88%86%E5%B8%83%E5%9B%BE.png" width="66%" />
+<img src="https://gitee.com/chenxiaosonggitee/blog/raw/master/study-notes-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/pictures/Ext2%E5%88%86%E5%8C%BA%E5%92%8CExt2%E5%9D%97%E7%BB%84%E7%9A%84%E5%88%86%E5%B8%83%E5%9B%BE.png" width="66%" />
 
 ```c
 // include/linux/ext2_fs.h 
@@ -61,7 +61,7 @@ struct ext2_super_block {
 
 p735
 
-<img src="https://gitee.com/lioneie/blog/raw/master/study-notes-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/pictures/Ext2%E5%88%86%E5%8C%BA%E5%92%8CExt2%E5%9D%97%E7%BB%84%E7%9A%84%E5%88%86%E5%B8%83%E5%9B%BE.png" width="66%" />
+<img src="https://gitee.com/chenxiaosonggitee/blog/raw/master/study-notes-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/pictures/Ext2%E5%88%86%E5%8C%BA%E5%92%8CExt2%E5%9D%97%E7%BB%84%E7%9A%84%E5%88%86%E5%B8%83%E5%9B%BE.png" width="66%" />
 
 ```c
 // include/linux/ext2_fs.h
@@ -82,7 +82,7 @@ struct ext2_group_desc
 
 p736
 
-<img src="https://gitee.com/lioneie/blog/raw/master/study-notes-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/pictures/Ext2%E5%88%86%E5%8C%BA%E5%92%8CExt2%E5%9D%97%E7%BB%84%E7%9A%84%E5%88%86%E5%B8%83%E5%9B%BE.png" width="66%" />
+<img src="https://gitee.com/chenxiaosonggitee/blog/raw/master/study-notes-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/pictures/Ext2%E5%88%86%E5%8C%BA%E5%92%8CExt2%E5%9D%97%E7%BB%84%E7%9A%84%E5%88%86%E5%B8%83%E5%9B%BE.png" width="66%" />
 
 ```c
 // include/linux/ext2_fs.h

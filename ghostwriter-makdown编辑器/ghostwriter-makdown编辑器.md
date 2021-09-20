@@ -8,7 +8,7 @@
 
 我刚解决了一个**严重的preview显示缺陷**，大家可以先使用源码安装。
 
-[github源码](https://github.com/lioneie/ghostwriter.git)（forked from [wereturtle/ghostwriter](https://github.com/wereturtle/ghostwriter)）,如果github无法访问也可以从[gitee源码](https://gitee.com/lioneie/ghostwriter.git)获取。
+[github源码](https://github.com/lioneie/ghostwriter.git)（forked from [wereturtle/ghostwriter](https://github.com/wereturtle/ghostwriter)）,如果github无法访问也可以从[gitee源码](https://gitee.com/chenxiaosonggitee/ghostwriter.git)获取。
 
 # Fedora下安装
 

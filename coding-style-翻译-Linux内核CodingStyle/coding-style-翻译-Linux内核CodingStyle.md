@@ -1,6 +1,6 @@
 [toc]
 
-> 本文是翻译自[内核源码](https://gitee.com/lioneie/linux-next)的[Documentation/process/coding-style.rst](https://gitee.com/lioneie/linux-next/blob/master/Documentation/process/coding-style.rst)（最后的提交时间是2021年2月12日）。
+> 本文是翻译自[内核源码](https://gitee.com/chenxiaosonggitee/linux-next)的[Documentation/process/coding-style.rst](https://gitee.com/chenxiaosonggitee/linux-next/blob/master/Documentation/process/coding-style.rst)（最后的提交时间是2021年2月12日）。
 >
 > 网上虽然已经有很多人做了很好的翻译，但都是**很早的**版本，所以我还是想自己翻译一次**最新的**编码风格（当然，我借助了某歌翻译），让自己加深印象。
 >
