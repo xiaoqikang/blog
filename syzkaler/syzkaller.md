@@ -15,3 +15,5 @@ CONFIG_E1000E_HWTS=y
 
 CONFIG_BINFMT_MISC=y
 ```
+
+配置： https://github.com/google/syzkaller/blob/master/pkg/mgrconfig/config.go
