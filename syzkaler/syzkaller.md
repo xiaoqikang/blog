@@ -17,3 +17,8 @@ CONFIG_BINFMT_MISC=y
 ```
 
 配置： https://github.com/google/syzkaller/blob/master/pkg/mgrconfig/config.go
+
+复现：
+```shell
+./syz-execprog -executor=./syz-executor -repeat=0 -procs=16 -cover=0 ./log0
+```
