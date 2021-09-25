@@ -21,11 +21,13 @@ keycode  105 = Mode_switch
 keycode 48 = Control_R
 ! Caps_Lock to Control_L
 keycode 66 = Control_L
+! Alt_R to Insert
+keycode 108 = Insert Insert Alt_R Alt_R
 
 ! add shift       = Shift_L  Shift_R
 ! add lock        = Caps_Lock
 add control     = Control_L Control_R
-add mod1        = Alt_L
+add mod1        = Alt_L Alt_R
 ! add mod2        = Num_Lock
 ! add mod3      
 add mod4        = Super_L Super_R Super_L Hyper_L
@@ -45,8 +47,6 @@ keycode  56 = b B Prior Prior
 keycode  47 = semicolon colon apostrophe apostrophe
 !             Enter  no       "        "
 keycode  36 = Return NoSymbol quotedbl quotedbl
-! Alt_R to Insert
-keycode 108 = Insert Insert
 ! Escape disable
 keycode  9 = 
 ! Delete disable
