@@ -299,7 +299,18 @@ sudo vim /usr/lib/systemd/zram-generator.conf
         smtppass = 此处填写qq邮箱的授权密码
 ```
 
+# terminal 重命名
 
+```shell
+# 注意： 把这个函数放在 ~/.bash_profile 中, 在命令行中执行 title name
+function title() {
+        if [[ -z "$ORIG" ]]; then
+                ORIG=$PS1
+        fi
+        TITLE="\[\e]2;$*\a\]"
+        PS1=${ORIG}${TITLE}
+}
+```
 
 
 
