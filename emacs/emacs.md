@@ -9,7 +9,6 @@ M-x     命令名扩展。M-x 之后输入一个命令
 
 字符界面启动： emacs -nw
 
-```
 退出： C-x C-c
 取消： C-g
 取消ESC： 再按再次ESC
@@ -33,7 +32,8 @@ C-f 帮助文档： C-h k C-f
 删除单词： M-<DEL>, M-d
 删除到行尾句尾： C-k（再次按删除换行）, M-k
 
-选择文字移除： C-@（C-<SPC）移动光标后 C-w
+移除选择文字： C-@（C-<SPC>）移动光标后 C-w
+复制选择文字： C-@ 移动光标后 M-w
 召回yanking： C-y
 召回以前的： M-y
 撤销undo： C-/ 或 C-x u 或 C-_
@@ -58,7 +58,8 @@ C-f 帮助文档： C-h k C-f
 
 向上向下搜索： C-r, C-s
 
-C-x 1 关闭其他窗格（只保留当前窗格）
+关闭当前窗口： C-x 0
+关闭其他窗格（只保留当前窗格）: C-x 1 
 上下两个窗格： C-x 2
 左右两个窗格： C-x 3
 在其他窗格打开文件： C-x 4 C-f
@@ -77,5 +78,34 @@ C-x 1 关闭其他窗格（只保留当前窗格）
 相关命令搜索（Command Apropos）： C-h a
 手册： C-h i emacs使用手册 m emacs
 emacs使用手册： C-h r
+
+剪切矩形块： C-@ 选择后 C-x r k
+粘贴矩形块： C-x r y
+插入空格矩形块(向右移)： C-x r o
+清除矩形块（变成空格）： C-x r c
+插入文字（相当于vim的ctrl+v+大写i）: C-x r t
+
+高亮： M-x highlight-symbol-at-point
+取消高亮： M-x unhighlight-regexp
+highlight regexp: C-x w h
+highlight phrase: C-x w p
+highlight lines:  C-x w l
+highlight symbol at point: C-x w .
+remove highlighting: C-x w r
+pattern to buffer:   C-x w b
+pattern from buffer: C-x w i
+
+跳到指定行： M-g g
+
+键盘宏： 
+	开始录制： C-x (
+	结束录制： C-x )
+	重复：     C-u 8 C-x e
+
+折叠： M-x 然后 hs-hide-all, hs-show-all, hs-hide-block, hs-show-block, hs-toggle-hidding
+
+
 ```
 
+emacs待确认功能：
+4. cscope
