@@ -1,5 +1,6 @@
 [toc]
 
+```
 C-<chr>
 
 M-<chr> 等效 ESC放开后<chr>
@@ -16,7 +17,7 @@ M-x     命令名扩展。M-x 之后输入一个命令
 下一屏： C-v
 上一屏： M-v
 滚动几行： C-u 8 C-v, C-u 8 M-v
-光标所在行 中间-顶端-底端 切换： C-L
+光标所在行 中间-顶端-底端 切换： C-l
 
 上下左右： C-p, C-n, C-b, C-f
 移动单词： M-f, M-b
@@ -107,5 +108,3 @@ pattern from buffer: C-x w i
 
 ```
 
-emacs待确认功能：
-4. cscope
