@@ -22,7 +22,9 @@ keycode 48 = Control_R
 ! Caps_Lock to Control_L
 keycode 66 = Control_L
 ! Alt_R to Insert
-keycode 108 = Insert Insert Alt_R Alt_R
+keycode 108 = Alt_R Alt_R Insert Insert
+! Alt_L to Insert
+keycode  64 = Alt_L Alt_L Insert Insert
 
 ! add shift       = Shift_L  Shift_R
 ! add lock        = Caps_Lock
