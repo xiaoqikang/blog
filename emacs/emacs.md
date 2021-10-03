@@ -113,8 +113,13 @@ pattern from buffer: C-x w i
 寻找括号的另一边（注意：开始的括号要在光标里，结束的括号要在光标前）： C-M-n, C-M-p
 
 查看buffer所在目录： C-x C-d
+
+补全： M-/
+
+redo： C-g 后 再 C-/
+
+模式： M-x c-mode, M-x fundamental-mode
 ```
 
 待确认的功能：
-1. redo
-2. 补全
+3. 缩进折叠
