@@ -77,7 +77,7 @@ C-f 帮助文档： C-h k C-f
 离开递归编辑： 3次ESC
 
 帮助： C-h C-h 或 C-h ? 或 F1 F1 或 M-x help
-命令名称： C-h c C-p 上一行命令名称
+命令名称： C-h c C-p
 命令帮助： C-h k C-p
 函数： C-h f previous-line
 变量： C-h v
