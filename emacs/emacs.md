@@ -1,5 +1,9 @@
 [toc]
 
+load path: https://www.emacswiki.org/emacs/LoadPath
+
+折叠： https://wikemacs.org/wiki/Folding
+
 ```
 C-<chr>
 
@@ -46,6 +50,7 @@ C-f 帮助文档： C-h k C-f
 选择缓冲区： C-x b
 保存当前缓冲区： C-x C-s
 保存多个缓冲区： C-x s
+在列表中删除缓冲区： 标记为删除 d, 标记为保留 m, 删除 x
 
 替换： M-% 或 M-x replace-string
 
@@ -105,6 +110,11 @@ pattern from buffer: C-x w i
 
 折叠： M-x 然后 hs-hide-all, hs-show-all, hs-hide-block, hs-show-block, hs-toggle-hidding
 
+寻找括号的另一边（注意：开始的括号要在光标里，结束的括号要在光标前）： C-M-n, C-M-p
 
+查看buffer所在目录： C-x C-d
 ```
 
+待确认的功能：
+1. redo
+2. 补全
