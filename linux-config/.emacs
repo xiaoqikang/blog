@@ -14,17 +14,14 @@
 ;; (setq-default indent-tabs-mode nil) ;; tab转为空格
 (setq-default tab-width 8) ;; 一个tab显示的宽度
 (load-theme 'manoj-dark) ;; colorscheme
-;; (add-hook 'c-mode-common-hook   'hs-minor-mode)
-(add-hook 'c-mode-common-hook   'outline-minor-mode)
-(global-set-key (kbd "TAB") 'self-insert-command)
+(add-hook 'c-mode-common-hook   'outline-minor-mode) ;; 按indent折叠
+;; (add-hook 'c-mode-common-hook   'hs-minor-mode) ;; 按语法折叠
+(global-set-key (kbd "TAB") 'self-insert-command) ;; 插入 tab
 
 ;; cp /home/sonvhi/chenxiaosong/code/cscope/contrib/xcscope/cscope-indexer /home/sonvhi/chenxiaosong/sw/cscope/bin/
 (add-to-list 'load-path "/home/sonvhi/chenxiaosong/code/cscope/contrib/xcscope")
 (setq cscope-do-not-update-database t) ;; 不自动更新
 (require 'xcscope)
-
-(require 'vimrc-mode)
-(add-to-list 'auto-mode-alist '("\\.vim\\(rc\\)?\\'" . vimrc-mode))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
