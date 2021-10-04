@@ -2,7 +2,7 @@
 	email = chenxiaosongemail@foxmail.com
 	name = ChenXiaoSong
 [core]
-	editor = vim
+	editor = emacs
 	quotepath = false
 [sendemail]
 	from = chenxiaosongemail@foxmail.com
