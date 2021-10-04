@@ -119,7 +119,10 @@ pattern from buffer: C-x w i
 redo： C-g 后 再 C-/
 
 模式： M-x c-mode, M-x fundamental-mode
+
+折叠缩进(配合outline-minor-mode)： M-x c-mode, M-x evil-mode
+
+复制到 clipboard： C-@ 选择后 M-x copy-rectange-to-register 选择寄存器值（如8），然后在一个新的空的窗格 M-x insert-register 选择寄存器值（如8），然后再全选复制到 clipboard （M-w）
 ```
 
 待确认的功能：
-3. 缩进折叠
