@@ -1,4 +1,4 @@
-array=(.vimrc .emacs .bash_profile .gitconfig)
+array=(.origin_xmodmap.txt .xmodmap.txt .vimrc .emacs .bash_profile .gitconfig)
 
 dst_dir=$1
 if [ -z "$dst_dir" ]
