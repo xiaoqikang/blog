@@ -15,21 +15,13 @@
 (setq-default tab-width 8) ;; 一个tab显示的宽度
 (load-theme 'manoj-dark) ;; colorscheme
 (add-hook 'c-mode-common-hook   'hs-minor-mode)
+;; (add-hook 'c-mode-common-hook   'outline-minor-mode)
 
 ;; cp /home/sonvhi/chenxiaosong/code/cscope/contrib/xcscope/cscope-indexer /home/sonvhi/chenxiaosong/sw/cscope/bin/
 (add-to-list 'load-path "/home/sonvhi/chenxiaosong/code/cscope/contrib/xcscope")
 (setq cscope-do-not-update-database t) ;; 不自动更新
 (require 'xcscope)
 
-;; (add-to-list 'load-path "/home/sonvhi/chenxiaosong/code/lisp/evil")
-;; (require 'evil)
-;; (evil-mode 1)
-;; (add-hook 'c-mode-common-hook   'outline-minor-mode)
-
-;; (require 'folding)
-
-;; (add-to-list 'load-path "/home/sonvhi/chenxiaosong/code/lisp/yafolding.el")
-;; (require 'yafolding)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
