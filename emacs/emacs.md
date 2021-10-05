@@ -1,8 +1,5 @@
 [toc]
 
-load path: https://www.emacswiki.org/emacs/LoadPath
-
-折叠： https://wikemacs.org/wiki/Folding
 
 ```
 C-<chr>
@@ -16,7 +13,7 @@ M-x     命令名扩展。M-x 之后输入一个命令
 
 退出： C-x C-c
 取消： C-g
-取消ESC： 再按再次ESC
+取消ESC： 再按两次ESC
 
 下一屏： C-v
 上一屏： M-v
@@ -127,4 +124,4 @@ redo： C-g 后 再 C-/
 ```
 
 待确认的功能：
-1. 运行时改变 tab 插入空格，空格个数
+1. 运行时改变 tab 插入空格，空格个数： 暂时通过复制上一行的方式来实现

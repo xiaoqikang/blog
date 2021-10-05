@@ -22,6 +22,15 @@
 (add-to-list 'load-path "/home/sonvhi/chenxiaosong/code/cscope/contrib/xcscope")
 (setq cscope-do-not-update-database t) ;; 不自动更新
 (require 'xcscope)
+(global-set-key (kbd "C-c s g") 'cscope-find-global-definition) ;; 打开空白文件时，找不到 cscope 快捷键
+
+(global-set-key (kbd "C-c e t") 'evil-mode) ;; toggle
+(global-set-key (kbd "C-c e z c") 'evil-close-fold)
+(global-set-key (kbd "C-c e z m") 'evil-close-folds)
+(global-set-key (kbd "C-c e z o") 'evil-open-fold)
+(global-set-key (kbd "C-c e z O") 'evil-open-fold-rec)
+(global-set-key (kbd "C-c e z r") 'evil-open-folds)
+(global-set-key (kbd "C-c e z a") 'evil-toggle-fold)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
