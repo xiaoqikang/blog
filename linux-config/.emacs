@@ -31,6 +31,8 @@
 (global-set-key (kbd "C-c e z O") 'evil-open-fold-rec)
 (global-set-key (kbd "C-c e z r") 'evil-open-folds)
 (global-set-key (kbd "C-c e z a") 'evil-toggle-fold)
+(global-set-key (kbd "C-c e C-o") 'evil-jump-backward)
+(global-set-key (kbd "C-c e C-i") 'evil-jump-forward)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
