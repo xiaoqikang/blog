@@ -10,7 +10,7 @@
 
 (global-linum-mode) ;; 显示行号
 (setq make-backup-files nil) ;; 保存时不创建备份文件
-(when (fboundp 'electric-indent-mode) (electric-indent-mode -1)) ;; 换行不自动缩进
+;; (when (fboundp 'electric-indent-mode) (electric-indent-mode -1)) ;; 换行不自动缩进
 ;; (setq-default indent-tabs-mode nil) ;; tab转为空格
 (setq-default tab-width 8) ;; 一个tab显示的宽度
 (load-theme 'manoj-dark) ;; colorscheme
