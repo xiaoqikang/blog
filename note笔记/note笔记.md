@@ -312,6 +312,13 @@ function title() {
 }
 ```
 
+# qemu 源码编译
+
+```shell
+sudo apt install ninja-build -y
+sudo apt-get install libglib2.0-dev -y
+sudo apt-get install libpixman-1-dev -y
+```
 
 
 
