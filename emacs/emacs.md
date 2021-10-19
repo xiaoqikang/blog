@@ -89,15 +89,8 @@ emacs使用手册： C-h r
 清除矩形块（变成空格）： C-x r c
 插入文字（相当于vim的ctrl+v+大写i）: C-x r t
 
-高亮： M-x highlight-symbol-at-point
+高亮： M-x highlight-regexp
 取消高亮： M-x unhighlight-regexp
-highlight regexp: C-x w h
-highlight phrase: C-x w p
-highlight lines:  C-x w l
-highlight symbol at point: C-x w .
-remove highlighting: C-x w r
-pattern to buffer:   C-x w b
-pattern from buffer: C-x w i
 
 跳到指定行： M-g g
 
