@@ -37,6 +37,41 @@ unlinkat
                     ext4_do_update_inode
                   ext4_error_inode_err
             goto stop_handle // truncate 失败， 停止处理
+
+// 写数据更新 inode->i_blocks 的过程
+write
+  vfs_write
+    __vfs_write
+      ext4_file_write_iter
+        __generic_file_write_iter
+          generic_perform_write
+            ext4_write_begin
+              ext4_block_write_begin
+                ext4_get_block
+                  _ext4_get_block
+                    ext4_map_blocks
+                      ext4_ind_map_blocks
+                        ext4_mb_new_blocks
+                          __dquot_alloc_space
+                            inode_add_bytes
+                              __inode_add_bytes // 更新 i_blocks
+
+// truncate 文件更新 inode->i_blocks 的过程
+open
+  do_sys_open
+    do_filp_open
+      path_openat
+        do_truncate
+          notify_change
+            ext4_setattr
+              ext_truncate
+                ext4_ind_truncate
+                  ext4_free_data
+                    ext4_clear_blocks
+                      ext4_free_blocks
+                        __dquot_free_space
+                          inode_sub_bytes
+                            __inode_sub_bytes // 更新 i_blocks
 ```
 
 ```shell
@@ -72,4 +107,108 @@ open
               ext4_lookup
                 __ext4_iget
                   ext4_inode_blocks
+```
+
+`touch file`:
+```c
+open
+  do_sys_open
+    do_sys_openat2
+      do_filp_open
+        path_openat
+          open_last_lookups
+            lookup_open
+              ext4_create
+                __ext4_new_inode
+                  ext4_ext_tree_init
+                    __ext4_mark_inode_dirty
+                      ext4_mark_iloc_dirty
+                        ext4_do_update_inode
+                          ext4_fill_raw_inode
+                            ext4_inode_blocks_set
+                              inode->i_blocks == 0
+                  __ext4_mark_inode_dirty
+                    ext4_mark_iloc_dirty
+                      ext4_do_update_inode
+                        ext4_fill_raw_inode
+                          ext4_inode_blocks_set
+                            inode->i_blocks == 0
+                ext4_add_nondir
+                  ext4_add_entry
+                    add_dirent_to_buf
+                      __ext4_mark_inode_dirty
+                        ext4_mark_iloc_dirty
+                          ext4_do_update_inode
+                            ext4_fill_raw_inode
+                              ext4_inode_blocks_set
+                                inode->i_blocks == 2
+                  __ext4_mark_inode_dirty
+                    ext4_mark_iloc_dirty
+                      ext4_do_update_inode
+                        ext4_fill_raw_inode
+                          ext4_inode_blocks_set
+                            inode->i_blocks == 0
+
+utimensat
+  do_utimes
+    do_utimes_fd
+      vfs_utimes
+        notify_change
+          ext4_setattr
+            mark_inode_dirty
+              __mark_inode_dirty
+                ext4_dirty_inode
+                  __ext4_mark_inode_dirty
+                    ext4_mark_iloc_dirty
+                      ext4_do_update_inode
+                        ext4_fill_raw_inode
+                          ext4_inode_blocks_set
+                            inode->i_blocks == 0
+```
+
+`rm file -rf`
+```c
+unlinkat
+  do_unlinkat
+    iput
+      iput_final
+        evict
+          ext4_evict_inode
+            __ext4_mark_inode_dirty
+              ext4_mark_iloc_dirty
+                ext4_do_update_inode
+                  ext4_fill_raw_inode
+                    ext4_inode_blocks_set
+                      inode->i_blocks == 2
+            ext4_truncate
+              ext4_ext_truncate
+                __ext4_mark_inode_dirty
+                  ext4_mark_iloc_dirty
+                    ext4_do_update_inode
+                      ext4_fill_raw_inode
+                        ext4_inode_blocks_set
+                          inode->i_blocks == 2
+                ext4_ext_remove_space
+                  ext4_ext_rm_leaf
+                    ext4_remove_blocks
+                      ext4_free_blocks
+                        ext4_mb_clear_bb
+                          dquot_free_block
+                            dquot_free_space
+                              mark_inode_dirty_sync
+                                __mark_inode_dirty
+                                  ext4_dirty_inode
+                                    __ext4_mark_inode_dirty
+                                      ext4_mark_iloc_dirty
+                                        ext4_do_update_inode
+                                          ext4_fill_raw_inode
+                                            ext4_inode_blocks_set
+                                              inode->i_blocks == 0
+                    __ext4_ext_dirty
+                      __ext4_mark_inode_dirty
+                        ext4_mark_iloc_dirty
+                          ext4_do_update_inode
+                            ext4_fill_raw_inode
+                              ext4_inode_blocks_set
+                                inode->i_blocks == 0
 ```
