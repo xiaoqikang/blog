@@ -260,3 +260,11 @@ docker image ls
 docker run --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp centos-7.5-kernel:latest make
 docker run -0-rm it -v $PWD:/usr/src/myapp -w /usr/src/myapp centos-7.5-kernel:latest bash # 进入docker bash
 ```
+
+# virtualbox
+
+```shell
+vboxmanage internalcommands sethduuid Fedora-Workstation-Live-x86_64-34-1.2.vmdk # 多个磁盘的 uuid 一样时无法同时新建虚拟机, 需要更新 uuid
+vboxmanage list vms
+VBoxManage modifyvm "fedora34" --nested-hw-virt on # 注意：前面一定不能加sudo
+```

@@ -4,6 +4,7 @@ kernel_version=x86_64-linux
 
 qemu-system-x86_64 \
 -enable-kvm \
+-cpu host \
 -smp 16 \
 -m 4096 \
 -kernel /home/sonvhi/chenxiaosong/code/$kernel_version/arch/x86/boot/bzImage \
