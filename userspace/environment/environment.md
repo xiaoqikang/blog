@@ -148,3 +148,11 @@ yum repolist all # （查看所有配置可以使用的文件，会自动刷新�
 yum groupinstall "Development Tools" -y
 yum install ncurses-devel -y
 ```
+
+# virtualbox
+
+```shell
+vboxmanage internalcommands sethduuid Fedora-Workstation-Live-x86_64-34-1.2.vmdk # 多个磁盘的 uuid 一样时无法同时新建虚拟机, 需要更新 uuid
+vboxmanage list vms
+VBoxManage modifyvm "fedora34" --nested-hw-virt on # 注意：前面一定不能加sudo
+```
