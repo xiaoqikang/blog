@@ -47,3 +47,36 @@ perf ftrace -a -G nfs_getattr > ftrace # 查看调用时间
 ```c
 check_hung_task
 ```
+
+# statfs
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/statfs.h>
+
+int main(int argc, char **argv)
+{
+        struct statfs st;
+
+        if (statfs("/mnt", &st) < 0) {
+                return 1;
+        }
+        printf("f_blocks:%ld, f_bfree:%ld, f_bavail:%ld\n", st.f_blocks, st.f_bfree, st.f_bavail);
+        printf("f_bsize:%ld, f_bsize * (f_blocks:%ld, f_bfree:%ld, f_bavail:%ld)\n", st.f_bsize, st.f_bsize * st.f_blocks, st.f_bsize * st.f_bfree, st.f_bsize * st.f_bavail);
+}
+```
+
+```shell
+# df
+Filesystem     1K-blocks      Used Available Use% Mounted on
+/dev/ubi0_0       112736     80688     27208  75% /mnt
+
+# ./a.out
+f_blocks:28184, f_bfree:8012, f_bavail:6802
+f_bsize:4096, f_bsize * (f_blocks:115441664, f_bfree:32817152, f_bavail:27860992)
+```
+
+27208*1024 = 27860992
