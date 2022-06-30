@@ -66,6 +66,8 @@ int main(int argc, char **argv)
         }
         printf("f_blocks:%ld, f_bfree:%ld, f_bavail:%ld\n", st.f_blocks, st.f_bfree, st.f_bavail);
         printf("f_bsize:%ld, f_bsize * (f_blocks:%ld, f_bfree:%ld, f_bavail:%ld)\n", st.f_bsize, st.f_bsize * st.f_blocks, st.f_bsize * st.f_bfree, st.f_bsize * st.f_bavail);
+
+        return 0;
 }
 ```
 
@@ -74,9 +76,13 @@ int main(int argc, char **argv)
 Filesystem     1K-blocks      Used Available Use% Mounted on
 /dev/ubi0_0       112736     80688     27208  75% /mnt
 
+strace df /mnt # 输出 statfs("/mnt", {f_type=UBIFS_SUPER_MAGIC, f_bsize=4096, f_blocks=28184, f_bfree=8012, f_bavail=6802, f_files=0, f_ffree=0, f_fsid={val=[1363364819, 1127210110]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|STT_SYNCHRONOUS|ST_RELATIME}) = 0
+
 # ./a.out
 f_blocks:28184, f_bfree:8012, f_bavail:6802
 f_bsize:4096, f_bsize * (f_blocks:115441664, f_bfree:32817152, f_bavail:27860992)
+
+strace ./a.out # 输出 statfs("/mnt", {f_type=UBIFS_SUPER_MAGIC, f_bsize=4096, f_blocks=28184, f_bfree=8012, f_bavail=6802, f_files=0, f_ffree=0, f_fsid={val=[1363364819, 1127210110]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|STT_SYNCHRONOUS|ST_RELATIME}) = 0
 ```
 
 27208*1024 = 27860992
