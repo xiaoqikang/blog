@@ -61,6 +61,26 @@ kthread
           nfs41_proc_reclaim_complete
 ```
 
+只会在 `nfs4_state_mark_open_context_bad` 中设置 `NFS_CONTEXT_BAD` 标记，只有在 nfs server 重启后状态恢复才会执行到，而文件的 `struct nfs_open_context` 在文件关闭后就销毁了，再次打开文件后 `struct nfs_open_context` 重新分配，流程如下：
+```c
+open
+  do_sys_open
+    do_sys_openat2
+      do_filp_open
+        path_openat
+          open_last_lookups
+            lookup_open
+              atomic_open // 挂载后第一次打开文件时执行到这里
+                nfs_atomic_open
+                  create_nfs_open_context
+                    alloc_nfs_open_context // 初始化 struct nfs_open_context
+          do_open
+            vfs_open
+              do_dentry_open
+                nfs4_file_open // 挂载后第二次打开文件执行到这里
+                  alloc_nfs_open_context // 初始化 struct nfs_open_context
+```
+
 server重启时的处理流程：
 ```c
 kthread

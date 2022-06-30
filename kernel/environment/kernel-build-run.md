@@ -226,12 +226,10 @@ sudo ip tuntap del tap0 mode tap
 sudo ip tuntap list
 ```
 
-bullseye aarch64 `/etc/network/interfaces` 需要把 `eth0` 改成 `enp0s1`(通过`dmesg | grep -i eth`找到`enp0s1`):
-```shell
-source /etc/network/interfaces.d/*
+bullseye aarch64 `/etc/network/interfaces` 需要把 `eth0` 改成 `enp0s1`(通过`dmesg | grep -i eth`找到`enp0s1`)
 
-auto enp0s1
-iface enp0s1 inet dhcp
+```shell
+apt-get install qemu qemu-kvm bridge-utils qemu-system -y
 ```
 
 # mod_cfg.sh
