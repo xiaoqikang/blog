@@ -156,3 +156,12 @@ vboxmanage internalcommands sethduuid Fedora-Workstation-Live-x86_64-34-1.2.vmdk
 vboxmanage list vms
 VBoxManage modifyvm "fedora34" --nested-hw-virt on # 注意：前面一定不能加sudo
 ```
+
+# virt-manager
+
+Edit -> Preferences -> Enable XML editing 开启 xml 编辑
+
+修改 xml 配置：
+```xml
+<cpu mode="host-passthrough" check="partial"/>
+```
