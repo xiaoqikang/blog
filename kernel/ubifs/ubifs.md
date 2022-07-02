@@ -35,7 +35,7 @@ modprobe nandsim id_bytes="0xec,0xa1,0x00,0x15" # 128M 128KB 2KB
 # modprobe nandsim id_bytes="0x20,0xa5,0x00,0x26" # 4G 256KB 4KB 1KB-sub-page
 # modprobe nandsim id_bytes="0x20,0xa7,0x00,0x15" # 4G 256KB 4KB 2KB-sub-page
 # modprobe nandsim id_bytes="0x20,0x33,0x00,0x00" # 16M 16KB PEB, 512 page
-modprobe ubi mtd="0,2048" #fm_autoconvert # 0,4096 表示 ubi0 设备 header 长度 4096。 1,2048 表示 表示 ubi1设备 header 长度 2048
+modprobe ubi mtd="0,4096" #fm_autoconvert # 0,4096 表示 ubi0 设备 header 长度 4096。 1,2048 表示 表示 ubi1设备 header 长度 2048
 ubimkvol -N vol_a -m -n 0 /dev/ubi0
 modprobe ubifs
 mount -o sync -t ubifs /dev/ubi0_0 /mnt/
@@ -43,7 +43,7 @@ dd if=/dev/mtd0 of=image.bin # 导出镜像
 
 modprobe -r ubifs && modprobe -r ubi
 nandwrite /dev/mtd0 image.bin # 把 image.bin 写入 /dev/mtd0
-modprobe ubi mtd="0,2048"
+modprobe ubi mtd="0,4096"
 mount -t ubifs /dev/ubi0_0 /mnt/
 ```
 
