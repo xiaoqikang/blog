@@ -61,6 +61,12 @@ https://syzkaller.appspot.com/bug?id=80913ff3e4962a46fcce7ffd4125fdd1b8e11171
 [   49.803376] ==================================================================
 ```
 
+```shell
+apt install ntfs-3g -y # mkfs.ntfs
+fdisk /dev/sda # 新建分区 /dev/sda1
+apt remove ntfs-3g -y # 必须要卸载　ntfs-3g，否则会使用 fuse 挂载
+```
+
 ```c
 mount
   path_mount
