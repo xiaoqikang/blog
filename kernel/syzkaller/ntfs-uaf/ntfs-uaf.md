@@ -80,9 +80,17 @@ mount
                   ntfs_read_locked_inode
                     ntfs_attr_iget
                       ntfs_read_locked_attr_inode
+                        MFT_RECORD *m = map_mft_record(base_ni)
+                          map_mft_record_page
+                        ntfs_attr_get_search_ctx
+                          ntfs_attr_search_ctx *ctx = kmem_cache_alloc // ntfs_attr_search_ctx 字段 MFT_RECORD* 和 ATTR_RECORD*
+                          ntfs_attr_init_search_ctx
+                            .attr = (ATTR_RECORD*)((u8*)mrec + le16_to_cpu(mrec->attrs_offset))
                         ntfs_attr_lookup
                           ntfs_attr_find
                             ntfs_are_names_equal
                               ntfs_ucsncmp
                                 c2 = le16_to_cpu(s2[i]);
+
+ntfs_attr_size_bounds_check
 ```
