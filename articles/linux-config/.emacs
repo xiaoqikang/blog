@@ -11,6 +11,7 @@
 
 (global-linum-mode) ;; 显示行号
 (setq linum-format "%d ") ;; 行号后加个空格
+(setq column-number-mode t) ;; 显示列号
 (setq make-backup-files nil) ;; 保存时不创建备份文件
 (electric-indent-mode nil) ;; 换行不自动缩进
 (setq c-syntactic-indentation nil) ;; c语言粘贴不自动缩进
