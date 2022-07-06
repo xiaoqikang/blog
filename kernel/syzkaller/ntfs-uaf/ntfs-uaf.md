@@ -85,7 +85,7 @@ mount
                       ntfs_read_locked_attr_inode
                         MFT_RECORD *m = map_mft_record(base_ni)
                           map_mft_record_page
-                            page = ntfs_map_page // 分配内存， TODO: 详细分析
+                            page = ntfs_map_page // 分配1个page
                             return page_address(page) + ofs
                         ntfs_attr_get_search_ctx
                           ntfs_attr_search_ctx *ctx = kmem_cache_alloc // ntfs_attr_search_ctx 字段 MFT_RECORD* 和 ATTR_RECORD*
@@ -99,4 +99,13 @@ mount
 
 ntfs_attr_size_bounds_check // 挂载时没执行到
 ntfs_cluster_alloc // 挂载时没执行到
+
+#define PAGE_SHIFT              12
+#define PAGE_SIZE               (_AC(1,UL) << PAGE_SHIFT) // 4096
+#define PAGE_MASK               (~(PAGE_SIZE-1)) // 0xffffff000
+
+#define PAGE_ALIGN(addr) ALIGN(addr, PAGE_SIZE) // ALIGN(addr, 4096)
+#define ALIGN(x, a)             __ALIGN_KERNEL((x), (a)) // __ALIGN_KERNEL((addr), (4096))
+#define __ALIGN_KERNEL(x, a)            __ALIGN_KERNEL_MASK(x, (typeof(x))(a) - 1) // __ALIGN_KERNEL_MASK(addr, (4096) - 1) = __ALIGN_KERNEL_MASK(addr, 4095)
+#define __ALIGN_KERNEL_MASK(x, mask)    (((x) + (mask)) & ~(mask)) // (((addr) + (4095)) & ~(4095)) = (((addr) + (0xfff)) & 0xffffff000)
 ```
