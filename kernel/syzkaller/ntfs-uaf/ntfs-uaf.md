@@ -75,13 +75,18 @@ mount
         legacy_get_tree
           mount_bdev
             ntfs_fill_super
+              ntfs_setup_allocators
               load_system_files
+                load_and_init_attrdef
+                  ntfs_malloc_nofs
                 ntfs_iget
                   ntfs_read_locked_inode
                     ntfs_attr_iget
                       ntfs_read_locked_attr_inode
                         MFT_RECORD *m = map_mft_record(base_ni)
                           map_mft_record_page
+                            page = ntfs_map_page // 分配内存， TODO: 详细分析
+                            return page_address(page) + ofs
                         ntfs_attr_get_search_ctx
                           ntfs_attr_search_ctx *ctx = kmem_cache_alloc // ntfs_attr_search_ctx 字段 MFT_RECORD* 和 ATTR_RECORD*
                           ntfs_attr_init_search_ctx
@@ -92,5 +97,6 @@ mount
                               ntfs_ucsncmp
                                 c2 = le16_to_cpu(s2[i]);
 
-ntfs_attr_size_bounds_check
+ntfs_attr_size_bounds_check // 挂载时没执行到
+ntfs_cluster_alloc // 挂载时没执行到
 ```
