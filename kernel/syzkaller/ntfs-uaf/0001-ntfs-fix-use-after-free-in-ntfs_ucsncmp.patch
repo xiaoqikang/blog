@@ -1,7 +1,7 @@
-From eafe94c1dcef521439e4fdf4774f7ab2addf52be Mon Sep 17 00:00:00 2001
+From fdbda4e4088b1adb0b0882ea745df456240fcf62 Mon Sep 17 00:00:00 2001
 From: ChenXiaoSong <chenxiaosongemail@foxmail.com>
 Date: Wed, 6 Jul 2022 17:13:38 +0800
-Subject: [PATCH -next] ntfs: fix use-after-free in ntfs_ucsncmp()
+Subject: [PATCH] ntfs: fix use-after-free in ntfs_ucsncmp()
 
 We got issue as follows:
 
@@ -69,18 +69,20 @@ Fix this by adding sanity check on end address of attibute name string.
 
 Signed-off-by: ChenXiaoSong <chenxiaosongemail@foxmail.com>
 ---
- fs/ntfs/attrib.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/ntfs/attrib.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
 diff --git a/fs/ntfs/attrib.c b/fs/ntfs/attrib.c
-index 4de597a83b88..afe8e2d9a372 100644
+index 4de597a83b88..16c4714deb89 100644
 --- a/fs/ntfs/attrib.c
 +++ b/fs/ntfs/attrib.c
-@@ -592,6 +592,13 @@ static int ntfs_attr_find(const ATTR_TYPE type, const ntfschar *name,
+@@ -592,6 +592,15 @@ static int ntfs_attr_find(const ATTR_TYPE type, const ntfschar *name,
  		a = (ATTR_RECORD*)((u8*)ctx->attr +
  				le32_to_cpu(ctx->attr->length));
  	for (;;	a = (ATTR_RECORD*)((u8*)a + le32_to_cpu(a->length))) {
-+		unsigned long next_page = PAGE_ALIGN((unsigned long)ctx->mrec);
++		unsigned long next_page = ((unsigned long)ctx->mrec &
++		                          PAGE_MASK) +
++		                          PAGE_SIZE;
 +		unsigned long end_addr = (unsigned long)((u8*)a +
 +		                         le16_to_cpu(a->name_offset) +
 +		                         a->name_length);
