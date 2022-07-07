@@ -1,4 +1,4 @@
-From fdbda4e4088b1adb0b0882ea745df456240fcf62 Mon Sep 17 00:00:00 2001
+From 3d09f8d463d5c89cb313a4ee68be9903e32bc2b5 Mon Sep 17 00:00:00 2001
 From: ChenXiaoSong <chenxiaosongemail@foxmail.com>
 Date: Wed, 6 Jul 2022 17:13:38 +0800
 Subject: [PATCH] ntfs: fix use-after-free in ntfs_ucsncmp()
@@ -62,36 +62,35 @@ Memory state around the buggy address:
  ffff8880751acf80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 ==================================================================
 
-The reason is that ATTR_RECORD->name_offset is 6485, end address of name
-string is in the next page.
+The reason is that struct ATTR_RECORD->name_offset is 6485, end address of
+name string is out of bounds.
 
 Fix this by adding sanity check on end address of attibute name string.
 
 Signed-off-by: ChenXiaoSong <chenxiaosongemail@foxmail.com>
 ---
- fs/ntfs/attrib.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ fs/ntfs/attrib.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/fs/ntfs/attrib.c b/fs/ntfs/attrib.c
-index 4de597a83b88..16c4714deb89 100644
+index 4de597a83b88..4d1c3ca0c698 100644
 --- a/fs/ntfs/attrib.c
 +++ b/fs/ntfs/attrib.c
-@@ -592,6 +592,15 @@ static int ntfs_attr_find(const ATTR_TYPE type, const ntfschar *name,
+@@ -592,8 +592,12 @@ static int ntfs_attr_find(const ATTR_TYPE type, const ntfschar *name,
  		a = (ATTR_RECORD*)((u8*)ctx->attr +
  				le32_to_cpu(ctx->attr->length));
  	for (;;	a = (ATTR_RECORD*)((u8*)a + le32_to_cpu(a->length))) {
-+		unsigned long next_page = ((unsigned long)ctx->mrec &
-+		                          PAGE_MASK) +
-+		                          PAGE_SIZE;
-+		unsigned long end_addr = (unsigned long)((u8*)a +
-+		                         le16_to_cpu(a->name_offset) +
-+		                         a->name_length);
-+		if (end_addr > next_page)
-+			break;
-+
- 		if ((u8*)a < (u8*)ctx->mrec || (u8*)a > (u8*)ctx->mrec +
- 				le32_to_cpu(ctx->mrec->bytes_allocated))
+-		if ((u8*)a < (u8*)ctx->mrec || (u8*)a > (u8*)ctx->mrec +
+-				le32_to_cpu(ctx->mrec->bytes_allocated))
++		u8 *mrec_end = (u8 *)(u8*)ctx->mrec +
++		               le32_to_cpu(ctx->mrec->bytes_allocated);
++		u8 *name_end = (u8 *)a + le16_to_cpu(a->name_offset) +
++		               a->name_length;
++		if ((u8*)a < (u8*)ctx->mrec || (u8*)a > mrec_end ||
++		    name_end > mrec_end)
  			break;
+ 		ctx->attr = a;
+ 		if (unlikely(le32_to_cpu(a->type) > le32_to_cpu(type) ||
 -- 
 2.34.1
 
