@@ -165,3 +165,9 @@ Edit -> Preferences -> Enable XML editing 开启 xml 编辑
 ```xml
 <cpu mode="host-passthrough" check="partial"/>
 ```
+
+# tmpfs
+
+```shell
+sudo mount -t tmpfs -o size=64G syzkaller tmpfs/
+```
