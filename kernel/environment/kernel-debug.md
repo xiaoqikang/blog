@@ -3,6 +3,9 @@
 # tracepoint & kprobe
 
 ```shell
+# 可以用 kprobe 跟踪的函数
+cat /sys/kernel/debug/tracing/available_filter_functions
+
 echo 1 > /sys/kernel/debug/tracing/events/nfs/nfs_getattr_enter/enable
 
 # wb_bytes 在 nfs_page 结构体中的偏移为 56， x32代表32位（4字节）
