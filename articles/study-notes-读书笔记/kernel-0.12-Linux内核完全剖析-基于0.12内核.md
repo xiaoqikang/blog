@@ -1,0 +1,1 @@
+<img src="https://gitee.com/chenxiaosonggitee/blog/raw/master/study-notes-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/pictures/0.12%E5%86%85%E6%A0%B8-%E9%9C%80%E5%85%B7%E5%A4%87%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86.PNG" alt="需具备的基础知识" width="80%;" />
